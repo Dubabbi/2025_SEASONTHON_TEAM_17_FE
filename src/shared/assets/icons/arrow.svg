@@ -4,7 +4,7 @@
 <rect width="28" height="28" transform="matrix(-1 0 0 1 28 0)" fill="#D9D9D9"/>
 </mask>
 <g mask="url(#mask0_65_673)">
-<path d="M10.2401 22.5198L19 13.7599L10.2401 5L8.95228 6.28784L16.4246 13.7599L8.95228 21.2319L10.2401 22.5198Z" fill="#currentColor"/>
+<path d="M10.2401 22.5198L19 13.7599L10.2401 5L8.95228 6.28784L16.4246 13.7599L8.95228 21.2319L10.2401 22.5198Z" fill="currentColor"/>
 </g>
 </g>
 <defs>
