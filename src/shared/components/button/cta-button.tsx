@@ -35,7 +35,7 @@ export function PrimaryStrongCTA({ className, labelClassName, children, ...props
 export function GrayCTA({ className, labelClassName, children, ...props }: ButtonProps) {
   return (
     <Button
-      className={cn(baseBtn, 'bg-gray-100 text-gray-600', className)}
+      className={cn(baseBtn, 'cursor-not-allowed bg-gray-100 text-gray-600', className)}
       labelClassName={cn('heading2-600', labelClassName)}
       {...props}
     >

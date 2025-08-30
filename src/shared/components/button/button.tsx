@@ -16,7 +16,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         type={type}
-        className={cn('flex items-center justify-center', 'focus-visible:outline-none', className)}
+        className={cn(
+          'flex cursor-pointer items-center justify-center',
+          'focus-visible:outline-none',
+          className,
+        )}
         {...props}
       >
         {leftIcon != null && <span className={cn('shrink-0', leftIconClassName)}>{leftIcon}</span>}
