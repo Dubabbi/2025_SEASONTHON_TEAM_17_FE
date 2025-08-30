@@ -1,36 +1,48 @@
 @theme {
-  /* ===== Base ===== */
-  --color-white: #ffffff;
-  --color-black: #1a1a1b;
-  --color-red: #ff4141;
-  --color-blue: #3d69ff;
+  /* Primary Color */
+  --color-primary-100: #ffb7d4;
+  --color-primary-200: #ff9ac3;
+  --color-primary-300: #ff7eb2;
+  --color-primary-400: #ff63a2;
+  --color-primary-500: #ff4a93;
+  --color-primary-600: #ff3f8c;
+  --color-primary-700: #ff237b;
+  --color-primary-800: #ff0d6e;
 
-  /* Orange */
-  --color-primary: #ff5735;
-  --color-secondary: #ffebe3;
+  /* Grayscale */
+  --color-gray-50: #fefefe;
+  --color-gray-100: #f6f6fc;
+  --color-gray-200: #e0e0e0;
+  --color-gray-300: #b7b7b7;
+  --color-gray-400: #9f9f9f;
+  --color-gray-500: #888888;
+  --color-gray-600: #6b6b6b;
+  --color-gray-700: #565656;
+  --color-gray-800: #414141;
+  --color-gray-900: #222222;
 
-  /* ===== Gray ===== */
-  --color-gray-50: #f8f9fa;
-  --color-gray-100: #f0f1f4;
-  --color-gray-200: #e2e6ea;
-  --color-gray-300: #b0b4b8;
-  --color-gray-400: #979b9f;
-  --color-gray-500: #7e8286;
-  --color-gray-600: #65696d;
-  --color-gray-700: #4c5054;
-  --color-gray-800: #33373b;
-  --color-gray-900: #1a1e22;
+  /* Static Color */
+  --color-error-default: #ff1a66;
+  --color-error-bgd: #ffe5ee;
+  --color-success-default: #1a40ff;
+  --color-success-bgd: #e5eaff;
 
-  /* ===== Overlay ===== */
+  /* Gradient Color */
+  --color-gradient-bgd1: linear-gradient(180deg, #fff3ef 0%, #fff2f7 100%);
+  --color-gradient-bgd2: linear-gradient(180deg, #ffe7df 0%, #ffedf4 100%);
+  --color-gradient-bgd3: linear-gradient(180deg, #ffdfd4 0%, #ffe0ec 100%);
+
+  /* Brand Color */
+  --color-kakao-bgd: #fee500;
+  --color-kakao-text: #391b1b;
+
   --color-overlay: rgba(0, 0, 0, 0.4);
 
   /* Z-Index */
-  --z-tooltip: 4;
   --z-header: 5;
   --z-overlay: 6;
   --z-bottom-nav: 7;
-  --z-floating: 7.5;
-  --z-bottom-modal: 8;
+  --z-modal: 8;
 
   /* Radius / Shadow */
   --radius-md: 12px;
@@ -52,98 +64,120 @@
    Typography — Font Guide (Pretendard)
    ========================================= */
 
-  /* ===== Headings ===== */
+  .title {
+    font-family: var(--font-pretendard);
+    font-weight: 700; /* Pretendard/Bold */
+    font-size: 1.2rem; /* 26pt */
+    line-height: 1.2; /* 120% */
+    letter-spacing: -0.04em; /* -4% */
+  }
+
+  /* Heading */
   .heading1 {
-    /* 22px, Semibold */
-    font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: 2.2rem;
-    line-height: var(--lh);
-    letter-spacing: var(--ls);
+    font-family: var(--font-pretendard);
+    font-weight: 700;
+    font-size: 3.2rem;
+    line-height: 1.2;
+    letter-spacing: -0.04em;
   }
+  .heading1-600 {
+    font-weight: 600;
+  }
+
   .heading2 {
-    /* 20px, Semibold */
-    font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: 2rem;
-    line-height: var(--lh);
-    letter-spacing: var(--ls);
+    font-family: var(--font-pretendard);
+    font-weight: 700;
+    font-size: 2.9333rem;
+    line-height: 1.2;
+    letter-spacing: -0.04em;
   }
+  .heading2-600 {
+    font-weight: 600;
+  }
+
   .heading3 {
-    /* 18px, Semibold */
-    font-family: var(--font-sans);
+    font-family: var(--font-pretendard);
+    font-weight: 700;
+    font-size: 2.4rem;
+    line-height: 1.2;
+    letter-spacing: -0.04em;
+  }
+  .heading3-600 {
     font-weight: 600;
-    font-size: 1.8rem;
-    line-height: var(--lh);
-    letter-spacing: var(--ls);
+  }
+  .heading3-500 {
+    font-weight: 500;
   }
 
-  /* ===== Body ===== */
+  /* Body */
   .body1 {
-    /* 16px, Semibold */
-    font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: 1.6rem;
-    line-height: var(--lh);
-    letter-spacing: var(--ls);
-  }
-  .body2 {
-    /* 16px, Medium */
-    font-family: var(--font-sans);
+    font-family: var(--font-pretendard);
     font-weight: 500;
-    font-size: 1.6rem;
-    line-height: var(--lh);
-    letter-spacing: var(--ls);
+    font-size: 2.1333rem;
+    line-height: 1.5;
+    letter-spacing: -0.04em;
   }
-  .body3 {
-    /* 14px, Semibold */
-    font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: 1.4rem;
-    line-height: var(--lh);
-    letter-spacing: var(--ls);
-  }
-  .body4 {
-    /* 14px, Medium */
-    font-family: var(--font-sans);
-    font-weight: 500;
-    font-size: 1.4rem;
-    line-height: var(--lh);
-    letter-spacing: var(--ls);
+  .body1-400 {
+    font-weight: 400;
   }
 
-  /* ===== Captions ===== */
-  .caption1 {
-    /* 12px, Semibold */
-    font-family: var(--font-sans);
+  .body2 {
+    font-family: var(--font-pretendard);
     font-weight: 600;
-    font-size: 1.2rem;
-    line-height: var(--lh);
-    letter-spacing: var(--ls);
+    font-size: 1.8667rem;
+    line-height: 1.6;
+    letter-spacing: -0.04em;
   }
-  .caption2 {
-    /* 12px, Medium */
-    font-family: var(--font-sans);
+  .body2-500 {
     font-weight: 500;
-    font-size: 1.2rem;
-    line-height: var(--lh);
-    letter-spacing: var(--ls);
   }
-  .caption3 {
-    /* 10px, Semibold */
-    font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: 1rem;
-    line-height: var(--lh);
-    letter-spacing: var(--ls);
+  .body2-400 {
+    font-weight: 400;
   }
-  .caption4 {
-    /* 10px, Medium */
-    font-family: var(--font-sans);
+
+  /* Detail (= 12pt) */
+  .detail {
+    font-family: var(--font-pretendard);
     font-weight: 500;
-    font-size: 1rem;
-    line-height: var(--lh);
-    letter-spacing: var(--ls);
+    font-size: 1.6rem;
+    line-height: 1.5;
+    letter-spacing: -0.04em;
+  }
+  .detail-400 {
+    font-weight: 400;
+  }
+
+  /* --- SUITE 전용 Sub 타입 --- */
+  .sub-title {
+    font-family: var(--font-sweet);
+    font-weight: 800; /* SUITE/ExtraBold */
+    font-size: 3.4667rem;
+    line-height: 1.5;
+    letter-spacing: -0.04em;
+  }
+
+  .sub-heading1 {
+    font-family: var(--font-sweet);
+    font-weight: 800;
+    font-size: 3.2rem;
+    line-height: 1.5;
+    letter-spacing: -0.04em;
+  }
+
+  .sub-heading2 {
+    font-family: var(--font-sweet);
+    font-weight: 800;
+    font-size: 2.9333rem;
+    line-height: 1.5;
+    letter-spacing: -0.04em;
+  }
+
+  .sub-body {
+    font-family: var(--font-pretendard);
+    font-weight: 400;
+    font-size: 1.8667rem;
+    line-height: 1.5;
+    letter-spacing: -0.04em;
   }
 
   /* Scrollbar helper */
