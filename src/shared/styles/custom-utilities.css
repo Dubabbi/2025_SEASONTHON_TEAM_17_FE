@@ -1,4 +1,10 @@
 @layer utilities {
+  .font-pretendard {
+    font-family: var(--font-pretendard) !important;
+  }
+  .font-sweet {
+    font-family: var(--font-sweet) !important;
+  }
   /* flex row */
   .flex-row {
     @apply flex flex-row;
