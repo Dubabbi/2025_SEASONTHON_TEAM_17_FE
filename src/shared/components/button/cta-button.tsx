@@ -1,3 +1,5 @@
+import HeartIcon from '@assets/icons/heart.svg?react';
+import KakaoIcon from '@assets/icons/kakao.svg?react';
 import Button, { type ButtonProps } from '@components/button/button';
 import { cn } from '@libs/cn';
 
@@ -47,6 +49,48 @@ export function ErrorCTA({ className, labelClassName, children, ...props }: Butt
     <Button
       className={cn(baseBtn, 'bg-error-default text-gray-50', className)}
       labelClassName={cn('heading2-600', labelClassName)}
+      {...props}
+    >
+      {children}
+    </Button>
+  );
+}
+
+export function KakaoStartCTA({
+  className,
+  labelClassName,
+  leftIcon,
+  leftIconClassName,
+  children = '카카오로 시작하기',
+  ...props
+}: ButtonProps) {
+  return (
+    <Button
+      className={cn(baseBtn, 'gap-[2rem] bg-kakao-bgd text-kakao-text', className)}
+      labelClassName={cn('heading3-700', labelClassName)}
+      leftIcon={leftIcon ?? <KakaoIcon className="h-[2.4rem] w-[2.4rem]" />}
+      leftIconClassName={cn(leftIconClassName)}
+      {...props}
+    >
+      {children}
+    </Button>
+  );
+}
+
+export function MaeumStartCTA({
+  className,
+  labelClassName,
+  leftIcon,
+  leftIconClassName,
+  children = '마음:ON 시작하기',
+  ...props
+}: ButtonProps) {
+  return (
+    <Button
+      className={cn(baseBtn, 'gap-[0.8rem] bg-gray-900 text-gray-50', className)}
+      labelClassName={cn('heading2-700 font-bold', labelClassName)}
+      leftIcon={leftIcon ?? <HeartIcon className="h-[2.0rem] w-[2.0rem]" />}
+      leftIconClassName={cn('text-primary-600', leftIconClassName)}
       {...props}
     >
       {children}

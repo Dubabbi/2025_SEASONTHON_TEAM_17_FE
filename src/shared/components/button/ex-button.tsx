@@ -1,7 +1,16 @@
-import { ErrorCTA, GrayCTA, PrimaryCTA, PrimaryStrongCTA } from '@components/button/cta-button';
+import {
+  ErrorCTA,
+  GrayCTA,
+  KakaoStartCTA,
+  MaeumStartCTA,
+  PrimaryCTA,
+  PrimaryStrongCTA,
+} from '@components/button/cta-button';
 export function ButtonExample() {
   return (
     <div className="flex-col-center gap-[2rem] px-[2rem]">
+      <KakaoStartCTA />
+      <MaeumStartCTA />
       <PrimaryCTA>감정 일기 작성하기</PrimaryCTA>
 
       <GrayCTA>작성 완료</GrayCTA>
