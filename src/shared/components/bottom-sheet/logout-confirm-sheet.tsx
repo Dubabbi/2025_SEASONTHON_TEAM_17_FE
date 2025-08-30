@@ -19,16 +19,14 @@ export default function LogoutConfirmSheet({
     <BottomSheet
       isOpen={isOpen}
       onClose={onClose}
-      className={cn('px-[2rem] pb-[2.4rem]', className)}
+      className={cn('px-[2.4rem] pb-[2.4rem]', className)}
     >
-      <div className="flex-col-center gap-[1.2rem] pt-[1.6rem]">
-        <h2 className="heading2-700 text-gray-900">정말 로그아웃할까요?</h2>
-        <p className="text-center text-[1.6rem] text-gray-600 leading-[2.4rem]">
-          다음 로그인을 할 때 카카오 로그인해 주세요
-        </p>
+      <div className="flex-col gap-[1.6rem] pb-[4rem]">
+        <h2 className="heading2-600 text-gray-900">정말 로그아웃할까요?</h2>
+        <p className="heading3-500 text-gray-600">다음 로그인을 할 때 카카오 로그인해 주세요</p>
       </div>
 
-      <div className="grid w-full flex-row-around grid-cols-2 gap-[2.5rem]">
+      <div className="grid w-full flex-row-center grid-cols-2 gap-[2.5rem]">
         <ErrorCTA
           onClick={onClose}
           className="heading2-600 bg-gray-50 text-error-default outline outline-error-default"
