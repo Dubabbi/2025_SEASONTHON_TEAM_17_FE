@@ -206,6 +206,14 @@
     letter-spacing: -0.04em;
   }
 
+  .sub-body-700 {
+    font-family: var(--font-pretendard);
+    font-weight: 700;
+    font-size: 1.4rem;
+    line-height: 150%;
+    letter-spacing: -0.04em;
+  }
+
   /* Scrollbar helper */
   .u-scrollbar-hide {
     &::-webkit-scrollbar {
