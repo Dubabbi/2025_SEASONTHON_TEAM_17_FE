@@ -139,9 +139,17 @@
     letter-spacing: -0.04em;
   }
 
-  .body2 {
+  .body2-500 {
     font-family: var(--font-pretendard);
     font-weight: 500;
+    font-size: 1.4rem;
+    line-height: 150%;
+    letter-spacing: -0.04em;
+  }
+
+  .body2-600 {
+    font-family: var(--font-pretendard);
+    font-weight: 600;
     font-size: 1.4rem;
     line-height: 150%;
     letter-spacing: -0.04em;

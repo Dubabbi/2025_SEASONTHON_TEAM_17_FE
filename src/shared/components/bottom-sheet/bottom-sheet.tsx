@@ -45,7 +45,7 @@ const BottomSheet = ({
           <motion.div
             ref={sheetRef}
             className={cn(
-              'relative flex w-full max-w-[43rem] flex-col rounded-tl-[12px] rounded-tr-[12px] bg-gray-white',
+              'relative flex w-full max-w-[43rem] flex-col rounded-tl-[40px] rounded-tr-[40px] bg-gray-50',
               gap,
               className,
             )}
