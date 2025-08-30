@@ -131,6 +131,14 @@
     letter-spacing: -0.04em;
   }
 
+  .body1-500 {
+    font-family: var(--font-pretendard);
+    font-weight: 400;
+    font-size: 1.6rem;
+    line-height: 150%;
+    letter-spacing: -0.04em;
+  }
+
   .body1-400 {
     font-family: var(--font-pretendard);
     font-weight: 400;
@@ -139,9 +147,17 @@
     letter-spacing: -0.04em;
   }
 
-  .body2 {
+  .body2-500 {
     font-family: var(--font-pretendard);
     font-weight: 500;
+    font-size: 1.4rem;
+    line-height: 150%;
+    letter-spacing: -0.04em;
+  }
+
+  .body2-600 {
+    font-family: var(--font-pretendard);
+    font-weight: 600;
     font-size: 1.4rem;
     line-height: 150%;
     letter-spacing: -0.04em;
@@ -151,7 +167,7 @@
   .detail {
     font-family: var(--font-pretendard);
     font-weight: 400;
-    font-size: 1.6rem;
+    font-size: 1.2rem;
     line-height: 150%;
     letter-spacing: -0.04em;
   }
