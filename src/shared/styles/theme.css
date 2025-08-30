@@ -90,9 +90,17 @@
     letter-spacing: -0.04em;
   }
 
-  .heading2 {
+  .heading2-600 {
     font-family: var(--font-pretendard);
     font-weight: 600;
+    font-size: 2.2rem;
+    line-height: 120%;
+    letter-spacing: -0.04em;
+  }
+
+  .heading2-700 {
+    font-family: var(--font-pretendard);
+    font-weight: 700;
     font-size: 2.2rem;
     line-height: 120%;
     letter-spacing: -0.04em;

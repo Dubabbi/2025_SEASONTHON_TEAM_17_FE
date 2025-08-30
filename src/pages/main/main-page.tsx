@@ -7,6 +7,7 @@ import ChatIcon from '@assets/icons/chat.svg?react';
 import HeartIcon from '@assets/icons/heart.svg?react';
 import HomeIcon from '@assets/icons/home.svg?react';
 import ProfileIcon from '@assets/icons/profile.svg?react';
+import { ButtonExample } from '@components/button/ex-button';
 
 export default function MainPage() {
   return (
@@ -34,6 +35,7 @@ export default function MainPage() {
         <ProfileIcon className="h-[2.8rem] w-[2.8rem] text-gray-800" />
         <AddImageIcon className="h-[2.8rem] w-[2.8rem] text-gray-800" />
       </div>
+      <ButtonExample />
     </div>
   );
 }
