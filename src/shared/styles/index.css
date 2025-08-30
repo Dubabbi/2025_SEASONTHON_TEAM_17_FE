@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './fonts.css';
 @import './theme.css';
 @import './reset.css';
 @import './custom-utilities.css';
@@ -9,9 +10,14 @@
     --max-width: 430px;
     --lh: 1.5;
     --ls: -0.025em;
-    --font-sans:
+    --font-pretendard:
       'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
       'Helvetica Neue', Arial, sans-serif;
+    --font-sweet:
+      'Sweet', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+      Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+    --font-sans: var(--font-pretendard);
   }
 
   #root {
@@ -28,15 +34,7 @@
   html,
   body {
     font-size: 62.5%;
-    font-family:
-      'Pretendard',
-      -apple-system,
-      BlinkMacSystemFont,
-      'Segoe UI',
-      Roboto,
-      'Helvetica Neue',
-      Arial,
-      sans-serif;
+    font-family: var(--font-sans);
     min-width: var(--min-width);
     max-width: var(--max-width);
     margin-left: auto;
@@ -51,7 +49,7 @@
   }
 
   body {
-    background-color: var(--color-primary-100);
+    background-color: var(--color-gray-50);
   }
 
   body::-webkit-scrollbar {
