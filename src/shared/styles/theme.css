@@ -64,119 +64,112 @@
    Typography — Font Guide (Pretendard)
    ========================================= */
 
+  /* Title */
   .title {
     font-family: var(--font-pretendard);
-    font-weight: 700; /* Pretendard/Bold */
-    font-size: 1.2rem; /* 26pt */
-    line-height: 1.2; /* 120% */
-    letter-spacing: -0.04em; /* -4% */
+    font-weight: 700;
+    font-size: 2.8rem;
+    line-height: 120%;
+    letter-spacing: -0.04em;
   }
 
   /* Heading */
-  .heading1 {
+  .heading1-600 {
     font-family: var(--font-pretendard);
-    font-weight: 700;
-    font-size: 3.2rem;
-    line-height: 1.2;
+    font-weight: 600;
+    font-size: 2.4rem;
+    line-height: 120%;
     letter-spacing: -0.04em;
   }
-  .heading1-600 {
-    font-weight: 600;
+
+  .heading1-700 {
+    font-family: var(--font-pretendard);
+    font-weight: 700;
+    font-size: 2.4rem;
+    line-height: 120%;
+    letter-spacing: -0.04em;
   }
 
   .heading2 {
     font-family: var(--font-pretendard);
-    font-weight: 700;
-    font-size: 2.9333rem;
-    line-height: 1.2;
-    letter-spacing: -0.04em;
-  }
-  .heading2-600 {
     font-weight: 600;
+    font-size: 2.2rem;
+    line-height: 120%;
+    letter-spacing: -0.04em;
   }
 
   .heading3 {
     font-family: var(--font-pretendard);
-    font-weight: 700;
-    font-size: 2.4rem;
-    line-height: 1.2;
-    letter-spacing: -0.04em;
-  }
-  .heading3-600 {
-    font-weight: 600;
-  }
-  .heading3-500 {
     font-weight: 500;
+    font-size: 1.8rem;
+    line-height: 120%;
+    letter-spacing: -0.04em;
   }
 
   /* Body */
-  .body1 {
+  .body1-600 {
     font-family: var(--font-pretendard);
-    font-weight: 500;
-    font-size: 2.1333rem;
-    line-height: 1.5;
+    font-weight: 600;
+    font-size: 1.6rem;
+    line-height: 150%;
     letter-spacing: -0.04em;
   }
+
   .body1-400 {
+    font-family: var(--font-pretendard);
     font-weight: 400;
+    font-size: 1.6rem;
+    line-height: 150%;
+    letter-spacing: -0.04em;
   }
 
   .body2 {
     font-family: var(--font-pretendard);
-    font-weight: 600;
-    font-size: 1.8667rem;
-    line-height: 1.6;
-    letter-spacing: -0.04em;
-  }
-  .body2-500 {
     font-weight: 500;
-  }
-  .body2-400 {
-    font-weight: 400;
+    font-size: 1.4rem;
+    line-height: 150%;
+    letter-spacing: -0.04em;
   }
 
-  /* Detail (= 12pt) */
+  /* Detail */
   .detail {
     font-family: var(--font-pretendard);
-    font-weight: 500;
-    font-size: 1.6rem;
-    line-height: 1.5;
-    letter-spacing: -0.04em;
-  }
-  .detail-400 {
     font-weight: 400;
+    font-size: 1.6rem;
+    line-height: 150%;
+    letter-spacing: -0.04em;
   }
 
   /* --- SUITE 전용 Sub 타입 --- */
   .sub-title {
     font-family: var(--font-sweet);
-    font-weight: 800; /* SUITE/ExtraBold */
-    font-size: 3.4667rem;
-    line-height: 1.5;
+    font-weight: 800;
+    font-size: 2.8rem;
+    line-height: 150%;
     letter-spacing: -0.04em;
   }
 
   .sub-heading1 {
     font-family: var(--font-sweet);
     font-weight: 800;
-    font-size: 3.2rem;
-    line-height: 1.5;
+    font-size: 2.4rem;
+    line-height: 150%;
     letter-spacing: -0.04em;
   }
 
   .sub-heading2 {
     font-family: var(--font-sweet);
     font-weight: 800;
-    font-size: 2.9333rem;
-    line-height: 1.5;
+    font-size: 2.2rem;
+    line-height: 150%;
     letter-spacing: -0.04em;
   }
 
   .sub-body {
     font-family: var(--font-pretendard);
     font-weight: 400;
-    font-size: 1.8667rem;
-    line-height: 1.5;
+    font-size: 1.4rem;
+    line-height: 150%;
     letter-spacing: -0.04em;
   }
 
