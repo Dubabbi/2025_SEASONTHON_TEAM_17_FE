@@ -1,0 +1,13 @@
+. "$(dirname -- "$0")/_/husky.sh"
+
+STAGED_FILES="$(git diff --staged --name-only --diff-filter=ACMR | grep -E '\.(ts|tsx|json)$' || true)"
+
+[ -z "$STAGED_FILES" ] && exit 0
+
+echo "🔧 Biome: auto-fix"
+pnpm biome check --write $STAGED_FILES || true
+
+git add $STAGED_FILES
+
+echo "🔍 Biome: verify"
+pnpm biome check $STAGED_FILES
