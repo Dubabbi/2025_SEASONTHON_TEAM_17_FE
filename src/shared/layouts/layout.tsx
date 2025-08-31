@@ -1,12 +1,56 @@
-import { Outlet, ScrollRestoration } from 'react-router-dom';
+import Header, { type HeaderProps } from '@layouts/header-bar';
+import NavigationBar from '@layouts/nav-bar';
+import { Outlet, ScrollRestoration, useLocation, useMatches, useNavigate } from 'react-router-dom';
+
+const EXCEPTION_HEADERS: Array<{
+  test: (p: string) => boolean;
+  props: HeaderProps;
+}> = [
+  {
+    test: (p) => p.startsWith('/diary/create'),
+    props: { variant: 'title', title: '감정 일기 작성하기' },
+  },
+  {
+    test: (p) => p.startsWith('/diary/record'),
+    props: { variant: 'title', title: '나의 감정 일기 기록' },
+  },
+  {
+    test: (p) => p.startsWith('/mypage/terms-service'),
+    props: { variant: 'title', title: '서비스 이용약관' },
+  },
+  {
+    test: (p) => p.startsWith('/notifications'),
+    props: { variant: 'title', title: '알림' },
+  },
+];
+const DEFAULT_HEADER: HeaderProps = { variant: 'home', showDivider: true };
+
+function pickHeader(pathname: string): HeaderProps {
+  return EXCEPTION_HEADERS.find((r) => r.test(pathname))?.props ?? DEFAULT_HEADER;
+}
 
 export default function Layout() {
+  const { pathname } = useLocation();
+  const headerProps = pickHeader(pathname);
+  const navigate = useNavigate();
+
+  const matches = useMatches();
+
+  type HandleShape = { hideChrome?: boolean };
+  const last = matches[matches.length - 1] as { handle?: HandleShape } | undefined;
+
+  const hideChrome = !!last?.handle?.hideChrome;
+
   return (
     <div className="flex max-h-dvh flex-col overflow-hidden">
+      {!hideChrome && <Header onBellClick={() => navigate('/notifications')} {...headerProps} />}
+
       <main className="scrollbar-hide mx-auto min-h-dvh w-full flex-1 overflow-y-auto">
         <ScrollRestoration />
         <Outlet />
       </main>
+
+      {!hideChrome && <NavigationBar />}
     </div>
   );
 }
