@@ -1,4 +1,3 @@
-import DiaryCompleteSheet from '@components/bottom-sheet/diary-complete-sheet';
 import LeaveConfirmSheet from '@components/bottom-sheet/leave-confirm-sheet';
 import LogoutConfirmSheet from '@components/bottom-sheet/logout-confirm-sheet';
 import NicknameChangeSheet from '@components/bottom-sheet/nickname-change-sheet';
@@ -11,12 +10,10 @@ export default function ProfilePage() {
   const photoSheet = useBottomSheet();
   const leaveSheet = useBottomSheet();
   const logoutSheet = useBottomSheet();
-  const completeSheet = useBottomSheet();
   const nicknameSheet = useBottomSheet();
 
   const [nickname, setNickname] = useState('');
   const trimmed = nickname.trim();
-  const nicknameValid = trimmed.length >= 2 && trimmed.length <= 10;
 
   const handleNicknameSubmit = () => {
     console.log('submit nickname:', trimmed);
@@ -37,10 +34,6 @@ export default function ProfilePage() {
 
       <PrimaryCTA className="bg-primary-800" onClick={logoutSheet.open}>
         로그아웃
-      </PrimaryCTA>
-
-      <PrimaryCTA className="bg-primary-800" onClick={completeSheet.open}>
-        작성 완료 보기
       </PrimaryCTA>
 
       <ProfilePhotoSheet
@@ -67,19 +60,6 @@ export default function ProfilePage() {
         onLogout={() => {
           // TODO: 로그아웃 처리
           logoutSheet.close();
-        }}
-      />
-
-      <DiaryCompleteSheet
-        isOpen={completeSheet.isOpen}
-        onClose={completeSheet.close}
-        onGoRecords={() => {
-          // TODO: 기록 페이지로 이동
-          completeSheet.close();
-        }}
-        onGoMain={() => {
-          // TODO: 메인 페이지로 이동
-          completeSheet.close();
         }}
       />
 
