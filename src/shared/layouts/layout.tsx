@@ -1,5 +1,7 @@
 import Header, { type HeaderProps } from '@layouts/header-bar';
 import NavigationBar from '@layouts/nav-bar';
+import Splash from '@layouts/splash';
+import { useEffect, useState } from 'react';
 import { Outlet, ScrollRestoration, useLocation, useMatches, useNavigate } from 'react-router-dom';
 
 const EXCEPTION_HEADERS: Array<{
@@ -35,11 +37,23 @@ export default function Layout() {
   const navigate = useNavigate();
 
   const matches = useMatches();
-
   type HandleShape = { hideChrome?: boolean };
   const last = matches[matches.length - 1] as { handle?: HandleShape } | undefined;
-
   const hideChrome = !!last?.handle?.hideChrome;
+
+  const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem('splashSeen'));
+  useEffect(() => {
+    if (!showSplash) return;
+    const t = setTimeout(() => {
+      sessionStorage.setItem('splashSeen', '1');
+      setShowSplash(false);
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [showSplash]);
+
+  if (showSplash) {
+    return <Splash />;
+  }
 
   return (
     <div className="flex max-h-dvh flex-col overflow-hidden">
