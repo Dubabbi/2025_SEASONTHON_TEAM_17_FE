@@ -1,7 +1,7 @@
 export default function NotificationsPage() {
   return (
-    <div>
+    <main className="p-4">
       <p>알림 페이지</p>
-    </div>
+    </main>
   );
 }

@@ -44,7 +44,7 @@ export const router = createBrowserRouter([
 
       { path: '/notifications', element: <NotificationsPage /> },
 
-      { path: '*', element: <NotFound /> },
+      { path: '*', element: <NotFound />, handle: { hideChrome: true } },
     ],
   },
 ]);

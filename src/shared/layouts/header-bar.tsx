@@ -43,7 +43,7 @@ export default function Header({
               type="button"
               onClick={handleBack}
               aria-label="뒤로가기"
-              className="grid h-[2.8rem] w-[2.8rem] place-items-center"
+              className="grid h-[2.8rem] w-[2.8rem] cursor-pointer place-items-center"
             >
               <ArrowIcon className="h-[2.8rem] w-[2.8rem] rotate-180 text-gray-600" />
             </button>
@@ -66,7 +66,7 @@ export default function Header({
               type="button"
               aria-label="알림"
               onClick={onBellClick}
-              className="grid place-items-center"
+              className="grid cursor-pointer place-items-center"
             >
               <BellIcon className="h-[2.8rem] w-[2.8rem] text-primary-500" />
             </button>
