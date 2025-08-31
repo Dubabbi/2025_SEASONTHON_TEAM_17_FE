@@ -1,4 +1,5 @@
-import Header, { type HeaderProps } from '@layouts/Header';
+import Header, { type HeaderProps } from '@layouts/header-bar';
+import NavigationBar from '@layouts/nav-bar';
 import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 
 const ROUTE_HEADERS: Array<{
@@ -7,11 +8,15 @@ const ROUTE_HEADERS: Array<{
 }> = [
   { test: (p) => p === '/', props: { variant: 'home', showDivider: true } },
   {
-    test: (p) => p.startsWith('/write'),
+    test: (p) => p.startsWith('/diary/create'),
     props: { variant: 'title', title: '감정 일기 작성하기' },
   },
   {
-    test: (p) => p.startsWith('/terms/service'),
+    test: (p) => p.startsWith('/diary/record'),
+    props: { variant: 'title', title: '나의 감정 일기 기록' },
+  },
+  {
+    test: (p) => p.startsWith('/mypage/terms-service'),
     props: { variant: 'title', title: '서비스 이용약관' },
   },
   {
@@ -36,6 +41,7 @@ export default function Layout() {
         <ScrollRestoration />
         <Outlet />
       </main>
+      <NavigationBar />
     </div>
   );
 }
