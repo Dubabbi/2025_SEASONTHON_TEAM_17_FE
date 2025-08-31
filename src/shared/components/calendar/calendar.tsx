@@ -34,7 +34,7 @@ export default function Calendar({
   onChange,
   marked = [],
   weekStartsOn = 0,
-  className = 'rounded-[20px] py-[1.2rem] outline outline-gray-200',
+  className = 'rounded-[20px] bg-gray-50 py-[1.2rem] outline outline-gray-200',
   onMonthChange,
   variant = 'flat',
   showTodayHint = false,
