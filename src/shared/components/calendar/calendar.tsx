@@ -1,4 +1,5 @@
 import ArrowIcon from '@assets/icons/calendar-arrow.svg?react';
+import CheckIcon from '@assets/icons/check.svg?react';
 import {
   addMonths,
   eachDayOfInterval,
@@ -18,13 +19,12 @@ type Variant = 'flat' | 'card';
 type CalendarProps = {
   value?: Date;
   onChange?: (d: Date) => void;
-  marked?: string[]; // yyyy-MM-dd 리스트
+  marked?: string[]; // yyyy-MM-dd
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   className?: string;
-  accent?: string; // 포인트 컬러
   onMonthChange?: (view: Date) => void;
-  variant?: Variant; // ← NEW: "flat"이면 이미지1 스타일
-  showTodayHint?: boolean; // 오늘 점선/표식 (기본 false)
+  variant?: Variant;
+  showTodayHint?: boolean;
 };
 
 const fmt = (d: Date) => format(d, 'yyyy-MM-dd');
@@ -35,7 +35,6 @@ export default function Calendar({
   marked = [],
   weekStartsOn = 0,
   className = 'rounded-[20px] py-[1.2rem] outline outline-gray-200',
-  accent = '#FF2D77',
   onMonthChange,
   variant = 'flat',
   showTodayHint = false,
@@ -75,10 +74,9 @@ export default function Calendar({
   };
 
   const cellSize = 'px-[1.4rem] pt-[0.4rem] pb-[2.7rem]';
-  const ringRadius = 'rounded-[4px]';
 
   return (
-    <section className={className} style={{ ['--accent' as any]: accent }} aria-label="달력">
+    <section className={className} aria-label="달력">
       <header className="mb-[0.6rem] flex-row-between px-[1.8rem] py-[1.2rem]">
         <div className="flex items-center justify-center gap-[0.8rem]">
           <button
@@ -87,7 +85,7 @@ export default function Calendar({
             aria-label="이전 달"
             type="button"
           >
-            <ArrowIcon className="h-[2.4rem] w-[2.4rem]" />
+            <ArrowIcon className="h-[2.4rem] w-[2.4rem] cursor-pointer" />
           </button>
 
           <div className="font-semibold text-[1.6rem] tracking-[-0.2px]">{monthLabel}</div>
@@ -98,13 +96,13 @@ export default function Calendar({
             aria-label="다음 달"
             type="button"
           >
-            <ArrowIcon className="h-[2.4rem] w-[2.4rem] rotate-180" />
+            <ArrowIcon className="h-[2.4rem] w-[2.4rem] rotate-180 cursor-pointer" />
           </button>
         </div>
 
         <button
           onClick={goToday}
-          className="rounded-lg px-2 py-1 text-[1.3rem] text-gray-600 hover:bg-black/5"
+          className="sub-body-700 cursor-pointer rounded-[4px] px-[0.8rem] py-[0.55rem] text-gray-600 hover:bg-gray-600/5"
           type="button"
         >
           오늘
@@ -112,12 +110,12 @@ export default function Calendar({
       </header>
 
       {/* 요일 헤더 */}
-      <div className="sub-body-700 grid grid-cols-7 px-[1.5rem] pb-[0.55rem] text-center">
+      <div className="sub-body-700 grid grid-cols-7 px-[1.9rem] pb-[0.55rem] text-center">
         {['일', '월', '화', '수', '목', '금', '토'].map((d, i) => (
           <div
             key={d}
             className={
-              i === 0 ? 'text-[var(--accent)]' : i === 6 ? 'text-[#2955FF]' : 'text-gray-700'
+              i === 0 ? 'text-error-default' : i === 6 ? 'text-success-default' : 'text-gray-800'
             }
           >
             {d}
@@ -126,14 +124,22 @@ export default function Calendar({
       </div>
 
       {/* 날짜 그리드 */}
-      <div className="grid grid-cols-7 gap-y-2 px-4 pb-4">
+      <div className="grid grid-cols-7 px-[1.9rem]">
         {weeks.flatMap((week) =>
           week.map((day) => {
-            const dayKey = day.getTime(); // 또는: const dayKey = format(day, 'yyyy-MM-dd');
+            const dayKey = day.getTime();
 
             const outside = !isSameMonth(day, view);
             const selectedDay = selected && isSameDay(day, selected);
             const hasMark = markSet.has(fmt(day));
+            const dow = day.getDay(); // 0:일 ~ 6:토
+            const colorClass = outside
+              ? 'text-gray-300'
+              : dow === 0
+                ? 'text-error-default'
+                : dow === 6
+                  ? 'text-success-default'
+                  : 'text-gray-900';
 
             return (
               <div key={dayKey} className="flex justify-center">
@@ -142,56 +148,40 @@ export default function Calendar({
                   onClick={() => onChange?.(day)}
                   aria-pressed={!!selectedDay}
                   className={[
-                    'relative isolate grid place-items-center outline-none transition',
+                    'relative isolate grid cursor-pointer place-items-center outline-none transition',
                     cellSize,
-                    ringRadius,
-                    variant === 'card' ? 'bg-white shadow-sm' : 'bg-transparent',
-                    'focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40',
+                    variant === 'card' ? 'bg-gray-50 shadow-sm' : 'bg-transparent',
+                    'focus-visible:ring-2 focus-visible:ring-primary-400',
                   ].join(' ')}
                 >
                   {selectedDay && (
                     <span
                       className={[
-                        'pointer-events-none absolute inset-0 border-2',
-                        ringRadius,
-                        'border-[var(--accent)]',
-                      ].join(' ')}
-                      aria-hidden
-                    />
-                  )}
-
-                  {!selectedDay && variant === 'flat' && (
-                    <span
-                      className={[
-                        'pointer-events-none absolute inset-0 opacity-0 transition-opacity',
-                        ringRadius,
-                        'border border-[var(--accent)]/25 hover:opacity-100',
+                        'pointer-events-none absolute',
+                        '-translate-x-1/2 bottom-[0rem] left-1/2',
+                        'h-[5.2rem] w-[4.4rem] rounded-[5px]',
+                        'border-2 border-primary-400',
                       ].join(' ')}
                       aria-hidden
                     />
                   )}
 
                   {/* 날짜 숫자 */}
-                  <span
-                    className={[
-                      'relative z-10 select-none font-semibold text-[1.8rem]',
-                      outside ? 'text-gray-300' : 'text-gray-900',
-                    ].join(' ')}
-                  >
+                  <span className={['body2-600 relative z-10 select-none', colorClass].join(' ')}>
                     {format(day, 'd')}
                   </span>
 
-                  {/* 오늘 표식은 기본 비활성 (이미지1 느낌) */}
+                  {/* 오늘 표식은 기본 비활성 */}
                   {showTodayHint && !selectedDay && (
                     <span
-                      className="-bottom-1 -translate-x-1/2 pointer-events-none absolute left-1/2 z-10 h-1 w-8 rounded-full border border-[var(--accent)]/45 border-dashed"
+                      className="-bottom-1 -translate-x-1/2 pointer-events-none absolute left-1/2 z-10 h-1 w-8 rounded-full border border-primary-800 border-dashed"
                       aria-hidden
                     />
                   )}
 
-                  {/* 체크 뱃지 (하단 중앙) */}
+                  {/* 체크 뱃지 */}
                   {hasMark && (
-                    <span className="-translate-x-1/2 absolute bottom-1.5 left-1/2 z-10 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[var(--accent)] text-white">
+                    <span className="-translate-x-1/2 absolute bottom-[0.7rem] left-1/2 z-10 flex h-[1.6rem] w-[1.6rem] items-center justify-center rounded-full text-white">
                       <CheckIcon />
                     </span>
                   )}
@@ -202,19 +192,5 @@ export default function Calendar({
         )}
       </div>
     </section>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-      <path
-        d="M3 6.2 4.9 8 9 4"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
