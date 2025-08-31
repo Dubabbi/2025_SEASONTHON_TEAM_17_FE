@@ -36,7 +36,11 @@ export default function Banner({
       </div>
 
       <Diary3D className="h-[20rem] w-[20rem]" />
-      <PrimaryCTA className="heading2-700" onClick={handleClick} aria-label="감정 일기 작성하기">
+      <PrimaryCTA
+        className="sub-heading1-800"
+        onClick={handleClick}
+        aria-label="감정 일기 작성하기"
+      >
         감정 일기 작성하기
       </PrimaryCTA>
     </section>
