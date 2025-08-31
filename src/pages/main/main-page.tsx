@@ -15,16 +15,6 @@ export default function MainPage() {
             marked={['2025-08-01', '2025-08-08', '2025-08-09', '2025-08-15', '2025-08-27']}
           />
         </section>
-      </div>{' '}
-      <div className="flex-col gap-[1.5rem]">
-        <h1 className="heading1-700">월별 기록</h1>
-        <section>
-          <Calendar
-            value={selected}
-            onChange={setSelected}
-            marked={['2025-08-01', '2025-08-08', '2025-08-09', '2025-08-15', '2025-08-27']}
-          />
-        </section>
       </div>
     </div>
   );
