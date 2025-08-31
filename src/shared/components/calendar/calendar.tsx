@@ -74,8 +74,8 @@ export default function Calendar({
     onMonthChange?.(t);
   };
 
-  const cellSize = variant === 'flat' ? 'h-[44px] w-[44px]' : 'h-[56px] w-[56px]';
-  const ringRadius = 'rounded-[20px]';
+  const cellSize = 'px-[1.4rem] pt-[0.4rem] pb-[2.7rem]';
+  const ringRadius = 'rounded-[4px]';
 
   return (
     <section className={className} style={{ ['--accent' as any]: accent }} aria-label="달력">
@@ -149,9 +149,6 @@ export default function Calendar({
                     'focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40',
                   ].join(' ')}
                 >
-                  {/* ...그 이하 동일... */}
-                  {/* flat에서는 배경/그림자 없음! */}
-                  {/* 선택 라운드 테두리 (이미지1의 분홍 사각) */}
                   {selectedDay && (
                     <span
                       className={[
@@ -163,7 +160,6 @@ export default function Calendar({
                     />
                   )}
 
-                  {/* Hover 미세 프리뷰 (flat일 때만 살짝) */}
                   {!selectedDay && variant === 'flat' && (
                     <span
                       className={[
