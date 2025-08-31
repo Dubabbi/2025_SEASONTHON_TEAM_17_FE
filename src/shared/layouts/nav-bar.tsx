@@ -35,7 +35,7 @@ export default function NavigationBar() {
   ];
 
   return (
-    <div className="-translate-x-1/2 fixed bottom-0 left-1/2 z-[var(--z-bottom-nav)] flex h-[8rem] w-full max-w-[43rem] items-center justify-around rounded-t-[2.4rem] bg-gray-50 px-2 shadow-md">
+    <div className="sticky bottom-0 z-[var(--z-bottom-nav)] flex min-h-[8rem] w-full items-center justify-around rounded-t-[2.4rem] bg-gray-50 px-[0.5rem] shadow-md">
       {menuList.map((menu) => {
         const isActive = isActivePath(pathname, menu.to);
         return (
@@ -43,7 +43,7 @@ export default function NavigationBar() {
             key={menu.to}
             to={menu.to}
             title={menu.title}
-            className="flex flex-col items-center justify-center gap-[0.2rem]"
+            className="flex-col-center gap-[0.2rem]"
           >
             <span className={`${isActive ? 'text-primary-600' : 'text-gray-600'}`}>
               {menu.icon}

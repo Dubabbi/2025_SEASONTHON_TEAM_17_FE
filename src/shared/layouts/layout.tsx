@@ -45,7 +45,7 @@ export default function Layout() {
     <div className="flex max-h-dvh flex-col overflow-hidden">
       {!hideChrome && <Header onBellClick={() => navigate('/notifications')} {...headerProps} />}
 
-      <main className="scrollbar-hide mx-auto min-h-dvh w-full flex-1 overflow-y-auto">
+      <main className="scrollbar-hide mx-auto min-h-dvh w-full flex-1 overflow-y-auto pb-[calc(8rem+env(safe-area-inset-bottom))]">
         <ScrollRestoration />
         <Outlet />
       </main>

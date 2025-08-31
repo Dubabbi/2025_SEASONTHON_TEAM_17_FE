@@ -28,9 +28,21 @@
   --color-success-bgd: #e5eaff;
 
   /* Gradient Color */
-  --color-gradient-bgd1: linear-gradient(180deg, #fff3ef 0%, #fff2f7 100%);
-  --color-gradient-bgd2: linear-gradient(180deg, #ffe7df 0%, #ffedf4 100%);
-  --color-gradient-bgd3: linear-gradient(180deg, #ffdfd4 0%, #ffe0ec 100%);
+  --background-image-gradient-bgd1: linear-gradient(
+    180deg,
+    #fff3ef 0%,
+    #fff2f7 100%
+  );
+  --background-image-gradient-bgd2: linear-gradient(
+    180deg,
+    #ffe7df 0%,
+    #ffedf4 100%
+  );
+  --background-image-gradient-bgd3: linear-gradient(
+    180deg,
+    #ffdfd4 0%,
+    #ffe0ec 100%
+  );
 
   /* Brand Color */
   --color-kakao-bgd: #fee500;
