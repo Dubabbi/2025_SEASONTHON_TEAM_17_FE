@@ -30,16 +30,13 @@ export default function Header({
   return (
     <header
       className={[
-        'sticky top-0 z-20 px-[1.6rem] py-[2rem]',
+        'sticky top-0 z-[var(--z-header)] px-[2.4rem] py-[1.8rem]',
         backgroundColorClass,
         showDivider ? 'border-gray-200 border-b' : '',
         className,
       ].join(' ')}
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
-      {/* 좌·중·우 고정폭 → 중앙 항상 진짜 중앙 */}
       <div className="grid grid-cols-[2.8rem_1fr_2.8rem] items-center">
-        {/* Left */}
         <div className="h-[2.8rem] w-[2.8rem]">
           {variant === 'title' && (
             <button
@@ -48,13 +45,12 @@ export default function Header({
               aria-label="뒤로가기"
               className="grid h-[2.8rem] w-[2.8rem] place-items-center"
             >
-              <ArrowIcon className="h-[2.8rem] w-[2.8rem] text-gray-600" />
+              <ArrowIcon className="h-[2.8rem] w-[2.8rem] rotate-180 text-gray-600" />
             </button>
           )}
         </div>
 
-        {/* Center */}
-        <div className="flex items-center justify-center">
+        <div className="flex-row-center">
           {variant === 'home' ? (
             <LogoIcon className="h-[2.8rem] w-[2.8rem] text-primary-500" />
           ) : (
@@ -71,9 +67,9 @@ export default function Header({
               type="button"
               aria-label="알림"
               onClick={onBellClick}
-              className="grid h-[2.8rem] w-[2.8rem] place-items-center"
+              className="grid place-items-center"
             >
-              <BellIcon className="h-[2.0rem] w-[2.0rem] text-primary-500" />
+              <BellIcon className="h-[2.8rem] w-[2.8rem] text-primary-500" />
             </button>
           ) : null}
         </div>
