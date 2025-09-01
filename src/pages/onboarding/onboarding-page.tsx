@@ -42,7 +42,7 @@ export default function OnboardingPage() {
                   src={src as string}
                   alt=""
                   draggable={false}
-                  className={cn('block h-full w-full object-contain object-top')}
+                  className={cn('block h-full w-full object-cover object-top')}
                 />
               </div>
             ))}

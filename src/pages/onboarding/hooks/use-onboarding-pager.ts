@@ -6,7 +6,7 @@ type UseOnboardingPagerOptions = {
   duration?: number;
 };
 
-export default function useOnboardingPager({ total, duration = 10 }: UseOnboardingPagerOptions) {
+export default function useOnboardingPager({ total, duration = 0 }: UseOnboardingPagerOptions) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [idx, setIdx] = useState(0);
 
