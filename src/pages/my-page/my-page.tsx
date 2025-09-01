@@ -1,4 +1,4 @@
-import sample from '@assets/images/default-profile.png';
+import defaultProfile from '@assets/icons/3d-hand.svg';
 import LeaveConfirmSheet from '@components/bottom-sheet/leave-confirm-sheet';
 import LogoutConfirmSheet from '@components/bottom-sheet/logout-confirm-sheet';
 import NicknameChangeSheet from '@components/bottom-sheet/nickname-change-sheet';
@@ -21,7 +21,7 @@ type MockProfile = {
 
 const MOCK_PROFILE: MockProfile = {
   name: '사용자',
-  avatarUrl: sample,
+  avatarUrl: defaultProfile,
   provider: 'kakao',
   pushEnabled: true,
 };
@@ -37,49 +37,55 @@ export default function ProfilePage() {
   const [avatar, setAvatar] = useState(MOCK_PROFILE.avatarUrl);
   const [pushEnabled, setPushEnabled] = useState(MOCK_PROFILE.pushEnabled);
 
-  const goTerms = () => nav('/terms');
+  const goTerms = () => nav('/mypage/terms-service');
 
   return (
-    <div className={cn('min-h-dvh bg-gradient-bgd1 pt-[1.6rem] pb-[5rem]')}>
-      <main className="mx-auto w-full max-w-[43rem] pb-[6rem]">
-        <ProfileHeader name={nickname} avatarSrc={avatar} />
+    <div className={cn('min-h-dvh bg-gradient-bgd1 px-[2.4rem] pt-[1.6rem] pb-[12rem]')}>
+      <main className="mx-auto w-full max-w-[43rem] flex-col gap-[3rem] pb-[6rem]">
+        <div className="flex-col gap-[3.2rem]">
+          <ProfileHeader name={nickname} avatarSrc={avatar} />
+          <section>
+            <SectionTitle>회원정보 변경</SectionTitle>
 
-        <section>
-          <SectionTitle>회원정보 변경</SectionTitle>
+            <SettingRow
+              label="닉네임"
+              subText={nickname}
+              onClick={nicknameSheet.open}
+              showIcon
+              ariaLabel="닉네임 변경"
+            />
 
-          <SettingRow
-            label="닉네임"
-            subText={nickname}
-            onClick={nicknameSheet.open}
-            showIcon
-            ariaLabel="닉네임 변경"
+            <SettingRow
+              label="프로필 사진 변경"
+              right={<span className="body2-500 text-gray-500">변경하기</span>}
+              onClick={photoSheet.open}
+              showIcon
+              ariaLabel="프로필 사진 변경"
+            />
+          </section>
+
+          <InquiryAlertsSection
+            pushEnabled={pushEnabled}
+            onTogglePush={setPushEnabled}
+            onOpenTerms={goTerms}
           />
 
-          <SettingRow
-            label="프로필 사진 변경"
-            right={<span className="body2-500 text-gray-500">변경하기</span>}
-            onClick={photoSheet.open}
-            showIcon
-            ariaLabel="프로필 사진 변경"
-          />
-        </section>
+          <section>
+            <SectionTitle>로그아웃 및 탈퇴하기</SectionTitle>
 
-        <InquiryAlertsSection
-          pushEnabled={pushEnabled}
-          onTogglePush={setPushEnabled}
-          onOpenTerms={goTerms}
-        />
+            <SettingRow label="로그아웃" labelStyle="cursor-pointer" onClick={logoutSheet.open} />
 
-        <section>
-          <SectionTitle>로그아웃 및 탈퇴하기</SectionTitle>
+            <SettingRow
+              label="탈퇴하기"
+              labelStyle="cursor-pointer"
+              onClick={leaveSheet.open}
+              className="border-b-0"
+            />
+          </section>
+        </div>
 
-          <SettingRow label="로그아웃" onClick={logoutSheet.open} showIcon />
-
-          <SettingRow label="탈퇴하기" onClick={leaveSheet.open} showIcon className="border-b-0" />
-        </section>
-
-        <footer className="px-[2.4rem] pt-[2.4rem] pb-[3.2rem]">
-          <p className="detail text-gray-400">©&nbsp;2025 MAEUM_ON. All rights reserved.</p>
+        <footer className="detail flex-col-center text-gray-400">
+          ©&nbsp;2025 MAEUM_ON. All rights reserved.
         </footer>
       </main>
 

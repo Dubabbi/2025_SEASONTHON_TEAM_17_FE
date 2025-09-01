@@ -8,9 +8,5 @@ export default function SectionTitle({
   children: ReactNode;
   className?: string;
 }) {
-  return (
-    <h2 className={cn('cap_14_m px-[2.4rem] pt-[2.4rem] pb-[1.2rem] text-primary-500', className)}>
-      {children}
-    </h2>
-  );
+  return <h2 className={cn('sub-body-600 text-primary-500', className)}>{children}</h2>;
 }

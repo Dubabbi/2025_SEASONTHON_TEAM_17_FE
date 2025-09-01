@@ -8,12 +8,12 @@ type ProfileHeaderProps = {
 
 export default function ProfileHeader({ name, avatarSrc, className }: ProfileHeaderProps) {
   return (
-    <header className={cn('flex items-start gap-[2.4rem] px-[2.4rem]', className)}>
+    <header className={cn('flex items-start gap-[2.4rem]', className)}>
       <div className="relative shrink-0">
         <img
           src={avatarSrc}
           alt={`${name} 프로필 이미지`}
-          className="h-[10.8rem] w-[10.8rem] rounded-full object-cover"
+          className="h-[10.8rem] w-[10.8rem] rounded-full object-cover outline outline-gray-200"
           draggable={false}
         />
       </div>

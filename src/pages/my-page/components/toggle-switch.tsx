@@ -24,16 +24,16 @@ export default function ToggleSwitch({
       disabled={disabled}
       onClick={() => !disabled && onChange(!checked)}
       className={cn(
-        'relative inline-flex h-[2.8rem] w-[4.8rem] shrink-0 cursor-pointer rounded-full transition-colors',
-        checked ? 'bg-primary-600' : 'bg-gray-300',
-        disabled && 'cursor-not-allowed opacity-60',
+        'relative inline-flex h-[2.6rem] w-[4.8rem] shrink-0 cursor-pointer rounded-full outline-[0.15rem] outline-primary-600 transition-colors',
+        checked ? 'bg-primary-600' : 'bg-gray-50',
+        disabled && 'cursor-not-allowed',
         className,
       )}
     >
       <span
         className={cn(
-          '-translate-y-1/2 pointer-events-none absolute top-1/2 block h-[2.2rem] w-[2.2rem] rounded-full bg-white shadow transition-transform',
-          checked ? 'translate-x-[2.4rem]' : 'translate-x-[0.2rem]',
+          '-translate-y-1/2 pointer-events-none absolute top-1/2 block h-[2rem] w-[2rem] rounded-full shadow transition-transform',
+          checked ? 'translate-x-[2.4rem] bg-gray-50' : 'translate-x-[0.2rem] bg-primary-600',
         )}
       />
     </button>
