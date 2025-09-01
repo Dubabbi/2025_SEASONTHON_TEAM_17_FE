@@ -14,7 +14,7 @@ const EXCEPTION_HEADERS: Array<{
   },
   {
     test: (p) => p.startsWith('/diary/record'),
-    props: { variant: 'title', title: '나의 감정 일기 기록' },
+    props: { variant: 'title', title: '나의 감정 일기 전체 기록' },
   },
   {
     test: (p) => p.startsWith('/mypage/terms-service'),
