@@ -7,12 +7,14 @@ import ChatIcon from '@assets/icons/chat.svg?react';
 import HeartIcon from '@assets/icons/heart.svg?react';
 import HomeIcon from '@assets/icons/home.svg?react';
 import ProfileIcon from '@assets/icons/profile.svg?react';
-import InputField from '@components/InputField';
+import InputField from '@components/inputfield';
+import TextField from '@components/textfield';
 import { useState } from 'react';
 
 export default function TestPage() {
   const [Text, setText] = useState('');
   const [TitleText, setTitleText] = useState('');
+  const [content, setContent] = useState('');
 
   return (
     <div>
@@ -72,6 +74,24 @@ export default function TestPage() {
             }
           />
         </section>
+
+        <div className="flex-col gap-[1.2rem] p-[0.8rem]">
+          <section className="flex-col gap-[1.2rem]">
+            <TextField
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              variant={!content ? 'default' : content.length < 10 ? 'error' : 'success'}
+              placeholder="내용을 입력해주세요."
+              helperText={
+                !content
+                  ? '내용은 최소 100자 이상으로 적어야 합니다.'
+                  : content.length < 10
+                    ? `현재 ${content.length}자 (100자 이상 입력해야 합니다.)`
+                    : `100자 넘었습니다. (현재 ${content.length}자)`
+              }
+            />
+          </section>
+        </div>
       </div>
     </div>
   );
