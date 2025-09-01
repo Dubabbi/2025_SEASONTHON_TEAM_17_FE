@@ -6,7 +6,7 @@ type UseOnboardingPagerOptions = {
   duration?: number;
 };
 
-export default function useOnboardingPager({ total, duration = 0 }: UseOnboardingPagerOptions) {
+export default function useOnboardingPager({ total, duration = 10 }: UseOnboardingPagerOptions) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [idx, setIdx] = useState(0);
 
@@ -19,7 +19,6 @@ export default function useOnboardingPager({ total, duration = 0 }: UseOnboardin
   const lastXRef = useRef(0);
   const lastTimeRef = useRef(0);
   const velocityRef = useRef(0);
-  const prevSnapRef = useRef<string | null>(null);
 
   const scrollRafRef = useRef<number | null>(null);
   const scrollEndTimerRef = useRef<number | null>(null);
@@ -102,6 +101,16 @@ export default function useOnboardingPager({ total, duration = 0 }: UseOnboardin
     [smoothScrollTo, total],
   );
 
+  const jumpTo = useCallback(
+    (target: number) => {
+      const el = scrollerRef.current;
+      if (!el) return;
+      const clampedTarget = Math.max(0, Math.min(total - 1, target));
+      smoothScrollTo(clampedTarget * el.clientWidth);
+    },
+    [smoothScrollTo, total],
+  );
+
   const onPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (e.pointerType !== 'mouse') return;
@@ -116,7 +125,6 @@ export default function useOnboardingPager({ total, duration = 0 }: UseOnboardin
       lastXRef.current = e.clientX;
       lastTimeRef.current = performance.now();
       velocityRef.current = 0;
-      prevSnapRef.current = el.style.scrollSnapType;
       el.style.scrollSnapType = 'none';
       suppressScrollRef.current = true;
 
@@ -149,10 +157,8 @@ export default function useOnboardingPager({ total, duration = 0 }: UseOnboardin
         try {
           scrollerRef.current.releasePointerCapture((ev as PointerEvent).pointerId);
         } catch {}
-        const el2 = scrollerRef.current;
-        el2.style.scrollSnapType = prevSnapRef.current ?? '';
-        suppressScrollRef.current = false;
 
+        const el2 = scrollerRef.current;
         const width = el2.clientWidth;
         const raw = el2.scrollLeft / width;
         const dragDelta = (dragStartLeftRef.current - el2.scrollLeft) / width;
@@ -199,6 +205,7 @@ export default function useOnboardingPager({ total, duration = 0 }: UseOnboardin
     setIdx,
     onScroll,
     stepTo,
+    jumpTo,
     onPointerDown,
   };
 }

@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 export default function OnboardingPage() {
   const nav = useNavigate();
   const slides = useMemo(() => [...ONBOARDING_SLIDES], []);
-  const { scrollerRef, idx, onScroll, stepTo, onPointerDown } = useOnboardingPager({
+  const { scrollerRef, idx, onScroll, stepTo, onPointerDown, jumpTo } = useOnboardingPager({
     total: slides.length,
     duration: 280,
   });
@@ -60,7 +60,7 @@ export default function OnboardingPage() {
           )}
         >
           <div className={cn('flex justify-center py-[2rem]')}>
-            <Indicator total={slides.length} index={idx} onSelect={stepTo} />
+            <Indicator total={slides.length} index={idx} onSelect={jumpTo} />
           </div>
 
           {idx === 0 && <Step1 onStart={goStart} onLogin={goLogin} />}
