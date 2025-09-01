@@ -1,6 +1,5 @@
 import NotiBg from '@assets/images/noti-bg.png';
 import TipInfo from '@components/tipinfo';
-import { useNavigate } from 'react-router-dom';
 
 type Noti = { title: string; date: string };
 
@@ -13,8 +12,6 @@ const NOTIS: Noti[] = [
 ];
 
 export default function NotificationsPage() {
-  const nav = useNavigate();
-
   return (
     <div className="fixed-layout inset-0 overflow-hidden">
       <div
