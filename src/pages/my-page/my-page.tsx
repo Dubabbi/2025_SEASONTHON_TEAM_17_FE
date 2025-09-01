@@ -1,4 +1,4 @@
-import sample from '@assets/icons/3d-speak.svg';
+import sample from '@assets/images/default-profile.png';
 import LeaveConfirmSheet from '@components/bottom-sheet/leave-confirm-sheet';
 import LogoutConfirmSheet from '@components/bottom-sheet/logout-confirm-sheet';
 import NicknameChangeSheet from '@components/bottom-sheet/nickname-change-sheet';
@@ -40,7 +40,7 @@ export default function ProfilePage() {
   const goTerms = () => nav('/terms');
 
   return (
-    <div className={cn('min-h-dvh bg-gradient-bgd1 pb-[15rem]')}>
+    <div className={cn('min-h-dvh bg-gradient-bgd1 pt-[1.6rem] pb-[5rem]')}>
       <main className="mx-auto w-full max-w-[43rem] pb-[6rem]">
         <ProfileHeader name={nickname} avatarSrc={avatar} />
 
