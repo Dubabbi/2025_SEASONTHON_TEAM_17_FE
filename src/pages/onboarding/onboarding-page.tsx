@@ -10,9 +10,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function OnboardingPage() {
   const nav = useNavigate();
-
   const slides = useMemo(() => [...ONBOARDING_SLIDES], []);
-
   const { scrollerRef, idx, onScroll, stepTo, onPointerDown } = useOnboardingPager({
     total: slides.length,
     duration: 280,
@@ -30,20 +28,21 @@ export default function OnboardingPage() {
           onPointerDown={onPointerDown}
           className={cn(
             'mx-auto w-full max-w-[43rem]',
-            'h-[38rem]',
+            'h-[40rem]',
             'snap-x snap-mandatory overflow-x-auto overflow-y-hidden',
             'scrollbar-hide touch-pan-x select-none overscroll-x-contain',
+            'transform-gpu [-webkit-overflow-scrolling:touch]',
             'cursor-default',
           )}
         >
           <div className={cn('flex h-full w-full')}>
             {slides.map(({ id, src }) => (
-              <div key={id} className={cn('shrink-0 grow-0 basis-full snap-start')}>
+              <div key={id} className={cn('shrink-0 grow-0 basis-full snap-start snap-always')}>
                 <img
                   src={src as string}
                   alt=""
                   draggable={false}
-                  className={cn('block h-full w-full object-contain')}
+                  className={cn('block h-full w-full object-contain object-top')}
                 />
               </div>
             ))}
@@ -57,8 +56,7 @@ export default function OnboardingPage() {
             'pointer-events-auto mx-auto w-full max-w-[43rem]',
             'bg-gray-50',
             'px-[3.6rem] pt-[1.6rem]',
-            'pb-[max(1.6rem,env(safe-area-inset-bottom))]',
-            'rounded-t-[2rem] shadow-md',
+            'shadow-md',
           )}
         >
           <div className={cn('flex justify-center py-[2rem]')}>

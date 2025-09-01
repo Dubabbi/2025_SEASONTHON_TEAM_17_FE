@@ -1,3 +1,4 @@
+import type React from 'react';
 import { type UIEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 type UseOnboardingPagerOptions = {
@@ -5,7 +6,7 @@ type UseOnboardingPagerOptions = {
   duration?: number;
 };
 
-export default function useOnboardingPager({ total, duration = 280 }: UseOnboardingPagerOptions) {
+export default function useOnboardingPager({ total, duration = 0 }: UseOnboardingPagerOptions) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [idx, setIdx] = useState(0);
 
@@ -19,6 +20,12 @@ export default function useOnboardingPager({ total, duration = 280 }: UseOnboard
   const lastTimeRef = useRef(0);
   const velocityRef = useRef(0);
   const prevSnapRef = useRef<string | null>(null);
+
+  const scrollRafRef = useRef<number | null>(null);
+  const scrollEndTimerRef = useRef<number | null>(null);
+
+  const moveHandlerRef = useRef<((ev: PointerEvent) => void) | null>(null);
+  const endHandlerRef = useRef<((ev: PointerEvent) => void) | null>(null);
 
   const easeInOut = useCallback(
     (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2),
@@ -59,12 +66,26 @@ export default function useOnboardingPager({ total, duration = 280 }: UseOnboard
     [duration, easeInOut],
   );
 
-  const onScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
-    if (suppressScrollRef.current) return;
-    const el = e.currentTarget;
+  const flushIndexFromEl = useCallback((el: HTMLDivElement) => {
     const page = Math.round(el.scrollLeft / el.clientWidth);
     setIdx((prev) => (prev === page ? prev : page));
   }, []);
+
+  const onScroll = useCallback(
+    (e: UIEvent<HTMLDivElement>) => {
+      if (suppressScrollRef.current) return;
+      const el = e.currentTarget;
+
+      if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
+      scrollRafRef.current = requestAnimationFrame(() => {
+        if (scrollEndTimerRef.current) window.clearTimeout(scrollEndTimerRef.current);
+        scrollEndTimerRef.current = window.setTimeout(() => {
+          flushIndexFromEl(el);
+        }, 120);
+      });
+    },
+    [flushIndexFromEl],
+  );
 
   const stepTo = useCallback(
     (target: number) => {
@@ -104,8 +125,7 @@ export default function useOnboardingPager({ total, duration = 280 }: UseOnboard
       } catch {}
 
       const handleMove = (ev: PointerEvent) => {
-        if (!draggingRef.current) return;
-        if (!scrollerRef.current) return;
+        if (!draggingRef.current || !scrollerRef.current) return;
         const now = performance.now();
         const dx = ev.clientX - dragStartXRef.current;
         scrollerRef.current.scrollLeft = dragStartLeftRef.current - dx;
@@ -118,9 +138,12 @@ export default function useOnboardingPager({ total, duration = 280 }: UseOnboard
       const endDrag = (ev: PointerEvent) => {
         if (!draggingRef.current) return;
         draggingRef.current = false;
-        window.removeEventListener('pointermove', handleMove);
-        window.removeEventListener('pointerup', endDrag);
-        window.removeEventListener('pointercancel', endDrag);
+        if (moveHandlerRef.current)
+          window.removeEventListener('pointermove', moveHandlerRef.current);
+        if (endHandlerRef.current) {
+          window.removeEventListener('pointerup', endHandlerRef.current);
+          window.removeEventListener('pointercancel', endHandlerRef.current);
+        }
 
         if (!scrollerRef.current) return;
         try {
@@ -146,6 +169,9 @@ export default function useOnboardingPager({ total, duration = 280 }: UseOnboard
         smoothScrollTo(target * width);
       };
 
+      moveHandlerRef.current = handleMove;
+      endHandlerRef.current = endDrag;
+
       window.addEventListener('pointermove', handleMove, { passive: true });
       window.addEventListener('pointerup', endDrag, { passive: true });
       window.addEventListener('pointercancel', endDrag, { passive: true });
@@ -156,9 +182,14 @@ export default function useOnboardingPager({ total, duration = 280 }: UseOnboard
   useEffect(() => {
     return () => {
       if (animRef.current) cancelAnimationFrame(animRef.current);
-      window.removeEventListener('pointermove', () => {});
-      window.removeEventListener('pointerup', () => {});
-      window.removeEventListener('pointercancel', () => {});
+      if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
+      if (scrollEndTimerRef.current) window.clearTimeout(scrollEndTimerRef.current);
+      if (moveHandlerRef.current) window.removeEventListener('pointermove', moveHandlerRef.current);
+      if (endHandlerRef.current) {
+        window.removeEventListener('pointerup', endHandlerRef.current);
+        window.removeEventListener('pointercancel', endHandlerRef.current);
+      }
+      draggingRef.current = false;
     };
   }, []);
 
