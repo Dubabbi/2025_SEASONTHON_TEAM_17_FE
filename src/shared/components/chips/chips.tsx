@@ -8,8 +8,9 @@ import ChipButton from '@components/chips/chip-button';
 
 interface ChipsProps {
   size: 'small' | 'large';
-  selected: string[];
-  onChange: (selected: string[]) => void;
+  selected?: string[];
+  emotions?: string[];
+  onChange?: (selected: string[]) => void;
 }
 
 const chipsData = [
@@ -21,18 +22,22 @@ const chipsData = [
   { id: 'SURPRISE', label: '놀람', icon: SurpriseIcon },
 ];
 
-const Chips = ({ size, selected, onChange }: ChipsProps) => {
+const Chips = ({ size, selected = [], emotions, onChange }: ChipsProps) => {
   const handleClick = (id: string) => {
     if (selected.includes(id)) {
-      onChange(selected.filter((chipId) => chipId !== id));
+      onChange?.(selected.filter((chipId) => chipId !== id));
     } else {
-      onChange([...selected, id]);
+      onChange?.([...selected, id]);
     }
   };
 
+  const filteredChips = emotions
+    ? chipsData.filter((item) => emotions.includes(item.id))
+    : chipsData;
+
   return (
     <div className="flex flex-wrap gap-[1rem]">
-      {chipsData.map((item, _) => (
+      {filteredChips.map((item, _) => (
         <ChipButton
           key={item.id}
           size={size}
@@ -43,7 +48,7 @@ const Chips = ({ size, selected, onChange }: ChipsProps) => {
           {item?.label}
         </ChipButton>
       ))}
-      {size === 'small' && <ChipButton size={size}>직접 입력</ChipButton>}
+      {!emotions && size === 'small' && <ChipButton size={size}>직접 입력</ChipButton>}
     </div>
   );
 };
