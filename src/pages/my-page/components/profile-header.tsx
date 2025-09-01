@@ -8,7 +8,7 @@ type ProfileHeaderProps = {
 
 export default function ProfileHeader({ name, avatarSrc, className }: ProfileHeaderProps) {
   return (
-    <header className={cn('flex items-center gap-[2.4rem]', className)}>
+    <header className={cn('flex items-center gap-[2.4rem] px-[2.4rem]', className)}>
       <div className="relative shrink-0">
         <img
           src={avatarSrc}
@@ -18,19 +18,17 @@ export default function ProfileHeader({ name, avatarSrc, className }: ProfileHea
         />
       </div>
 
-      <div className="min-w-0">
-        <div className="flex items-center gap-[0.4rem]">
-          <h1 className="heading2-800 truncate text-primary-600">{name}</h1>
+      <div className="flex-col gap-[0.4rem] text-left">
+        <h1 className="sub-heading2 text-primary-600">{name}</h1>
 
-          <span
-            className={cn(
-              'detail rounded-[0.6rem] bg-kakao-bgd text-kakao-text',
-              'select-none px-[0.8rem] py-[0.4rem]',
-            )}
-          >
-            카카오 로그인
-          </span>
-        </div>
+        <span
+          className={cn(
+            'detail rounded-[4px] bg-kakao-bgd text-kakao-text',
+            'select-none px-[0.8rem] py-[0.4rem]',
+          )}
+        >
+          카카오 로그인
+        </span>
       </div>
     </header>
   );

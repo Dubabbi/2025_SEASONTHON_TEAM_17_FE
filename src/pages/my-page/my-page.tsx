@@ -1,3 +1,4 @@
+import sample from '@assets/icons/3d-speak.svg';
 import LeaveConfirmSheet from '@components/bottom-sheet/leave-confirm-sheet';
 import LogoutConfirmSheet from '@components/bottom-sheet/logout-confirm-sheet';
 import NicknameChangeSheet from '@components/bottom-sheet/nickname-change-sheet';
@@ -11,6 +12,20 @@ import SettingRow from '@pages/my-page/components/setting-row';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+type MockProfile = {
+  name: string;
+  avatarUrl: string;
+  provider: 'kakao';
+  pushEnabled: boolean;
+};
+
+const MOCK_PROFILE: MockProfile = {
+  name: '사용자',
+  avatarUrl: sample,
+  provider: 'kakao',
+  pushEnabled: true,
+};
+
 export default function ProfilePage() {
   const photoSheet = useBottomSheet();
   const leaveSheet = useBottomSheet();
@@ -18,17 +33,16 @@ export default function ProfilePage() {
   const nicknameSheet = useBottomSheet();
   const nav = useNavigate();
 
-  const [nickname, setNickname] = useState('사용자');
-  const [pushEnabled, setPushEnabled] = useState(true);
+  const [nickname, setNickname] = useState(MOCK_PROFILE.name);
+  const [avatar, setAvatar] = useState(MOCK_PROFILE.avatarUrl);
+  const [pushEnabled, setPushEnabled] = useState(MOCK_PROFILE.pushEnabled);
 
   const goTerms = () => nav('/terms');
 
   return (
-    <div className={cn('inset-0 overflow-y-auto bg-gradient-bgd1')}>
+    <div className={cn('min-h-dvh bg-gradient-bgd1 pb-[15rem]')}>
       <main className="mx-auto w-full max-w-[43rem] pb-[6rem]">
-        <div className="px-[2.4rem] pt-[2.8rem] pb-[1.2rem]">
-          <ProfileHeader name={nickname} avatarSrc="/assets/sample/minions.png" />
-        </div>
+        <ProfileHeader name={nickname} avatarSrc={avatar} />
 
         <section>
           <SectionTitle>회원정보 변경</SectionTitle>
@@ -37,7 +51,7 @@ export default function ProfilePage() {
             label="닉네임"
             subText={nickname}
             onClick={nicknameSheet.open}
-            showChevron
+            showIcon
             ariaLabel="닉네임 변경"
           />
 
@@ -45,7 +59,7 @@ export default function ProfilePage() {
             label="프로필 사진 변경"
             right={<span className="body2-500 text-gray-500">변경하기</span>}
             onClick={photoSheet.open}
-            showChevron
+            showIcon
             ariaLabel="프로필 사진 변경"
           />
         </section>
@@ -59,14 +73,9 @@ export default function ProfilePage() {
         <section>
           <SectionTitle>로그아웃 및 탈퇴하기</SectionTitle>
 
-          <SettingRow label="로그아웃" onClick={logoutSheet.open} showChevron />
+          <SettingRow label="로그아웃" onClick={logoutSheet.open} showIcon />
 
-          <SettingRow
-            label="탈퇴하기"
-            onClick={leaveSheet.open}
-            showChevron
-            className="border-b-0"
-          />
+          <SettingRow label="탈퇴하기" onClick={leaveSheet.open} showIcon className="border-b-0" />
         </section>
 
         <footer className="px-[2.4rem] pt-[2.4rem] pb-[3.2rem]">
@@ -77,8 +86,9 @@ export default function ProfilePage() {
       <ProfilePhotoSheet
         isOpen={photoSheet.isOpen}
         onClose={photoSheet.close}
-        onSubmit={(file) => {
-          console.log('selected file:', file);
+        onSubmit={async (file) => {
+          const url = await fileToDataUrl(file);
+          setAvatar(url);
           photoSheet.close();
         }}
       />
@@ -88,7 +98,6 @@ export default function ProfilePage() {
         onClose={nicknameSheet.close}
         onSubmit={(name) => {
           setNickname(name);
-          console.log('submit nickname:', name);
           nicknameSheet.close();
         }}
       />
@@ -97,7 +106,6 @@ export default function ProfilePage() {
         isOpen={leaveSheet.isOpen}
         onClose={leaveSheet.close}
         onConfirm={() => {
-          // TODO: 탈퇴 API
           leaveSheet.close();
         }}
       />
@@ -106,10 +114,18 @@ export default function ProfilePage() {
         isOpen={logoutSheet.isOpen}
         onClose={logoutSheet.close}
         onLogout={() => {
-          // TODO: 로그아웃 처리
           logoutSheet.close();
         }}
       />
     </div>
   );
+}
+
+function fileToDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }

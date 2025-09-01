@@ -1,52 +1,55 @@
 import ArrowIcon from '@assets/icons/arrow.svg?react';
-import Button from '@components/button/button';
 import { cn } from '@libs/cn';
-import type { ReactNode, SVGProps } from 'react';
+import type { ElementType, ReactNode } from 'react';
 
 type SettingRowProps = {
   label: string;
   onClick?: () => void;
   right?: ReactNode;
-  showChevron?: boolean;
+  showIcon?: boolean;
   subText?: string;
   className?: string;
   ariaLabel?: string;
-  // (선택) 다른 아이콘으로 바꾸고 싶을 때 주입
-  ChevronComponent?: React.ComponentType<SVGProps<SVGSVGElement>>;
+  divider?: 'inset' | 'full' | 'none';
+  as?: 'button' | 'div' | 'a';
+  href?: string;
 };
 
 export default function SettingRow({
   label,
   onClick,
   right,
-  showChevron,
+  showIcon,
   subText,
   className,
-  ChevronComponent = ArrowIcon,
+  ariaLabel,
+  as,
+  href,
 }: SettingRowProps) {
-  const clickable = !!onClick || showChevron;
+  const arrow = showIcon ?? showIcon ?? false;
+  const clickable = !!onClick || arrow || as === 'a';
+  const Wrapper: ElementType = as ?? (clickable ? 'button' : 'div');
 
   return (
-    <Button
-      role={clickable ? 'button' : undefined}
-      tabIndex={clickable ? 0 : -1}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (clickable && (e.key === 'Enter' || e.key === ' ')) onClick?.();
-      }}
-      className={cn(
-        'flex h-[5.6rem] items-center justify-between border-gray-200 border-b bg-transparent px-[2.4rem]',
-        clickable && 'active:opacity-80',
-        className,
-      )}
-    >
-      <span className="body2-600 text-gray-900">{label}</span>
+    <div className={cn('relative bg-transparent', className)}>
+      <Wrapper
+        {...(Wrapper === 'a' ? { href } : {})}
+        {...(Wrapper === 'button' ? { type: 'button' } : {})}
+        onClick={onClick}
+        aria-label={ariaLabel ?? label}
+        className={cn(
+          'relative flex h-[5.6rem] w-full items-center justify-between px-[2.4rem] text-left',
+          clickable && 'active:opacity-80',
+        )}
+      >
+        <span className="body2-600 text-gray-900">{label}</span>
 
-      <div className="flex items-center gap-[0.8rem]">
-        {subText && <span className="body2-500 text-gray-500">{subText}</span>}
-        {right}
-        {showChevron && <ChevronComponent className="size-[1.8rem] shrink-0 text-gray-400" />}
-      </div>
-    </Button>
+        <div className="flex items-center gap-[0.8rem]">
+          {subText && <span className="body2-500 text-gray-500">{subText}</span>}
+          {right}
+          {arrow && <ArrowIcon aria-hidden className="size-[1.8rem] shrink-0 text-gray-400" />}
+        </div>
+      </Wrapper>
+    </div>
   );
 }
