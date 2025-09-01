@@ -11,7 +11,7 @@ export default function DiaryPage() {
   const goRecord = () => navigate('/diary/record');
 
   return (
-    <div className="min-h-dvh w-full flex-col bg-cover bg-gradient-bgd1 bg-no-repeat pb-[8rem]">
+    <div className="min-h-dvh w-full flex-col bg-cover bg-gradient-bgd1 bg-no-repeat pb-[17rem]">
       <Banner gradientClass="bg-gradient-bgd3" />
       <div className="flex-col px-[2rem]">
         <div className="flex-row-between">

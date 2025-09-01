@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 export default function OnboardingPage() {
   const nav = useNavigate();
   const slides = useMemo(() => [...ONBOARDING_SLIDES], []);
-  const { scrollerRef, idx, onScroll, stepTo, onPointerDown, jumpTo } = useOnboardingPager({
+  const { scrollerRef, idx, onScroll, onPointerDown, jumpTo } = useOnboardingPager({
     total: slides.length,
     duration: 280,
   });

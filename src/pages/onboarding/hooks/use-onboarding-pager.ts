@@ -130,7 +130,9 @@ export default function useOnboardingPager({ total, duration = 0 }: UseOnboardin
 
       try {
         el.setPointerCapture(e.pointerId);
-      } catch {}
+      } catch {
+        /* */
+      }
 
       const handleMove = (ev: PointerEvent) => {
         if (!draggingRef.current || !scrollerRef.current) return;
@@ -156,7 +158,9 @@ export default function useOnboardingPager({ total, duration = 0 }: UseOnboardin
         if (!scrollerRef.current) return;
         try {
           scrollerRef.current.releasePointerCapture((ev as PointerEvent).pointerId);
-        } catch {}
+        } catch {
+          /* */
+        }
 
         const el2 = scrollerRef.current;
         const width = el2.clientWidth;
