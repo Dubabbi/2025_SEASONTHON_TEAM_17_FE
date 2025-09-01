@@ -9,6 +9,7 @@ import HomeIcon from '@assets/icons/home.svg?react';
 import ProfileIcon from '@assets/icons/profile.svg?react';
 import InputField from '@components/inputfield';
 import TextField from '@components/textfield';
+import TipInfo from '@components/tipinfo';
 import { useState } from 'react';
 
 export default function TestPage() {
@@ -91,6 +92,11 @@ export default function TestPage() {
               }
             />
           </section>
+        </div>
+
+        <div>
+          <TipInfo title="TipInfo Title" text="TipInfo Text" className="mx-[2.0rem] mt-[1.6rem]" />
+          {/* className을 통해 여백 설정을 하였습니다. */}
         </div>
       </div>
     </div>
