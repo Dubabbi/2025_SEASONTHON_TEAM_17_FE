@@ -1,12 +1,10 @@
-// @pages/onboarding/components/indicator.tsx
-
 import { cn } from '@libs/cn';
 import { useMemo } from 'react';
 
 export type IndicatorProps = {
   total: number;
   index: number;
-  onSelect?: (i: number) => void; // 클릭으로 점프
+  onSelect?: (i: number) => void;
   className?: string;
 };
 

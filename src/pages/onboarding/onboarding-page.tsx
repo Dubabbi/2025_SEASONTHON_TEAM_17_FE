@@ -13,7 +13,7 @@ export default function OnboardingPage() {
 
   const slides = useMemo(() => [...ONBOARDING_SLIDES], []);
 
-  const { scrollerRef, idx, onScroll, stepTo } = useOnboardingPager({
+  const { scrollerRef, idx, onScroll, stepTo, onPointerDown } = useOnboardingPager({
     total: slides.length,
     duration: 280,
   });
@@ -27,11 +27,13 @@ export default function OnboardingPage() {
         <div
           ref={scrollerRef}
           onScroll={onScroll}
+          onPointerDown={onPointerDown}
           className={cn(
             'mx-auto w-full max-w-[43rem]',
             'h-[38rem]',
             'snap-x snap-mandatory overflow-x-auto overflow-y-hidden',
             'scrollbar-hide touch-pan-x select-none overscroll-x-contain',
+            'cursor-default',
           )}
         >
           <div className={cn('flex h-full w-full')}>
