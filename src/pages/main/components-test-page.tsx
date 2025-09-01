@@ -7,7 +7,7 @@ import ChatIcon from '@assets/icons/chat.svg?react';
 import HeartIcon from '@assets/icons/heart.svg?react';
 import HomeIcon from '@assets/icons/home.svg?react';
 import ProfileIcon from '@assets/icons/profile.svg?react';
-import InputField from '@components/input-field';
+import InputField from '@components/inputfield';
 import TextField from '@components/textfield';
 import TipInfo from '@components/tipinfo';
 import { useState } from 'react';

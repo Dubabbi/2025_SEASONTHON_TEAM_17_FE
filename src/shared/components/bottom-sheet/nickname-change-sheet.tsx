@@ -1,8 +1,9 @@
 import BottomSheet from '@components/bottom-sheet/bottom-sheet';
 import { GrayCTA, PrimaryStrongCTA } from '@components/button/cta-button';
-import InputField from '@components/input-field';
+import InputField from '@components/inputfield';
 import { cn } from '@libs/cn';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNicknameAvailability } from '@pages/my-page/hooks/use-nickname-availability';
+import { useState } from 'react';
 
 interface NicknameChangeSheetProps {
   isOpen: boolean;
@@ -19,8 +20,6 @@ interface NicknameChangeSheetProps {
   checkAvailability?: (nickname: string) => Promise<boolean> | boolean;
   debounceMs?: number;
 }
-
-type Availability = 'idle' | 'checking' | 'available' | 'unavailable';
 
 export default function NicknameChangeSheet({
   isOpen,
@@ -43,78 +42,19 @@ export default function NicknameChangeSheet({
     onChange ? onChange(v) : setInner(v);
   };
 
-  const lenValid = useMemo(() => {
-    const len = current.trim().length;
-    return len >= minLen && len <= maxLen;
-  }, [current, minLen, maxLen]);
-
-  const baseActive = useMemo(() => {
-    if (typeof isActive === 'boolean') return isActive;
-    return lenValid;
-  }, [isActive, lenValid]);
-
-  const [availability, setAvailability] = useState<Availability>('idle');
-  const timerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!checkAvailability) {
-      setAvailability('idle');
-      return;
-    }
-    const trimmed = current.trim();
-    if (!trimmed || !lenValid) {
-      setAvailability('idle');
-      return;
-    }
-
-    setAvailability('checking');
-
-    if (timerRef.current) window.clearTimeout(timerRef.current);
-
-    timerRef.current = window.setTimeout(async () => {
-      try {
-        const ok = await checkAvailability(trimmed);
-        setAvailability(ok ? 'available' : 'unavailable');
-      } catch {
-        setAvailability('unavailable');
-      }
-    }, debounceMs);
-
-    return () => {
-      if (timerRef.current) window.clearTimeout(timerRef.current);
-    };
-  }, [current, lenValid, checkAvailability, debounceMs]);
-
-  const canSubmit = useMemo(() => {
-    if (!baseActive) return false;
-    if (!checkAvailability) return true;
-    return availability === 'available';
-  }, [baseActive, checkAvailability, availability]);
+  const { canSubmit, variant, helperText, availability } = useNicknameAvailability({
+    nickname: current,
+    minLen,
+    maxLen,
+    isActive,
+    checkAvailability,
+    debounceMs,
+  });
 
   const handleSubmit = () => {
     if (!onSubmit || !canSubmit) return;
     onSubmit(current.trim());
   };
-
-  const hasInput = current.trim().length > 0;
-
-  const variant: 'default' | 'error' | 'success' =
-    (!lenValid && hasInput) || availability === 'unavailable'
-      ? 'error'
-      : availability === 'available'
-        ? 'success'
-        : 'default';
-
-  const helperText =
-    variant === 'error'
-      ? !lenValid
-        ? `${minLen}~${maxLen}자 이내로 입력해 주세요`
-        : '이미 사용 중인 닉네임입니다.'
-      : availability === 'checking'
-        ? '중복 확인 중...'
-        : availability === 'available'
-          ? '사용 가능한 닉네임입니다.'
-          : `${minLen}~${maxLen}자 이내의 닉네임을 작성해 주세요`;
 
   return (
     <BottomSheet

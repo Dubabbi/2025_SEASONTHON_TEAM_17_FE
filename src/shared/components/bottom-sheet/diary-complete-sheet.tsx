@@ -29,9 +29,7 @@ export default function DiaryCompleteSheet({
       <div className="flex-col gap-[1.6rem] pb-[4rem]">
         <h2 className="heading2-700 text-gray-900">작성을 완료했습니다.</h2>
         <p className="heading3-500 text-gray-600">
-          지금 작성한 내용은 나의 감정 일기 기록 페이지에서
-          <br />
-          확인할 수 있어요. 확인해보시겠어요?
+          지금 작성한 내용에 대해 마몬이가 공감 멘트와 감정 5개를 추출했어요. 확인해보시겠어요?
         </p>
       </div>
 
