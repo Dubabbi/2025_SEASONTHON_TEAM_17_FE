@@ -1,0 +1,39 @@
+import Button from '@components/button/button';
+import Chips from '@components/chips/chips';
+import Divider from '@components/divider';
+
+interface EmotionCardProps {
+  selected: string[];
+  onChange: (selected: string[]) => void;
+  onClickCheck?: () => void;
+  onClickClose?: () => void;
+}
+
+const EmotionCard = ({ selected, onChange, onClickCheck, onClickClose }: EmotionCardProps) => {
+  return (
+    <div className="w-full rounded-[20px] border border-primary-600 px-[1.6rem] py-[2rem]">
+      <p className="heading3-500 text-primary-600">오늘의 감정 체크</p>
+      <p className="body2-500 mt-[1.2rem] text-gray-900">오늘의 감정은 어떤가요?</p>
+      <div className="my-[1.2rem] pr-[7.1rem]">
+        <Chips size="small" selected={selected} onChange={onChange} />
+      </div>
+      <Divider />
+      <div className="mt-[1.2rem] flex-row-end gap-[1rem]">
+        <Button
+          onClick={onClickCheck}
+          className="detail rounded-[999px] bg-primary-400 px-[1.6rem] py-[0.7rem] text-gray-50"
+        >
+          확인
+        </Button>
+        <Button
+          onClick={onClickClose}
+          className="detail rounded-[999px] border border-primary-400 px-[1.6rem] py-[0.7rem] text-primary-400"
+        >
+          닫기
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default EmotionCard;
