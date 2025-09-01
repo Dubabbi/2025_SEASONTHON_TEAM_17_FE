@@ -1,31 +1,17 @@
-import { MaeumStartCTA } from '@components/button/cta-button';
+import StepBase from '@pages/onboarding/components/step-base';
 import type { StepProps } from '@pages/onboarding/types/step';
 
-export default function Step2({ onStart, onLogin }: StepProps) {
+export default function Step2(props: StepProps) {
   return (
-    <div className="text-center">
-      <h2 className="heading2-700 text-gray-900 leading-tight">
-        감정 일기로
-        <br />
-        나의 속마음을 털어내보세요
-      </h2>
-
-      <div className="mt-[2.4rem]">
-        <MaeumStartCTA className="w-full" onClick={onStart}>
-          마음:ON 시작하기
-        </MaeumStartCTA>
-      </div>
-
-      <p className="body2-500 mt-[1.2rem] text-gray-400">
-        이미 계정이 있다면?{' '}
-        <button
-          type="button"
-          className="text-primary-600 underline-offset-2 hover:underline"
-          onClick={onLogin}
-        >
-          로그인하기
-        </button>
-      </p>
-    </div>
+    <StepBase
+      {...props}
+      title={
+        <>
+          감정 일기로
+          <br />
+          나의 속마음을 털어내보세요
+        </>
+      }
+    />
   );
 }
