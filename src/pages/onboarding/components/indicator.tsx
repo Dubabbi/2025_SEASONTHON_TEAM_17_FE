@@ -18,7 +18,7 @@ export default function Indicator({ total, index, onSelect, className }: Indicat
 
   return (
     <div
-      className={cn('flex items-center gap-2', className)}
+      className={cn('flex items-center gap-[1.2rem]', className)}
       role="tablist"
       aria-label="온보딩 단계"
     >
@@ -31,9 +31,9 @@ export default function Indicator({ total, index, onSelect, className }: Indicat
           aria-label={`${i + 1}/${total}`}
           onClick={() => onSelect?.(i)}
           className={cn(
-            'h-[8px] rounded-full transition-all duration-200 ease-out',
-            'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-300',
-            i === index ? 'w-[20px] bg-primary-600' : 'w-[8px] bg-gray-300',
+            'h-[0.8rem] rounded-full transition-all duration-100 ease-out',
+            'w-[0.8rem] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-300',
+            i === index ? 'bg-primary-600' : 'bg-gray-300',
           )}
         />
       ))}
