@@ -3,7 +3,6 @@ import LogoutConfirmSheet from '@components/bottom-sheet/logout-confirm-sheet';
 import NicknameChangeSheet from '@components/bottom-sheet/nickname-change-sheet';
 import ProfilePhotoSheet from '@components/bottom-sheet/profile-photo-sheet';
 import { PrimaryCTA } from '@components/button/cta-button';
-import Chips from '@components/chips/chips';
 import useBottomSheet from '@hooks/use-bottom-sheet';
 import { useState } from 'react';
 
@@ -54,7 +53,6 @@ export default function ProfilePage() {
           leaveSheet.close();
         }}
       />
-      <Chips name="직접 작성" />
 
       <LogoutConfirmSheet
         isOpen={logoutSheet.isOpen}
