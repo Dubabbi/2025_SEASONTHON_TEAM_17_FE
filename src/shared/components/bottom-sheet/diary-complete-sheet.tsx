@@ -2,15 +2,20 @@ import BottomSheet from '@components/bottom-sheet/bottom-sheet';
 import Button from '@components/button/button';
 import { PrimaryStrongCTA } from '@components/button/cta-button';
 import { cn } from '@libs/cn';
+import {
+  DIARY_COMPLETE_COPY,
+  DIARY_COMPLETE_SECONDARY,
+  type DiaryCompleteVariant,
+} from '@pages/diary/constants/diary-complete';
 
 interface DiaryCompleteSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  /** 기록 보러 가기 */
+  /** 기록/분석 보러 가기 */
   onGoRecords: () => void;
-  /** 메인 이동 */
   onGoMain?: () => void;
   className?: string;
+  variant?: DiaryCompleteVariant;
 }
 
 export default function DiaryCompleteSheet({
@@ -19,7 +24,14 @@ export default function DiaryCompleteSheet({
   onGoRecords,
   onGoMain,
   className,
+  variant = 'extracted',
 }: DiaryCompleteSheetProps) {
+  const copy = DIARY_COMPLETE_COPY[variant];
+  const secondaryLabel = onGoMain
+    ? DIARY_COMPLETE_SECONDARY.withMain
+    : DIARY_COMPLETE_SECONDARY.later;
+  const secondaryOnClick = onGoMain ?? onClose;
+
   return (
     <BottomSheet
       isOpen={isOpen}
@@ -27,25 +39,23 @@ export default function DiaryCompleteSheet({
       className={cn('px-[2.4rem] pb-[2.2rem]', className)}
     >
       <div className="flex-col gap-[1.6rem] pb-[4rem]">
-        <h2 className="heading2-700 text-gray-900">작성을 완료했습니다.</h2>
-        <p className="heading3-500 text-gray-600">
-          지금 작성한 내용에 대해 마몬이가 공감 멘트와 감정 5개를 추출했어요. 확인해보시겠어요?
-        </p>
+        <h2 className="heading2-700 text-gray-900">{copy.title}</h2>
+        <p className="heading3-500 text-gray-600">{copy.desc}</p>
       </div>
 
       <div className="flex-col-center gap-[0.8rem]">
         <PrimaryStrongCTA labelClassName="heading2-700" onClick={onGoRecords} className="w-full">
-          나의 감정 일기 기록 보러 가기
+          {copy.primary}
         </PrimaryStrongCTA>
 
         <Button
-          onClick={onGoMain}
+          onClick={secondaryOnClick}
           className={cn(
             'w-full bg-transparent py-[0.75rem] text-center',
             'body1-500 text-gray-400',
           )}
         >
-          일기 메인 페이지로 이동
+          {secondaryLabel}
         </Button>
       </div>
     </BottomSheet>
