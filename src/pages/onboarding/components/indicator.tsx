@@ -1,9 +1,12 @@
+// @pages/onboarding/components/indicator.tsx
+
 import { cn } from '@libs/cn';
 import { useMemo } from 'react';
 
-type Props = {
+export type IndicatorProps = {
   total: number;
   index: number;
+  onSelect?: (i: number) => void; // 클릭으로 점프
   className?: string;
 };
 
@@ -12,8 +15,8 @@ const uid = () =>
     ? crypto.randomUUID()
     : Math.random().toString(36).slice(2, 10);
 
-export default function Indicator({ total, index, className }: Props) {
-  const dotKeys = useMemo(() => Array.from({ length: total }, () => uid()), [total]);
+export default function Indicator({ total, index, onSelect, className }: IndicatorProps) {
+  const keys = useMemo(() => Array.from({ length: total }, () => uid()), [total]);
 
   return (
     <div
@@ -21,12 +24,17 @@ export default function Indicator({ total, index, className }: Props) {
       role="tablist"
       aria-label="온보딩 단계"
     >
-      {dotKeys.map((key, i) => (
-        <span
+      {keys.map((key, i) => (
+        <button
           key={key}
-          aria-hidden
+          type="button"
+          role="tab"
+          aria-selected={i === index}
+          aria-label={`${i + 1}/${total}`}
+          onClick={() => onSelect?.(i)}
           className={cn(
-            'inline-block h-[8px] rounded-full transition-all',
+            'h-[8px] rounded-full transition-all duration-200 ease-out',
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-300',
             i === index ? 'w-[20px] bg-primary-600' : 'w-[8px] bg-gray-300',
           )}
         />
