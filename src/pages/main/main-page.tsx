@@ -1,26 +1,36 @@
-import Button from '@components/button/button';
-import Calendar from '@components/calendar/calendar';
+import NotiBg from '@assets/images/noti-bg.png';
+import EmotionCard from '@components/card/emotion-card';
+import TipInfo from '@components/tipinfo';
 import { useState } from 'react';
+import HeroSection from '../main/components/hero-section';
 
-export default function MainPage() {
-  const [selected, setSelected] = useState(new Date());
+export default function HomePage() {
+  const today = new Date();
+  const formattedDate = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(
+    2,
+    '0',
+  )}.${String(today.getDate()).padStart(2, '0')}`;
+
+  const [selectedChips, setSelectedChips] = useState<string[]>([]);
 
   return (
-    <div className="min-h-dvh w-full flex-col bg-cover bg-gradient-bgd1 bg-no-repeat px-[2.4rem] py-[2rem]">
-      <div className="flex-row-between">
-        <div className="flex-col gap-[0.4rem] pt-[3.2rem] pb-[2rem]">
-          <h1 className="heading1-700 text-gray-900">나의 감정 일기 기록</h1>
-          <p className="body2-500 text-gray-500">날짜별로 정리하고 간단하게 확인할 수 있어요</p>
+    <div className="h-dvh flex-col pb-[15rem]" style={{ backgroundImage: `url(${NotiBg})` }}>
+      <HeroSection username="지훈" />
+
+      <section className="flex-col px-[2rem] pt-[2rem]">
+        <TipInfo title="최근 감정 일기 기록" text={formattedDate} className="py-[2rem]" />
+
+        <div className="py-[2rem]">
+          <div className="rounded-[20px] bg-gray-50">
+            <EmotionCard
+              selected={selectedChips}
+              onChange={setSelectedChips}
+              onClickCheck={() => {}}
+              onClickClose={() => setSelectedChips([])}
+            />
+          </div>
         </div>
-        <Button className="body2-500 rounded-full bg-primary-100 px-[1.6rem] py-[0.55rem] text-primary-800">
-          전체 기록 보기
-        </Button>
-      </div>
-      <Calendar
-        value={selected}
-        onChange={setSelected}
-        marked={['2025-08-01', '2025-08-08', '2025-08-09', '2025-08-15', '2025-08-27']}
-      />
+      </section>
     </div>
   );
 }

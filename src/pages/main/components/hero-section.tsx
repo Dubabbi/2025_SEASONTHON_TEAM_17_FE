@@ -17,7 +17,7 @@ export default function HeroSection({
     <section
       className={[
         'relative overflow-hidden rounded-b-[30px]',
-        'px-[2.5rem] py-[3.12rem]',
+        'px-[2.5rem] py-[2rem]',
         'flex-col-center gap-[1.2rem] bg-cover bg-no-repeat',
         gradientClass,
         className,
@@ -32,7 +32,7 @@ export default function HeroSection({
       <Heart className="h-[20rem] w-[20rem]" />
 
       {showSubtitle && (
-        <p className="sub-heading2 mt-10 text-center text-gray-900">
+        <p className="sub-heading2 text-center text-gray-900">
           오늘도 <span className="text-primary-600">마음:ON</span>과 함께해요
         </p>
       )}

@@ -8,13 +8,25 @@ interface EmotionCardProps {
   onChange: (selected: string[]) => void;
   onClickCheck?: () => void;
   onClickClose?: () => void;
+  className?: string;
 }
 
-const EmotionCard = ({ selected, onChange, onClickCheck, onClickClose }: EmotionCardProps) => {
+const EmotionCard = ({
+  selected,
+  onChange,
+  onClickCheck,
+  onClickClose,
+  className = 'bg-gray-50',
+}: EmotionCardProps) => {
   const buttonStyle = 'detail rounded-[999px] px-[1.6rem] py-[0.7rem]';
 
   return (
-    <div className="w-full flex-col gap-[1.2rem] rounded-[20px] border border-primary-600 px-[1.6rem] py-[2rem]">
+    <div
+      className={cn(
+        'w-full flex-col gap-[1.2rem] rounded-[20px] border border-primary-600 px-[1.6rem] py-[2rem]',
+        className,
+      )}
+    >
       <p className="heading3-500 text-primary-600">오늘의 감정 체크</p>
       <p className="body2-500 text-gray-900">오늘의 감정은 어떤가요?</p>
       <div className="pr-[7.1rem]">
