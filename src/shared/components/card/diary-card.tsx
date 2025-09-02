@@ -8,11 +8,12 @@ interface DiaryCardProps {
   content?: string;
   emotions?: string[];
   date?: Date;
-  onClickButton?: () => void;
+  onClickButton?: (type: '작성하기' | '수정하기') => void;
 }
 
 const DiaryCard = ({ title, content, emotions, date, onClickButton }: DiaryCardProps) => {
   const isEmpty = !title && !content && emotions?.length === 0;
+  const type = isEmpty ? '작성하기' : '수정하기';
 
   return (
     <div className="w-full flex-col gap-[1.2rem] rounded-[20px] border border-gray-200 p-[1.6rem]">
@@ -32,10 +33,10 @@ const DiaryCard = ({ title, content, emotions, date, onClickButton }: DiaryCardP
       <div className="flex-row-between">
         <p className="detail text-gray-400">{dayjs(date).format('YYYY.MM.DD')}</p>
         <Button
-          onClick={onClickButton}
+          onClick={() => onClickButton?.(type)}
           className="detail rounded-[999px] bg-gray-100 px-[1.6rem] py-[0.7rem] text-gray-600"
         >
-          {isEmpty ? '작성하기' : '수정하기'}
+          {type}
         </Button>
       </div>
     </div>
