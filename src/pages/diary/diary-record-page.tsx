@@ -9,7 +9,7 @@ export default function DiaryRecordPage() {
     <div className="flex-col gap-[3rem] px-[2.4rem] pt-[2.2rem] pb-[17rem]">
       <TipInfo
         title="나의 감정 일기 기록 이용 TIP"
-        text="아래 날짜를 클릭하면 당시 기록한 감정 일기를 볼 수 있어요 "
+        text="아래 날짜를 클릭하면 당시 기록한 감정 일기를 볼 수 있어요"
       />
       <div className="flex-col gap-[1.5rem]">
         <h1 className="heading1-700">월별 기록</h1>
