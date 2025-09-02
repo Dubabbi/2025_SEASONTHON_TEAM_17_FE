@@ -1,9 +1,72 @@
 import Calendar from '@components/calendar/calendar';
+import DiaryCard from '@components/card/diary-card';
 import TipInfo from '@components/tipinfo';
-import { useState } from 'react';
+import type { DiaryEntry } from '@pages/diary/diary-page';
+import dayjs from 'dayjs';
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+type DiaryCreateState =
+  | { mode: 'create'; date: string }
+  | { mode: 'edit'; date: string; entry: DiaryEntry };
+
+const DIARY_ENTRIES: Record<string, DiaryEntry> = {
+  '2025-08-01': {
+    title: '오늘은...',
+    content: '맛있는 걸 먹어서 기분이 좋은 날이다.',
+    emotions: ['HAPPY'],
+  },
+  '2025-08-08': {
+    title: '집중의 하루',
+    content: '순공 시간 12시간 달성했다. 재미 없다,,',
+    emotions: ['SAD', 'ANGRY'],
+  },
+  '2025-08-09': {
+    title: '휴식',
+    content: '산책으로 머리 식혔다...',
+    emotions: ['SAD'],
+  },
+  '2025-08-15': {
+    title: '왠지 기분이 좋은 날',
+    content: '오랜만에 나들이',
+    emotions: ['EXCITE'],
+  },
+  '2025-08-27': {
+    title: '좋아하는 친구들을 만났다.',
+    content: '역시 친구들을 만나니까 기분이 좋은 것 같다.',
+    emotions: ['EXCITE'],
+  },
+  '2025-09-03': {
+    title: '행복',
+    content: '좋아하는 휘낭시에랑 마들렌을 잔뜩 먹었다!! 맛있으면 0칼로리;;',
+    emotions: ['HAPPY'],
+  },
+  '2025-09-14': {
+    title: '슬픈 영화를 봤다.',
+    content: '베일리 어게인 보고 내내 울었다...',
+    emotions: ['SAD'],
+  },
+};
 
 export default function DiaryRecordPage() {
   const [selected, setSelected] = useState(new Date());
+  const navigate = useNavigate();
+
+  const selectedKey = useMemo(() => dayjs(selected).format('YYYY-MM-DD'), [selected]);
+  const entry = DIARY_ENTRIES[selectedKey];
+  const marked = useMemo(() => Object.keys(DIARY_ENTRIES), []);
+
+  const onCardAction = (type: '작성하기' | '수정하기') => {
+    if (type === '작성하기') {
+      const state: DiaryCreateState = { mode: 'create', date: selectedKey };
+      navigate('/diary/create', { state });
+      return;
+    }
+
+    if (!entry) return;
+    const state: DiaryCreateState = { mode: 'edit', date: selectedKey, entry };
+    navigate('/diary/create', { state });
+  };
 
   return (
     <div className="flex-col gap-[3rem] px-[2.4rem] pt-[2.2rem] pb-[17rem]">
@@ -11,25 +74,23 @@ export default function DiaryRecordPage() {
         title="나의 감정 일기 기록 이용 TIP"
         text="아래 날짜를 클릭하면 당시 기록한 감정 일기를 볼 수 있어요"
       />
+
       <div className="flex-col gap-[1.5rem]">
         <h1 className="heading1-700">월별 기록</h1>
         <section>
-          <Calendar
-            value={selected}
-            onChange={setSelected}
-            marked={[
-              '2025-08-01',
-              '2025-08-08',
-              '2025-08-09',
-              '2025-08-15',
-              '2025-08-27',
-              '2025-09-03',
-              '2025-09-14',
-            ]}
-          />
+          <Calendar value={selected} onChange={setSelected} marked={marked} />
         </section>
       </div>
-      <div>{/* TODO: 다이어리 컴포넌트 추가 */}</div>
+
+      <div className="pt-[0.8rem]">
+        <DiaryCard
+          title={entry?.title}
+          content={entry?.content}
+          emotions={entry?.emotions ?? []}
+          date={selected}
+          onClickButton={onCardAction}
+        />
+      </div>
     </div>
   );
 }
