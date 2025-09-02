@@ -6,6 +6,10 @@ import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+type DiaryCreateState =
+  | { mode: 'create'; date: string }
+  | { mode: 'edit'; date: string; entry: DiaryEntry };
+
 const DIARY_ENTRIES: Record<string, DiaryEntry> = {
   '2025-08-01': {
     title: '오늘은...',
@@ -50,12 +54,18 @@ export default function DiaryRecordPage() {
 
   const selectedKey = useMemo(() => dayjs(selected).format('YYYY-MM-DD'), [selected]);
   const entry = DIARY_ENTRIES[selectedKey];
-
   const marked = useMemo(() => Object.keys(DIARY_ENTRIES), []);
 
   const onCardAction = (type: '작성하기' | '수정하기') => {
-    if (type === '작성하기') navigate(`/diary/record?date=${selectedKey}`);
-    else navigate(`/diary/record?date=${selectedKey}&mode=edit`);
+    if (type === '작성하기') {
+      const state: DiaryCreateState = { mode: 'create', date: selectedKey };
+      navigate('/diary/create', { state });
+      return;
+    }
+
+    if (!entry) return;
+    const state: DiaryCreateState = { mode: 'edit', date: selectedKey, entry };
+    navigate('/diary/create', { state });
   };
 
   return (

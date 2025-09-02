@@ -12,6 +12,10 @@ export type DiaryEntry = {
   emotions: string[];
 };
 
+type DiaryCreateState =
+  | { mode: 'create'; date: string }
+  | { mode: 'edit'; date: string; entry: DiaryEntry };
+
 const DIARY_ENTRIES: Record<string, DiaryEntry> = {
   '2025-08-01': {
     title: '오늘은...',
@@ -62,10 +66,13 @@ export default function DiaryPage() {
 
   const handleCardAction = (type: '작성하기' | '수정하기') => {
     if (type === '작성하기') {
-      navigate(`/diary/record?date=${selectedKey}`);
-    } else {
-      navigate(`/diary/record?date=${selectedKey}&mode=edit`);
+      const state: DiaryCreateState = { mode: 'create', date: selectedKey };
+      navigate('/diary/create', { state });
+      return;
     }
+    if (!entry) return;
+    const state: DiaryCreateState = { mode: 'edit', date: selectedKey, entry };
+    navigate('/diary/create', { state });
   };
 
   return (
