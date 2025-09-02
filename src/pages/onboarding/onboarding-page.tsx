@@ -28,7 +28,7 @@ export default function OnboardingPage() {
           onPointerDown={onPointerDown}
           className={cn(
             'mx-auto w-full max-w-[43rem]',
-            'h-[40rem]',
+            'h-full',
             'snap-x snap-mandatory overflow-x-auto overflow-y-hidden',
             'scrollbar-hide touch-pan-x select-none overscroll-x-contain',
             'transform-gpu [-webkit-overflow-scrolling:touch]',
