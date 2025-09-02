@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-type DiaryEntry = {
+export type DiaryEntry = {
   title: string;
   content: string;
   emotions: string[];
