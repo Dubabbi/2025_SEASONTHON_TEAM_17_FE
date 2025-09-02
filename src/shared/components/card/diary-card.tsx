@@ -1,5 +1,45 @@
-const DiaryCard = () => {
-  return <div />;
+import Button from '@components/button/button';
+import Chips from '@components/chips/chips';
+import Divider from '@components/divider';
+import dayjs from 'dayjs';
+
+interface DiaryCardProps {
+  title?: string;
+  content?: string;
+  emotions?: string[];
+  date?: Date;
+  onClickButton?: () => void;
+}
+
+const DiaryCard = ({ title, content, emotions, date, onClickButton }: DiaryCardProps) => {
+  const isEmpty = !title && !content && emotions?.length === 0;
+
+  return (
+    <div className="w-full flex-col gap-[1.2rem] rounded-[20px] border border-gray-200 p-[1.6rem]">
+      {!isEmpty && (
+        <>
+          <p className="heading3-500">{title}</p>
+          <p className="body2-500 h-[7.2rem] break-words">{content}</p>
+          <div className="pr-[7.1rem]">
+            <Chips size="small" emotions={emotions} />
+          </div>
+        </>
+      )}
+      {isEmpty && (
+        <p className="body1-500 text-gray-900">해당 날짜에는 감정 일기 기록이 없어요😢</p>
+      )}
+      <Divider />
+      <div className="flex-row-between">
+        <p className="detail text-gray-400">{dayjs(date).format('YYYY.MM.DD')}</p>
+        <Button
+          onClick={onClickButton}
+          className="detail rounded-[999px] bg-gray-100 px-[1.6rem] py-[0.7rem] text-gray-600"
+        >
+          {isEmpty ? '작성하기' : '수정하기'}
+        </Button>
+      </div>
+    </div>
+  );
 };
 
 export default DiaryCard;
