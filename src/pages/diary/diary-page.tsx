@@ -20,7 +20,7 @@ export default function DiaryPage() {
             <p className="body2-500 text-gray-500">날짜별로 정리하고 간단하게 확인할 수 있어요</p>
           </div>
           <Button
-            className="body2-500 rounded-full bg-primary-100 px-[1.6rem] py-[0.55rem] text-primary-800"
+            className="body2-500 rounded-full bg-gray-50 px-[1.6rem] py-[0.55rem] text-primary-800 outline outline-primary-800"
             onClick={goRecord}
           >
             전체 기록 보기

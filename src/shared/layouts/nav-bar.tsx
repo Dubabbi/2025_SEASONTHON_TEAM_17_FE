@@ -35,7 +35,7 @@ export default function NavigationBar() {
   ];
 
   return (
-    <div className="sticky bottom-0 z-[var(--z-bottom-nav)] flex min-h-[8rem] w-full items-center justify-around rounded-t-[2.4rem] bg-gray-50 px-[0.5rem] shadow-md">
+    <div className="sticky bottom-0 z-[var(--z-bottom-nav)] flex min-h-[8rem] w-full items-center justify-around rounded-t-[2.4rem] bg-gray-50 px-[0.5rem] shadow-nav">
       {menuList.map((menu) => {
         const isActive = isActivePath(pathname, menu.to);
         return (
