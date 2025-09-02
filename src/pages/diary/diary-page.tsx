@@ -1,14 +1,72 @@
 import Button from '@components/button/button';
 import Calendar from '@components/calendar/calendar';
+import DiaryCard from '@components/card/diary-card';
 import Banner from '@pages/diary/components/banner';
-import { useState } from 'react';
+import dayjs from 'dayjs';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+type DiaryEntry = {
+  title: string;
+  content: string;
+  emotions: string[];
+};
+
+const DIARY_ENTRIES: Record<string, DiaryEntry> = {
+  '2025-08-01': {
+    title: '오늘은...',
+    content: '맛있는 걸 먹어서 기분이 좋은 날이다.',
+    emotions: ['HAPPY'],
+  },
+  '2025-08-08': {
+    title: '집중의 하루',
+    content: '순공 시간 12시간 달성했다. 재미 없다.,,',
+    emotions: ['SAD', 'ANGRY'],
+  },
+  '2025-08-09': {
+    title: '휴식',
+    content: '산책으로 머리 식혔다...',
+    emotions: ['SAD'],
+  },
+  '2025-08-15': {
+    title: '왠지 기분이 좋은 날',
+    content: '오랜만에 나들이',
+    emotions: ['EXCITE'],
+  },
+  '2025-08-27': {
+    title: '좋아하는 친구들을 만났다.',
+    content: '역시 친구들을 만나니까 기분이 좋은 것 같다.',
+    emotions: ['EXCITE'],
+  },
+  '2025-09-03': {
+    title: '행복',
+    content: '좋아하는 휘낭시에랑 마들렌을 잔뜩 먹었다!! 맛있으면 0칼로리;;',
+    emotions: ['HAPPY'],
+  },
+  '2025-09-14': {
+    title: '슬픈 영화를 봤다.',
+    content: '베일리 어게인 보고 내내 울었다...',
+    emotions: ['SAD'],
+  },
+};
 
 export default function DiaryPage() {
   const [selected, setSelected] = useState(new Date());
   const navigate = useNavigate();
 
+  const selectedKey = useMemo(() => dayjs(selected).format('YYYY-MM-DD'), [selected]);
+
+  const entry = DIARY_ENTRIES[selectedKey];
+  const markedDates = useMemo(() => Object.keys(DIARY_ENTRIES), []);
   const goRecord = () => navigate('/diary/record');
+
+  const handleCardAction = (type: '작성하기' | '수정하기') => {
+    if (type === '작성하기') {
+      navigate(`/diary/record?date=${selectedKey}`);
+    } else {
+      navigate(`/diary/record?date=${selectedKey}&mode=edit`);
+    }
+  };
 
   return (
     <div className="min-h-dvh w-full flex-col bg-cover bg-gradient-bgd1 bg-no-repeat pb-[17rem]">
@@ -27,19 +85,17 @@ export default function DiaryPage() {
           </Button>
         </div>
 
-        <Calendar
-          value={selected}
-          onChange={setSelected}
-          marked={[
-            '2025-08-01',
-            '2025-08-08',
-            '2025-08-09',
-            '2025-08-15',
-            '2025-08-27',
-            '2025-09-03',
-            '2025-09-14',
-          ]}
-        />
+        <Calendar value={selected} onChange={setSelected} marked={markedDates} />
+
+        <div className="pt-[1.6rem] pb-[2.4rem]">
+          <DiaryCard
+            title={entry?.title}
+            content={entry?.content}
+            emotions={entry?.emotions ?? []}
+            date={selected}
+            onClickButton={handleCardAction}
+          />
+        </div>
       </div>
     </div>
   );
