@@ -88,7 +88,7 @@ export function MaeumStartCTA({
   return (
     <Button
       className={cn(baseBtn, 'gap-[0.8rem] bg-gray-900 text-gray-50', className)}
-      labelClassName={cn('heading2-700 font-bold', labelClassName)}
+      labelClassName={cn('heading2-700', labelClassName)}
       leftIcon={leftIcon ?? <HeartIcon className="h-[2.0rem] w-[2.0rem]" />}
       leftIconClassName={cn('text-primary-600', leftIconClassName)}
       {...props}

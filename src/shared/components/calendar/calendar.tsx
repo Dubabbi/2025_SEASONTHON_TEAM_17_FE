@@ -1,5 +1,5 @@
 import ArrowIcon from '@assets/icons/calendar-arrow.svg?react';
-import CheckIcon from '@assets/icons/check.svg?react';
+import HeartIcon from '@assets/icons/heart.svg?react';
 import {
   addMonths,
   eachDayOfInterval,
@@ -141,6 +141,8 @@ export default function Calendar({
                   ? 'text-success-default'
                   : 'text-gray-900';
 
+            const isToday = isSameDay(day, new Date());
+
             return (
               <div key={dayKey} className="flex justify-center">
                 <button
@@ -154,35 +156,38 @@ export default function Calendar({
                     'focus-visible:ring-2 focus-visible:ring-primary-400',
                   ].join(' ')}
                 >
-                  {selectedDay && (
+                  {(isToday || selectedDay) && (
                     <span
                       className={[
                         'pointer-events-none absolute',
                         '-translate-x-1/2 bottom-[0rem] left-1/2',
                         'h-[5.2rem] w-[4.4rem] rounded-[5px]',
-                        'border-2 border-primary-400',
+                        isToday ? 'bg-primary-300' : 'border-2 border-primary-400',
                       ].join(' ')}
                       aria-hidden
                     />
                   )}
 
                   {/* 날짜 숫자 */}
-                  <span className={['body2-600 relative z-10 select-none', colorClass].join(' ')}>
+                  <span
+                    className={[
+                      'body2-600 relative z-10 select-none',
+                      isToday ? 'text-gray-50' : colorClass,
+                    ].join(' ')}
+                  >
                     {format(day, 'd')}
                   </span>
 
-                  {/* 오늘 표식은 기본 비활성 */}
-                  {showTodayHint && !selectedDay && (
+                  {showTodayHint && !selectedDay && !isToday && (
                     <span
                       className="-bottom-1 -translate-x-1/2 pointer-events-none absolute left-1/2 z-10 h-1 w-8 rounded-full border border-primary-800 border-dashed"
                       aria-hidden
                     />
                   )}
 
-                  {/* 체크 뱃지 */}
                   {hasMark && (
-                    <span className="-translate-x-1/2 absolute bottom-[0.7rem] left-1/2 z-10 flex h-[1.6rem] w-[1.6rem] items-center justify-center rounded-full text-white">
-                      <CheckIcon />
+                    <span className="-translate-x-1/2 absolute bottom-[0.7rem] left-1/2 z-10 flex h-[1.6rem] w-[1.6rem] items-center justify-center rounded-full text-primary-800">
+                      <HeartIcon />
                     </span>
                   )}
                 </button>

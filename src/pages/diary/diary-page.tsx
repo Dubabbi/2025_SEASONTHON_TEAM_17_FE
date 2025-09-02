@@ -11,7 +11,7 @@ export default function DiaryPage() {
   const goRecord = () => navigate('/diary/record');
 
   return (
-    <div className="min-h-dvh w-full flex-col bg-cover bg-gradient-bgd1 bg-no-repeat pb-[8rem]">
+    <div className="min-h-dvh w-full flex-col bg-cover bg-gradient-bgd1 bg-no-repeat pb-[17rem]">
       <Banner gradientClass="bg-gradient-bgd3" />
       <div className="flex-col px-[2rem]">
         <div className="flex-row-between">
@@ -20,7 +20,7 @@ export default function DiaryPage() {
             <p className="body2-500 text-gray-500">날짜별로 정리하고 간단하게 확인할 수 있어요</p>
           </div>
           <Button
-            className="body2-500 rounded-full bg-primary-100 px-[1.6rem] py-[0.55rem] text-primary-800"
+            className="body2-500 rounded-full bg-gray-50 px-[1.6rem] py-[0.55rem] text-primary-800 outline outline-primary-800"
             onClick={goRecord}
           >
             전체 기록 보기
@@ -30,7 +30,15 @@ export default function DiaryPage() {
         <Calendar
           value={selected}
           onChange={setSelected}
-          marked={['2025-08-01', '2025-08-08', '2025-08-09', '2025-08-15', '2025-08-27']}
+          marked={[
+            '2025-08-01',
+            '2025-08-08',
+            '2025-08-09',
+            '2025-08-15',
+            '2025-08-27',
+            '2025-09-03',
+            '2025-09-14',
+          ]}
         />
       </div>
     </div>

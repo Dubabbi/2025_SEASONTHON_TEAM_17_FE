@@ -14,7 +14,7 @@ const EXCEPTION_HEADERS: Array<{
   },
   {
     test: (p) => p.startsWith('/diary/record'),
-    props: { variant: 'title', title: '나의 감정 일기 기록' },
+    props: { variant: 'title', title: '나의 감정 일기 전체 기록' },
   },
   {
     test: (p) => p.startsWith('/mypage/terms-service'),
@@ -59,7 +59,7 @@ export default function Layout() {
     <div className="flex max-h-dvh flex-col overflow-hidden">
       {!hideChrome && <Header onBellClick={() => navigate('/notifications')} {...headerProps} />}
 
-      <main className="scrollbar-hide mx-auto min-h-dvh w-full flex-1 overflow-y-auto pb-[calc(8rem+env(safe-area-inset-bottom))]">
+      <main className="scrollbar-hide mx-auto min-h-dvh w-full flex-1 overflow-y-auto">
         <ScrollRestoration />
         <Outlet />
       </main>
