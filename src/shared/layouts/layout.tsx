@@ -1,7 +1,7 @@
 import Header, { type HeaderProps } from '@layouts/header-bar';
 import NavigationBar from '@layouts/nav-bar';
 import Splash from '@layouts/splash';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Outlet, ScrollRestoration, useLocation, useMatches, useNavigate } from 'react-router-dom';
 
 const EXCEPTION_HEADERS: Array<{
@@ -42,17 +42,14 @@ export default function Layout() {
   const hideChrome = !!last?.handle?.hideChrome;
 
   const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem('splashSeen'));
-  useEffect(() => {
-    if (!showSplash) return;
-    const t = setTimeout(() => {
-      sessionStorage.setItem('splashSeen', '1');
-      setShowSplash(false);
-    }, 1200);
-    return () => clearTimeout(t);
-  }, [showSplash]);
+
+  const handleSplashDone = () => {
+    sessionStorage.setItem('splashSeen', '1');
+    setShowSplash(false);
+  };
 
   if (showSplash) {
-    return <Splash />;
+    return <Splash onComplete={handleSplashDone} />;
   }
 
   return (
