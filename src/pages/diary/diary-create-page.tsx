@@ -13,7 +13,6 @@ export default function DiaryCreatePage() {
     content: '',
     range: '',
   });
-  const [activeTab, setActiveTab] = useState('');
   const navigate = useNavigate();
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -24,10 +23,8 @@ export default function DiaryCreatePage() {
     diaryInfo.title.length < 100 && diaryInfo.content.length >= 100 && diaryInfo.range;
 
   const handleGoRecords = () => {
-    // TODO: 분석 화면 연결 -> 분석 완료 화면 연결(컴포넌트 갈아끼우기!)
     setOpen(false);
   };
-
   return (
     <div className="flex-col gap-[5rem] px-[2.5rem] pt-[2.2rem] pb-[20rem]">
       <div className="flex-col gap-[2rem]">
@@ -49,6 +46,7 @@ export default function DiaryCreatePage() {
             }
           />
         </div>
+
         <div className="flex-col gap-[1rem]">
           <span className="heading3-700 text-gray-900">내용</span>
           <TextField
@@ -67,6 +65,7 @@ export default function DiaryCreatePage() {
             }
           />
         </div>
+
         <div className="flex-col gap-[1rem]">
           <p className="heading3-700 text-gray-900">공개 범위</p>
           <ToggleButton

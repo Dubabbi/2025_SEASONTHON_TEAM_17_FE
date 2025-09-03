@@ -1,6 +1,7 @@
 import Button from '@components/button/button';
 import Chips from '@components/chips/chips';
 import Divider from '@components/divider';
+import { cn } from '@libs/cn';
 import dayjs from 'dayjs';
 
 interface DiaryCardProps {
@@ -9,14 +10,27 @@ interface DiaryCardProps {
   emotions?: string[];
   date?: Date;
   onClickButton?: (type: '작성하기' | '수정하기') => void;
+  className?: string;
 }
 
-const DiaryCard = ({ title, content, emotions, date, onClickButton }: DiaryCardProps) => {
+const DiaryCard = ({
+  title,
+  content,
+  emotions,
+  date,
+  className = 'bg-gray-50',
+  onClickButton,
+}: DiaryCardProps) => {
   const isEmpty = !title && !content && emotions?.length === 0;
   const type = isEmpty ? '작성하기' : '수정하기';
 
   return (
-    <div className="w-full flex-col gap-[1.2rem] rounded-[20px] border border-gray-200 p-[1.6rem]">
+    <div
+      className={cn(
+        'w-full flex-col gap-[1.2rem] rounded-[20px] border border-gray-200 p-[1.6rem]',
+        className,
+      )}
+    >
       {!isEmpty && (
         <>
           <p className="heading3-500">{title}</p>
