@@ -20,6 +20,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.18",
+    "firebase": "^12.2.1",
     "framer-motion": "^12.23.12",
     "lottie-react": "^2.4.1",
     "react": "^19.1.1",
@@ -49,6 +50,7 @@
     "tailwindcss": "^4.1.11",
     "typescript": "^5.9.2",
     "vite": "^7.1.2",
+    "vite-plugin-pwa": "^1.0.3",
     "vite-plugin-svg-icons": "^2.0.1",
     "vite-tsconfig-paths": "^5.1.4"
   }
