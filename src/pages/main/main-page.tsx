@@ -21,14 +21,12 @@ export default function HomePage() {
         <TipInfo title="최근 감정 일기 기록" text={formattedDate} className="py-[2rem]" />
 
         <div className="py-[2rem]">
-          <div className="rounded-[20px] bg-gray-50">
-            <EmotionCard
-              selected={selectedChips}
-              onChange={setSelectedChips}
-              onClickCheck={() => {}}
-              onClickClose={() => setSelectedChips([])}
-            />
-          </div>
+          <EmotionCard
+            selected={selectedChips}
+            onChange={setSelectedChips}
+            onClickCheck={() => {}}
+            onClickClose={() => setSelectedChips([])}
+          />
         </div>
       </section>
     </div>
