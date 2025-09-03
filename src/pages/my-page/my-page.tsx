@@ -3,6 +3,7 @@ import LeaveConfirmSheet from '@components/bottom-sheet/leave-confirm-sheet';
 import LogoutConfirmSheet from '@components/bottom-sheet/logout-confirm-sheet';
 import NicknameChangeSheet from '@components/bottom-sheet/nickname-change-sheet';
 import ProfilePhotoSheet from '@components/bottom-sheet/profile-photo-sheet';
+import { TOAST_MSG } from '@constants/toast-messages';
 import { useToast } from '@contexts/toast-context';
 import useBottomSheet from '@hooks/use-bottom-sheet';
 import useFcm from '@hooks/use-fcm';
@@ -11,21 +12,9 @@ import InquiryAlertsSection from '@pages/my-page/components/inquiry-alerts-secti
 import ProfileHeader from '@pages/my-page/components/profile-header';
 import SectionTitle from '@pages/my-page/components/section-title';
 import SettingRow from '@pages/my-page/components/setting-row';
+import { fileToDataUrl, getMissingFcmEnvKeys } from '@pages/my-page/utils/file-to-data';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-function getMissingFcmEnvKeys() {
-  const e = import.meta.env as Record<string, string | undefined>;
-  const required = [
-    'VITE_FIREBASE_API_KEY',
-    'VITE_FIREBASE_AUTH_DOMAIN',
-    'VITE_FIREBASE_PROJECT_ID',
-    'VITE_FIREBASE_MESSAGING_SENDER_ID',
-    'VITE_FIREBASE_APP_ID',
-    'VITE_FIREBASE_VAPID_KEY',
-  ];
-  return required.filter((k) => !e[k] || String(e[k]).trim() === '');
-}
 
 type MockProfile = {
   name: string;
@@ -47,7 +36,6 @@ export default function ProfilePage() {
   const logoutSheet = useBottomSheet();
   const nicknameSheet = useBottomSheet();
   const nav = useNavigate();
-
   const [nickname, setNickname] = useState(MOCK_PROFILE.name);
   const [avatar, setAvatar] = useState(MOCK_PROFILE.avatarUrl);
   const [pushEnabled, setPushEnabled] = useState(MOCK_PROFILE.pushEnabled);
@@ -65,30 +53,28 @@ export default function ProfilePage() {
     if (next) {
       const missing = getMissingFcmEnvKeys();
       if (missing.length > 0) {
-        showToast('아직 푸시 설정 기능이 추가되지 않았어요.');
+        showToast(TOAST_MSG.PUSH.ENV_MISSING);
         return;
       }
-
       if (supported === false) {
-        showToast('현재 브라우저에서는 푸시 알림을 지원하지 않아요.');
+        showToast(TOAST_MSG.PUSH.NOT_SUPPORTED);
         return;
       }
-
       const ok = await enablePush();
       if (!ok) {
         if (permission === 'denied') {
-          showToast('브라우저 알림이 차단되어 있어요. 사이트 권한에서 알림을 허용해 주세요.');
+          showToast(TOAST_MSG.PUSH.ENABLE_DENIED);
         } else {
-          showToast('푸시 알림을 활성화하지 못했어요. 잠시 후 다시 시도해 주세요.');
+          showToast(TOAST_MSG.PUSH.ENABLE_FAIL);
         }
         return;
       }
       setPushEnabled(true);
-      showToast('푸시 알림을 켰어요.');
+      showToast(TOAST_MSG.PUSH.ENABLE_SUCCESS);
     } else {
       await disablePush();
       setPushEnabled(false);
-      showToast('푸시 알림을 껐어요.');
+      showToast(TOAST_MSG.PUSH.DISABLE_SUCCESS);
     }
   };
 
@@ -118,7 +104,7 @@ export default function ProfilePage() {
           </section>
           <InquiryAlertsSection
             pushEnabled={pushEnabled}
-            onTogglePush={handleTogglePush} // 👈 기존 setPushEnabled 대신 이 핸들러 전달
+            onTogglePush={handleTogglePush}
             onOpenTerms={goTerms}
           />
 
@@ -177,13 +163,4 @@ export default function ProfilePage() {
       />
     </div>
   );
-}
-
-function fileToDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 }
