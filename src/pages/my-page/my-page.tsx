@@ -3,7 +3,9 @@ import LeaveConfirmSheet from '@components/bottom-sheet/leave-confirm-sheet';
 import LogoutConfirmSheet from '@components/bottom-sheet/logout-confirm-sheet';
 import NicknameChangeSheet from '@components/bottom-sheet/nickname-change-sheet';
 import ProfilePhotoSheet from '@components/bottom-sheet/profile-photo-sheet';
+import { useToast } from '@contexts/toast-context';
 import useBottomSheet from '@hooks/use-bottom-sheet';
+import useFcm from '@hooks/use-fcm';
 import { cn } from '@libs/cn';
 import InquiryAlertsSection from '@pages/my-page/components/inquiry-alerts-section';
 import ProfileHeader from '@pages/my-page/components/profile-header';
@@ -11,6 +13,19 @@ import SectionTitle from '@pages/my-page/components/section-title';
 import SettingRow from '@pages/my-page/components/setting-row';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+function getMissingFcmEnvKeys() {
+  const e = import.meta.env as Record<string, string | undefined>;
+  const required = [
+    'VITE_FIREBASE_API_KEY',
+    'VITE_FIREBASE_AUTH_DOMAIN',
+    'VITE_FIREBASE_PROJECT_ID',
+    'VITE_FIREBASE_MESSAGING_SENDER_ID',
+    'VITE_FIREBASE_APP_ID',
+    'VITE_FIREBASE_VAPID_KEY',
+  ];
+  return required.filter((k) => !e[k] || String(e[k]).trim() === '');
+}
 
 type MockProfile = {
   name: string;
@@ -38,6 +53,44 @@ export default function ProfilePage() {
   const [pushEnabled, setPushEnabled] = useState(MOCK_PROFILE.pushEnabled);
 
   const goTerms = () => nav('/mypage/terms-service');
+  const { supported, permission, enablePush, disablePush } = useFcm({
+    vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+    autoRequest: false,
+  });
+  const { showToast } = useToast?.() ?? {
+    showToast: (msg: string) => alert(msg),
+  };
+
+  const handleTogglePush = async (next: boolean) => {
+    if (next) {
+      const missing = getMissingFcmEnvKeys();
+      if (missing.length > 0) {
+        showToast('아직 푸시 설정 기능이 추가되지 않았어요.');
+        return;
+      }
+
+      if (supported === false) {
+        showToast('현재 브라우저에서는 푸시 알림을 지원하지 않아요.');
+        return;
+      }
+
+      const ok = await enablePush();
+      if (!ok) {
+        if (permission === 'denied') {
+          showToast('브라우저 알림이 차단되어 있어요. 사이트 권한에서 알림을 허용해 주세요.');
+        } else {
+          showToast('푸시 알림을 활성화하지 못했어요. 잠시 후 다시 시도해 주세요.');
+        }
+        return;
+      }
+      setPushEnabled(true);
+      showToast('푸시 알림을 켰어요.');
+    } else {
+      await disablePush();
+      setPushEnabled(false);
+      showToast('푸시 알림을 껐어요.');
+    }
+  };
 
   return (
     <div className={cn('min-h-dvh bg-gradient-bgd1 px-[2.4rem] pt-[1.6rem] pb-[12rem]')}>
@@ -63,10 +116,9 @@ export default function ProfilePage() {
               ariaLabel="프로필 사진 변경"
             />
           </section>
-
           <InquiryAlertsSection
             pushEnabled={pushEnabled}
-            onTogglePush={setPushEnabled}
+            onTogglePush={handleTogglePush} // 👈 기존 setPushEnabled 대신 이 핸들러 전달
             onOpenTerms={goTerms}
           />
 
