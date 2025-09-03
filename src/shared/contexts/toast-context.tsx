@@ -34,7 +34,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       {createPortal(
-        <div className="-translate-x-1/2 fixed bottom-[10rem] left-1/2 z-[var(--z-toast)]">
+        <div className="-translate-x-1/2 fixed bottom-[11rem] left-1/2 z-[var(--z-toast)]">
           {toasts.map((t) => (
             <Toast key={t.id} message={t.message} />
           ))}

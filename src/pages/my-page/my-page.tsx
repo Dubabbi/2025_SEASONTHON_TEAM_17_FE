@@ -3,12 +3,16 @@ import LeaveConfirmSheet from '@components/bottom-sheet/leave-confirm-sheet';
 import LogoutConfirmSheet from '@components/bottom-sheet/logout-confirm-sheet';
 import NicknameChangeSheet from '@components/bottom-sheet/nickname-change-sheet';
 import ProfilePhotoSheet from '@components/bottom-sheet/profile-photo-sheet';
+import { TOAST_MSG } from '@constants/toast-messages';
+import { useToast } from '@contexts/toast-context';
 import useBottomSheet from '@hooks/use-bottom-sheet';
+import useFcm from '@hooks/use-fcm';
 import { cn } from '@libs/cn';
 import InquiryAlertsSection from '@pages/my-page/components/inquiry-alerts-section';
 import ProfileHeader from '@pages/my-page/components/profile-header';
 import SectionTitle from '@pages/my-page/components/section-title';
 import SettingRow from '@pages/my-page/components/setting-row';
+import { fileToDataUrl, getMissingFcmEnvKeys } from '@pages/my-page/utils/file-to-data';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -32,12 +36,47 @@ export default function ProfilePage() {
   const logoutSheet = useBottomSheet();
   const nicknameSheet = useBottomSheet();
   const nav = useNavigate();
-
   const [nickname, setNickname] = useState(MOCK_PROFILE.name);
   const [avatar, setAvatar] = useState(MOCK_PROFILE.avatarUrl);
   const [pushEnabled, setPushEnabled] = useState(MOCK_PROFILE.pushEnabled);
 
   const goTerms = () => nav('/mypage/terms-service');
+  const { supported, permission, enablePush, disablePush } = useFcm({
+    vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+    autoRequest: false,
+  });
+  const { showToast } = useToast?.() ?? {
+    showToast: (msg: string) => alert(msg),
+  };
+
+  const handleTogglePush = async (next: boolean) => {
+    if (next) {
+      const missing = getMissingFcmEnvKeys();
+      if (missing.length > 0) {
+        showToast(TOAST_MSG.PUSH.ENV_MISSING);
+        return;
+      }
+      if (supported === false) {
+        showToast(TOAST_MSG.PUSH.NOT_SUPPORTED);
+        return;
+      }
+      const ok = await enablePush();
+      if (!ok) {
+        if (permission === 'denied') {
+          showToast(TOAST_MSG.PUSH.ENABLE_DENIED);
+        } else {
+          showToast(TOAST_MSG.PUSH.ENABLE_FAIL);
+        }
+        return;
+      }
+      setPushEnabled(true);
+      showToast(TOAST_MSG.PUSH.ENABLE_SUCCESS);
+    } else {
+      await disablePush();
+      setPushEnabled(false);
+      showToast(TOAST_MSG.PUSH.DISABLE_SUCCESS);
+    }
+  };
 
   return (
     <div className={cn('min-h-dvh bg-gradient-bgd1 px-[2.4rem] pt-[1.6rem] pb-[12rem]')}>
@@ -52,6 +91,7 @@ export default function ProfilePage() {
               subText={nickname}
               onClick={nicknameSheet.open}
               showIcon
+              clickTarget="right"
               ariaLabel="닉네임 변경"
             />
 
@@ -60,26 +100,32 @@ export default function ProfilePage() {
               right={<span className="body2-500 text-gray-500">변경하기</span>}
               onClick={photoSheet.open}
               showIcon
+              clickTarget="right"
               ariaLabel="프로필 사진 변경"
             />
           </section>
-
           <InquiryAlertsSection
             pushEnabled={pushEnabled}
-            onTogglePush={setPushEnabled}
+            onTogglePush={handleTogglePush}
             onOpenTerms={goTerms}
           />
 
           <section>
             <SectionTitle>로그아웃 및 탈퇴하기</SectionTitle>
 
-            <SettingRow label="로그아웃" labelStyle="cursor-pointer" onClick={logoutSheet.open} />
+            <SettingRow
+              label="로그아웃"
+              labelStyle="cursor-pointer"
+              clickTarget="label"
+              onClick={logoutSheet.open}
+            />
 
             <SettingRow
               label="탈퇴하기"
               labelStyle="cursor-pointer"
               onClick={leaveSheet.open}
               className="border-b-0"
+              clickTarget="label"
             />
           </section>
         </div>
@@ -125,13 +171,4 @@ export default function ProfilePage() {
       />
     </div>
   );
-}
-
-function fileToDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 }

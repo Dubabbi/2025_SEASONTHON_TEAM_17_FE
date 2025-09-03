@@ -1,9 +1,10 @@
 import NotiBg from '@assets/images/noti-bg.png';
 import TipInfo from '@components/tipinfo';
+import useFcm from '@hooks/use-fcm';
 
 type Noti = { title: string; date: string };
 
-const NOTIS: Noti[] = [
+const INITIAL_NOTIS: Noti[] = [
   { title: '감정 일기를 수정했습니다.', date: '2025.08.15' },
   { title: '새로운 댓글이 달렸습니다.', date: '2025.08.09' },
   { title: '감정 일기를 등록했습니다.', date: '2025.08.07' },
@@ -12,6 +13,11 @@ const NOTIS: Noti[] = [
 ];
 
 export default function NotificationsPage() {
+  const { messages } = useFcm({
+    vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+  });
+  const NOTIS: Noti[] = [...messages, ...INITIAL_NOTIS];
+
   return (
     <div className="fixed-layout inset-0 overflow-hidden">
       <div
