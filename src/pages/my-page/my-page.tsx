@@ -91,6 +91,7 @@ export default function ProfilePage() {
               subText={nickname}
               onClick={nicknameSheet.open}
               showIcon
+              clickTarget="right"
               ariaLabel="닉네임 변경"
             />
 
@@ -99,6 +100,7 @@ export default function ProfilePage() {
               right={<span className="body2-500 text-gray-500">변경하기</span>}
               onClick={photoSheet.open}
               showIcon
+              clickTarget="right"
               ariaLabel="프로필 사진 변경"
             />
           </section>
@@ -111,13 +113,19 @@ export default function ProfilePage() {
           <section>
             <SectionTitle>로그아웃 및 탈퇴하기</SectionTitle>
 
-            <SettingRow label="로그아웃" labelStyle="cursor-pointer" onClick={logoutSheet.open} />
+            <SettingRow
+              label="로그아웃"
+              labelStyle="cursor-pointer"
+              clickTarget="label"
+              onClick={logoutSheet.open}
+            />
 
             <SettingRow
               label="탈퇴하기"
               labelStyle="cursor-pointer"
               onClick={leaveSheet.open}
               className="border-b-0"
+              clickTarget="label"
             />
           </section>
         </div>
