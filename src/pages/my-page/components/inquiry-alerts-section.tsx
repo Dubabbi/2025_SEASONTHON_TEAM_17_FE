@@ -22,7 +22,12 @@ export default function InquiryAlertsSection({
         right={<ToggleSwitch checked={pushEnabled} onChange={onTogglePush} label="푸시 알림" />}
       />
 
-      <SettingRow label="서비스 이용약관" labelStyle="cursor-pointer" onClick={onOpenTerms} />
+      <SettingRow
+        clickTarget="label"
+        label="서비스 이용약관"
+        labelStyle="cursor-pointer"
+        onClick={onOpenTerms}
+      />
     </section>
   );
 }

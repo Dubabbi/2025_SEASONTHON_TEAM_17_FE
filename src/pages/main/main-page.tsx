@@ -14,7 +14,7 @@ export default function HomePage() {
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
 
   return (
-    <div className="h-dvh flex-col pb-[15rem]" style={{ backgroundImage: `url(${NotiBg})` }}>
+    <div className="min-h-dvh flex-col pb-[15rem]" style={{ backgroundImage: `url(${NotiBg})` }}>
       <HeroSection username="지훈" />
 
       <section className="flex-col px-[2rem] pt-[2rem]">
