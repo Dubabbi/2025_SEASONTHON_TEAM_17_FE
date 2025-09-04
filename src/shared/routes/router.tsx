@@ -15,6 +15,7 @@ const MyPage = lazy(() => import('@pages/my-page/my-page'));
 const TermsServicePage = lazy(() => import('@pages/my-page/terms-service-page'));
 const NotificationsPage = lazy(() => import('@pages/notifications/notifications-page'));
 const NotFound = lazy(() => import('@pages/error/not-found'));
+const FriendDiaryPage = lazy(() => import('@pages/friends/friend-diary-page'));
 const TestPage = lazy(() => import('@pages/main/components-test-page')); // 컴포넌트 테스트
 
 export const router = createBrowserRouter([
@@ -59,6 +60,7 @@ export const router = createBrowserRouter([
           { index: true, element: <FriendsPage /> },
           { path: 'all', element: <FriendsMorePage /> },
           { path: ':id', element: <FriendDetailPage /> },
+          { path: ':id/diary/:date', element: <FriendDiaryPage /> },
         ],
       },
     ],

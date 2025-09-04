@@ -1,6 +1,7 @@
 import DefaultProfile from '@assets/icons/3d-hand.svg';
 import Button from '@components/button/button';
 import { cn } from '@libs/cn';
+import { useNavigate } from 'react-router-dom';
 
 export type Friend = {
   id: string;
@@ -30,6 +31,8 @@ export default function FriendsListItem({
   onAccept,
   onReject,
 }: Props) {
+  const nav = useNavigate();
+
   return (
     <li
       className={cn(
@@ -63,7 +66,7 @@ export default function FriendsListItem({
           <>
             <Button
               className="body1-500 rounded-[8px] bg-primary-500 px-[2.6rem] py-[0.6rem] text-gray-50 max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
-              onClick={() => onOpen?.(item.id)}
+              onClick={() => (onOpen ? onOpen(item.id) : nav(`/friends/${item.id}`))}
             >
               보러 가기
             </Button>
