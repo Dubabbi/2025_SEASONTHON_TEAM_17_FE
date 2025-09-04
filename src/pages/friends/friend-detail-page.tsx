@@ -4,12 +4,14 @@ import Button from '@components/button/button';
 import DiaryCard from '@components/card/diary-card';
 import { cn } from '@libs/cn';
 import { MOCK_FRIENDS, MOCK_RECEIVED, MOCK_SENT } from '@mocks/friends';
+import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export default function FriendDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [openCancel, setOpenCancel] = useState(false);
+  const nav = useNavigate();
 
   const friend = useMemo(() => {
     const all = [...MOCK_FRIENDS, ...MOCK_SENT, ...MOCK_RECEIVED];
@@ -73,14 +75,22 @@ export default function FriendDetailPage() {
 
         <div className="grid grid-cols-2 gap-[0.9rem]">
           {diaries.map((d) => (
-            <DiaryCard
+            <button
               key={d.id}
-              title={d.title}
-              content={d.content}
-              emotions={d.emotions}
-              date={d.date}
-              className="cursor-pointer bg-gray-50"
-            />
+              type="button"
+              onClick={() =>
+                nav(`/friends/${friend.id}/diary/${dayjs(d.date).format('YYYY-MM-DD')}`)
+              }
+              className="text-left"
+            >
+              <DiaryCard
+                title={d.title}
+                content={d.content}
+                emotions={d.emotions}
+                date={d.date}
+                className="bg-gray-50"
+              />
+            </button>
           ))}
         </div>
       </main>

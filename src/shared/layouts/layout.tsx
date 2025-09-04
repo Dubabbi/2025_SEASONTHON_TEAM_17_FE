@@ -1,6 +1,7 @@
 import Header, { type HeaderProps } from '@layouts/header-bar';
 import NavigationBar from '@layouts/nav-bar';
 import Splash from '@layouts/splash';
+import dayjs from 'dayjs';
 import { useState } from 'react';
 import { Outlet, ScrollRestoration, useLocation, useMatches, useNavigate } from 'react-router-dom';
 
@@ -29,6 +30,9 @@ const EXCEPTION_HEADERS: Array<{
 const DEFAULT_HEADER: HeaderProps = { variant: 'home', showDivider: true };
 
 function pickHeader(pathname: string, search: string): HeaderProps {
+  const m = pathname.match(/^\/friends\/[^/]+\/diary\/(\d{4}-\d{2}-\d{2})$/);
+  if (m) return { variant: 'title', title: dayjs(m[1]).format('YYYY.MM.DD') };
+
   if (pathname === '/friends/all') {
     const tab = new URLSearchParams(search).get('tab');
     const title =
@@ -39,6 +43,7 @@ function pickHeader(pathname: string, search: string): HeaderProps {
           : '내 친구 목록';
     return { variant: 'title', title };
   }
+
   return EXCEPTION_HEADERS.find((r) => r.test(pathname))?.props ?? DEFAULT_HEADER;
 }
 
