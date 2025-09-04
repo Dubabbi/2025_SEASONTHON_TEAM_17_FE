@@ -10,7 +10,7 @@ export const DIARY_COMPLETE_COPY: Record<DiaryCompleteVariant, Copy> = {
     primary: '마몬의 분석 보러 가기',
   },
   saved: {
-    title: '마몬의 분석도 같이 저장했어요.',
+    title: '마몬의 분석을 저장했어요.',
     desc: '직접 작성한 감정 일기와 마몬의 따뜻한 말 한마디, 그리고 분석한 감정을 확인하러 가볼까요?',
     primary: '확인하러 가기',
   },
