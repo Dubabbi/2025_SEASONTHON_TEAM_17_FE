@@ -5,6 +5,7 @@ const Layout = lazy(() => import('@layouts/layout'));
 const MainPage = lazy(() => import('@pages/main/main-page'));
 const OnboardingPage = lazy(() => import('@pages/onboarding/onboarding-page'));
 const FriendsPage = lazy(() => import('@pages/friends/friends-page'));
+const FriendDetailPage = lazy(() => import('@pages/friends/friend-detail-page'));
 const LoginPage = lazy(() => import('@pages/login/login-page'));
 const DiaryPage = lazy(() => import('@pages/diary/diary-page'));
 const DiaryCreatePage = lazy(() => import('@pages/diary/diary-create-page'));
@@ -53,7 +54,10 @@ export const router = createBrowserRouter([
       },
       {
         path: '/friends',
-        element: <FriendsPage />,
+        children: [
+          { index: true, element: <FriendsPage /> },
+          { path: ':id', element: <FriendDetailPage /> },
+        ],
       },
     ],
   },
