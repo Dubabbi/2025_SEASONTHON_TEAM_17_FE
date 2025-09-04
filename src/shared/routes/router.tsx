@@ -7,6 +7,7 @@ const OnboardingPage = lazy(() => import('@pages/onboarding/onboarding-page'));
 const LoginPage = lazy(() => import('@pages/login/login-page'));
 const DiaryPage = lazy(() => import('@pages/diary/diary-page'));
 const DiaryCreatePage = lazy(() => import('@pages/diary/diary-create-page'));
+const DiaryResultPage = lazy(() => import('@pages/diary/diary-result-page'));
 const DiaryRecordPage = lazy(() => import('@pages/diary/diary-record-page'));
 const MyPage = lazy(() => import('@pages/my-page/my-page'));
 const TermsServicePage = lazy(() => import('@pages/my-page/terms-service-page'));
@@ -30,6 +31,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <DiaryPage /> },
           { path: 'create', element: <DiaryCreatePage /> },
+          { path: 'result', element: <DiaryResultPage /> },
           { path: 'record', element: <DiaryRecordPage /> },
         ],
       },

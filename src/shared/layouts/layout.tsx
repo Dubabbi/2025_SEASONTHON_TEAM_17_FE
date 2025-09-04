@@ -13,6 +13,10 @@ const EXCEPTION_HEADERS: Array<{
     props: { variant: 'title', title: '감정 일기 작성하기' },
   },
   {
+    test: (p) => p.startsWith('/diary/result'),
+    props: { variant: 'title', title: '감정 일기 작성하기' },
+  },
+  {
     test: (p) => p.startsWith('/diary/record'),
     props: { variant: 'title', title: '나의 감정 일기 전체 기록' },
   },
