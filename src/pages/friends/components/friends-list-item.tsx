@@ -34,6 +34,7 @@ export default function FriendsListItem({
     <li
       className={cn(
         'w-full flex-row-between gap-[1.2rem] px-[0.4rem] py-[0.8rem] md:px-0',
+        'max-[360px]:flex-col max-[360px]:items-stretch max-[360px]:justify-start',
         className,
       )}
     >
@@ -46,23 +47,28 @@ export default function FriendsListItem({
             decoding="async"
           />
         </div>
-        <div className="flex-col gap-[1rem]">
-          <div className="heading3-700 text-primary-500">{item.name}</div>
+        <div className="min-w-0 flex-col gap-[1rem]">
+          <div className="heading3-700 truncate text-primary-500">{item.name}</div>
           <div className="body1-500 truncate text-gray-500">{item.email}</div>
         </div>
       </div>
 
-      <div className="flex shrink-0 flex-col items-end gap-[0.8rem]">
+      <div
+        className={cn(
+          'flex shrink-0 flex-col items-end gap-[0.8rem]',
+          'max-[360px]:mt-[1.2rem] max-[360px]:flex-row max-[360px]:items-stretch max-[360px]:gap-[0.8rem]',
+        )}
+      >
         {variant === 'list' && (
           <>
             <Button
-              className="body1-500 rounded-[8px] bg-primary-500 px-[2.6rem] py-[0.6rem] text-gray-50"
+              className="body1-500 rounded-[8px] bg-primary-500 px-[2.6rem] py-[0.6rem] text-gray-50 max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
               onClick={() => onOpen?.(item.id)}
             >
               보러 가기
             </Button>
             <Button
-              className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px]"
+              className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
               onClick={() => onCancel?.(item.id)}
             >
               친구 취소
@@ -72,7 +78,7 @@ export default function FriendsListItem({
 
         {variant === 'sent' && (
           <Button
-            className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px]"
+            className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px] max-[360px]:w-full max-[360px]:px-[1.2rem]"
             onClick={() => onCancel?.(item.id)}
           >
             요청 취소
@@ -82,13 +88,13 @@ export default function FriendsListItem({
         {variant === 'received' && (
           <>
             <Button
-              className="body1-500 rounded-[8px] bg-success-bgd px-[2.6rem] py-[0.6rem] text-success-default outline outline-success-default outline-offset-[-1px]"
+              className="body1-500 rounded-[8px] bg-success-bgd px-[2.6rem] py-[0.6rem] text-success-default max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
               onClick={() => onAccept?.(item.id)}
             >
               수락하기
             </Button>
             <Button
-              className="body1-500 rounded-[8px] bg-error-bgd px-[2.6rem] py-[0.6rem] text-error-default outline outline-error-default outline-offset-[-1px]"
+              className="body1-500 rounded-[8px] bg-error-bgd px-[2.6rem] py-[0.6rem] text-error-default max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
               onClick={() => onReject?.(item.id)}
             >
               거절하기
