@@ -1,11 +1,10 @@
-import NotiBg from '@assets/images/noti-bg.png';
 import { MOCK_FRIENDS, MOCK_RECEIVED, MOCK_SENT } from '@mocks/friends';
 import FriendsList from '@pages/friends/components/friends-list';
-import FriendsTabs, { type FriendsTab } from '@pages/friends/components/friends-tab';
 import SearchBar from '@pages/friends/components/search-bar';
 import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+export type FriendsTab = 'list' | 'sent' | 'received';
 const isTab = (v: unknown): v is FriendsTab => v === 'list' || v === 'sent' || v === 'received';
 
 export default function FriendsMorePage() {
@@ -34,13 +33,9 @@ export default function FriendsMorePage() {
   }, [tab]);
 
   return (
-    <main
-      className="min-h-dvh flex-col gap-[1.5rem] px-[2.4rem] py-[1.5rem] pb-[12rem]"
-      style={{ backgroundImage: `url(${NotiBg})` }}
-    >
+    <main className="min-h-dvh flex-col gap-[1.5rem] px-[2.4rem] py-[1.5rem] pb-[12rem]">
       <h1 className="heading1-700 text-center text-gray-900">{title}</h1>
       <SearchBar placeholder={placeholder} />
-      <FriendsTabs value={tab} onChange={(v) => setParams({ tab: v })} className="w-full" />
       <FriendsList items={items} variant={tab} />
     </main>
   );

@@ -1,4 +1,3 @@
-import NotiBg from '@assets/images/noti-bg.png';
 import Button from '@components/button/button';
 import { cn } from '@libs/cn';
 import { MOCK_FRIENDS, MOCK_RECEIVED, MOCK_SENT } from '@mocks/friends';
@@ -21,8 +20,10 @@ export default function FriendsPage() {
     return MOCK_FRIENDS;
   }, [tab]);
 
+  const previewItems = useMemo(() => items.slice(0, 5), [items]);
+
   return (
-    <div className="min-h-dvh flex-col pb-[15rem]" style={{ backgroundImage: `url(${NotiBg})` }}>
+    <div className="min-h-dvh flex-col pb-[15rem]">
       <FriendsHeader />
       <div className="flex-col-center gap-[1.5rem] px-[2.4rem] py-[1.5rem]">
         <SearchBar placeholder="친구를 검색해 보세요" />
@@ -56,7 +57,7 @@ export default function FriendsPage() {
         </div>
 
         <FriendsList
-          items={items}
+          items={previewItems}
           variant={tab}
           onOpen={(id) => console.log('open', id)}
           onCancel={(id) => console.log('cancel', id)}
