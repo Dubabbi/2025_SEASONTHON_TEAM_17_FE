@@ -1,10 +1,10 @@
 import NotiBg from '@assets/images/noti-bg.png';
 import EmotionCard from '@components/card/emotion-card';
 import TipInfo from '@components/tipinfo';
+import HeroSection from '@pages/main/components/hero-section';
 import { useState } from 'react';
-import HeroSection from '../main/components/hero-section';
 
-export default function HomePage() {
+export default function MainPage() {
   const today = new Date();
   const formattedDate = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(
     2,

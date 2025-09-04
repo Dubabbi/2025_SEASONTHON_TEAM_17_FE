@@ -25,15 +25,26 @@ const EXCEPTION_HEADERS: Array<{
     props: { variant: 'title', title: '알림' },
   },
 ];
+
 const DEFAULT_HEADER: HeaderProps = { variant: 'home', showDivider: true };
 
-function pickHeader(pathname: string): HeaderProps {
+function pickHeader(pathname: string, search: string): HeaderProps {
+  if (pathname === '/friends/all') {
+    const tab = new URLSearchParams(search).get('tab');
+    const title =
+      tab === 'sent'
+        ? '신청한 친구 목록'
+        : tab === 'received'
+          ? '신청받은 친구 목록'
+          : '내 친구 목록';
+    return { variant: 'title', title };
+  }
   return EXCEPTION_HEADERS.find((r) => r.test(pathname))?.props ?? DEFAULT_HEADER;
 }
 
 export default function Layout() {
-  const { pathname } = useLocation();
-  const headerProps = pickHeader(pathname);
+  const { pathname, search } = useLocation();
+  const headerProps = pickHeader(pathname, search);
   const navigate = useNavigate();
 
   const matches = useMatches();
@@ -42,15 +53,12 @@ export default function Layout() {
   const hideChrome = !!last?.handle?.hideChrome;
 
   const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem('splashSeen'));
-
   const handleSplashDone = () => {
     sessionStorage.setItem('splashSeen', '1');
     setShowSplash(false);
   };
 
-  if (showSplash) {
-    return <Splash onComplete={handleSplashDone} />;
-  }
+  if (showSplash) return <Splash onComplete={handleSplashDone} />;
 
   return (
     <div className="flex max-h-dvh flex-col overflow-hidden">

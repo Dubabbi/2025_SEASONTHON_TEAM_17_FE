@@ -1,16 +1,12 @@
-import Heart from '@assets/icons/3d-heart.svg?react';
+import FriendsIcon from '@assets/icons/3d-friends.svg?react';
 import { cn } from '@libs/cn';
 
 type Props = {
-  username: string;
-  showSubtitle?: boolean;
   className?: string;
   gradientClass?: string;
 };
 
-export default function HeroSection({
-  username,
-  showSubtitle = true,
+export default function FriendsHeader({
   className = '',
   gradientClass = 'bg-gradient-bgd2',
 }: Props) {
@@ -29,18 +25,16 @@ export default function HeroSection({
       </div>
       <div className="relative z-10 flex-col-center gap-[1.2rem]">
         <h1 className="sub-heading1 text-center text-gray-900">
-          <span>반가워요! </span>
-          <span className="text-primary-600">{username}</span>
-          <span>님</span>
+          <span>현재 </span>
+          <span className="text-primary-600">친구</span>
+          <span>를 찾고 계신가요?</span>
         </h1>
 
-        <Heart className="h-[20rem] w-[20rem]" />
+        <FriendsIcon className="h-[20rem] w-[20rem]" />
 
-        {showSubtitle && (
-          <p className="heading2-600 text-center text-gray-900">
-            오늘도 <span className="text-primary-600">마음:ON</span>과 함께해요
-          </p>
-        )}
+        <p className="heading2-600 text-center text-gray-900">
+          친구와 함께 감정 일기를 공유해봐요!
+        </p>
       </div>
     </section>
   );
