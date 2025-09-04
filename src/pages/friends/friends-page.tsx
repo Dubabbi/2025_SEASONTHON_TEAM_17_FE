@@ -1,3 +1,4 @@
+import ThinkIcon from '@assets/icons/thinking.svg?react';
 import Button from '@components/button/button';
 import { cn } from '@libs/cn';
 import { MOCK_FRIENDS, MOCK_RECEIVED, MOCK_SENT } from '@mocks/friends';
@@ -21,6 +22,7 @@ export default function FriendsPage() {
   }, [tab]);
 
   const previewItems = useMemo(() => items.slice(0, 5), [items]);
+  const isEmpty = previewItems.length === 0;
 
   return (
     <div className="min-h-dvh flex-col pb-[15rem]">
@@ -56,14 +58,21 @@ export default function FriendsPage() {
           </Button>
         </div>
 
-        <FriendsList
-          items={previewItems}
-          variant={tab}
-          onOpen={(id) => console.log('open', id)}
-          onCancel={(id) => console.log('cancel', id)}
-          onAccept={(id) => console.log('accept', id)}
-          onReject={(id) => console.log('reject', id)}
-        />
+        {isEmpty ? (
+          <div className="flex-col-center gap-[3rem] py-[2.6rem]">
+            <ThinkIcon className="h-[6.4rem] w-[6.4rem]" />
+            <span className="heading3-700 text-gray-900">아직 등록된 친구가 없어요</span>
+          </div>
+        ) : (
+          <FriendsList
+            items={previewItems}
+            variant={tab}
+            onOpen={(id) => console.log('open', id)}
+            onCancel={(id) => console.log('cancel', id)}
+            onAccept={(id) => console.log('accept', id)}
+            onReject={(id) => console.log('reject', id)}
+          />
+        )}
       </div>
     </div>
   );
