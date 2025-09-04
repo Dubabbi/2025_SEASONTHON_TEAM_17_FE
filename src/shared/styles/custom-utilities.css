@@ -75,4 +75,12 @@
   .fixed-layout {
     @apply fixed bottom-0 left-1/2 w-full max-w-[43rem] -translate-x-1/2;
   }
+
+  .linear-layer {
+    @apply pointer-events-none absolute top-1/2 left-1/2 z-0 -translate-x-1/2 -translate-y-1/2;
+  }
+
+  .linear {
+    @apply h-[22.7rem] w-[22.7rem] shrink-0 rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.5)_0%,#fff_100%)] blur-[40px];
+  }
 }
