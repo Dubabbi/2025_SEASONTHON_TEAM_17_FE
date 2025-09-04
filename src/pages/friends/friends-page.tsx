@@ -1,4 +1,5 @@
 import ThinkIcon from '@assets/icons/thinking.svg?react';
+import FriendCancelSheet from '@components/bottom-sheet/friend-cancel-sheet';
 import Button from '@components/button/button';
 import { cn } from '@libs/cn';
 import { MOCK_FRIENDS, MOCK_RECEIVED, MOCK_SENT } from '@mocks/friends';
@@ -13,6 +14,7 @@ type FriendsTab = 'list' | 'sent' | 'received';
 
 export default function FriendsPage() {
   const [tab, setTab] = useState<FriendsTab>('list');
+  const [cancelTarget, setCancelTarget] = useState<string | null>(null);
   const nav = useNavigate();
 
   const items = useMemo(() => {
@@ -23,6 +25,13 @@ export default function FriendsPage() {
 
   const previewItems = useMemo(() => items.slice(0, 5), [items]);
   const isEmpty = previewItems.length === 0;
+
+  const handleConfirmCancel = () => {
+    if (cancelTarget) {
+      console.log('friend cancel:', cancelTarget);
+      setCancelTarget(null);
+    }
+  };
 
   return (
     <div className="min-h-dvh flex-col pb-[15rem]">
@@ -68,12 +77,18 @@ export default function FriendsPage() {
             items={previewItems}
             variant={tab}
             onOpen={(id) => console.log('open', id)}
-            onCancel={(id) => console.log('cancel', id)}
+            onCancel={(id) => setCancelTarget(id)}
             onAccept={(id) => console.log('accept', id)}
             onReject={(id) => console.log('reject', id)}
           />
         )}
       </div>
+
+      <FriendCancelSheet
+        open={!!cancelTarget}
+        onClose={() => setCancelTarget(null)}
+        onConfirm={handleConfirmCancel}
+      />
     </div>
   );
 }
