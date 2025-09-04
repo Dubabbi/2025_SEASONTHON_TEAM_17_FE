@@ -36,10 +36,8 @@ export default function FriendDetailPage() {
   );
 
   return (
-    <div className="min-h-dvh flex-col gap-[1.6rem] pb-[15rem]">
-      <section
-        className={cn('rounded-b-[30px] bg-gradient-bgd2', 'px-[2.4rem] pt-[1.6rem] pb-[2rem]')}
-      >
+    <div className="min-h-dvh flex-col gap-[1.6rem] bg-gradient-bgd1 pb-[16rem]">
+      <section className={cn('rounded-b-[30px]', 'px-[2.4rem] pt-[1.6rem] pb-[2rem]')}>
         <div className="flex items-start justify-between gap-[1.6rem]">
           <div className="flex min-w-0 items-center gap-[1.2rem]">
             <div className="h-[8rem] w-[8rem] overflow-hidden rounded-[12px] outline outline-primary-300 outline-offset-[-1px]">
@@ -57,11 +55,11 @@ export default function FriendDetailPage() {
           </div>
 
           <div className="flex shrink-0 flex-col items-end gap-[0.8rem]">
-            <Button className="heading3-600 rounded-[12px] bg-primary-600 px-[2.4rem] py-[0.9rem] text-gray-50">
+            <Button className="body1-500 cursor-default rounded-[8px] bg-primary-500 px-[4.1rem] py-[0.6rem] text-gray-50">
               친구
             </Button>
             <Button
-              className="heading3-600 rounded-[12px] bg-gray-50 px-[2.4rem] py-[0.9rem] text-primary-600 outline outline-primary-600"
+              className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px]"
               onClick={() => setOpenCancel(true)}
             >
               친구 취소
@@ -70,10 +68,10 @@ export default function FriendDetailPage() {
         </div>
       </section>
 
-      <main className="px-[2.4rem]">
-        <h2 className="heading2-600 mb-[1.2rem] text-gray-900">{friend.name}님의 감정일기</h2>
+      <main className="flex-col gap-[2rem] px-[2.4rem]">
+        <h2 className="heading1-700 text-gray-900">{friend.name}님의 감정일기</h2>
 
-        <div className="grid grid-cols-2 gap-[1.2rem]">
+        <div className="grid grid-cols-2 gap-[0.9rem]">
           {diaries.map((d) => (
             <DiaryCard
               key={d.id}
@@ -81,7 +79,7 @@ export default function FriendDetailPage() {
               content={d.content}
               emotions={d.emotions}
               date={d.date}
-              className="bg-gray-50"
+              className="cursor-pointer bg-gray-50"
             />
           ))}
         </div>
