@@ -57,9 +57,7 @@ export const router = createBrowserRouter([
         path: '/friends',
         children: [
           { index: true, element: <FriendsPage /> },
-          { path: 'list', element: <FriendsMorePage variant="list" /> },
-          { path: 'sent', element: <FriendsMorePage variant="sent" /> },
-          { path: 'received', element: <FriendsMorePage variant="received" /> },
+          { path: 'all', element: <FriendsMorePage /> },
           { path: ':id', element: <FriendDetailPage /> },
         ],
       },

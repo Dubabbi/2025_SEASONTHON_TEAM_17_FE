@@ -7,11 +7,13 @@ import FriendsList from '@pages/friends/components/friends-list';
 import SearchBar from '@pages/friends/components/search-bar';
 import SegmentedTabs from '@pages/friends/components/segmented-tabs';
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type FriendsTab = 'list' | 'sent' | 'received';
 
 export default function FriendsPage() {
   const [tab, setTab] = useState<FriendsTab>('list');
+  const nav = useNavigate();
 
   const items = useMemo(() => {
     if (tab === 'sent') return MOCK_SENT;
@@ -45,8 +47,9 @@ export default function FriendsPage() {
           <Button
             className={cn(
               'body2-500 rounded-full px-[1.6rem] py-[0.55rem]',
-              'bg-gray-50 bg-gray-white text-primary-800 outline outline-primary-800',
+              'bg-gray-50 text-primary-800 outline outline-primary-800',
             )}
+            onClick={() => nav(`/friends/all?tab=${tab}`)}
           >
             전체 보기
           </Button>
