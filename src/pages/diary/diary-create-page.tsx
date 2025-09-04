@@ -2,12 +2,14 @@ import DiaryCompleteSheet from '@components/bottom-sheet/diary-complete-sheet';
 import { PrimaryStrongCTA } from '@components/button/cta-button';
 import InputField from '@components/inputfield';
 import TextField from '@components/textfield';
+import Loading from '@pages/diary/components/loading';
 import ToggleButton from '@pages/diary/components/toggle-button';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function DiaryCreatePage() {
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [diaryInfo, setDiaryInfo] = useState({
     title: '',
     content: '',
@@ -23,8 +25,22 @@ export default function DiaryCreatePage() {
     diaryInfo.title.length < 100 && diaryInfo.content.length >= 100 && diaryInfo.range;
 
   const handleGoRecords = () => {
+    // TODO: mutate function 처리할때 loading 처리
+    setIsLoading(true);
     setOpen(false);
   };
+
+  useEffect(() => {
+    if (isLoading) {
+      // 로딩 임시처리, 추후 api 연결시 api에 맞춰 변경
+      setTimeout(() => {
+        navigate('/diary/result');
+      }, 1000);
+    }
+  }, [isLoading, navigate]);
+
+  if (isLoading) return <Loading />;
+
   return (
     <div className="flex-col gap-[5rem] px-[2.5rem] pt-[2.2rem] pb-[20rem]">
       <div className="flex-col gap-[2rem]">
@@ -84,12 +100,7 @@ export default function DiaryCreatePage() {
         작성 완료
       </PrimaryStrongCTA>
 
-      <DiaryCompleteSheet
-        isOpen={open}
-        onClose={handleClose}
-        onGoRecords={handleGoRecords}
-        // onGoMain={handleGoMain}
-      />
+      <DiaryCompleteSheet isOpen={open} onClose={handleClose} onGoRecords={handleGoRecords} />
     </div>
   );
 }
