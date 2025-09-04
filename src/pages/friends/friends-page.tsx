@@ -76,8 +76,8 @@ export default function FriendsPage() {
           <FriendsList
             items={previewItems}
             variant={tab}
-            onOpen={(id) => console.log('open', id)}
-            onCancel={(id) => setCancelTarget(id)}
+            onOpen={(id) => nav(`/friends/${id}`)}
+            onCancel={tab === 'list' ? (id) => setCancelTarget(id) : undefined}
             onAccept={(id) => console.log('accept', id)}
             onReject={(id) => console.log('reject', id)}
           />
