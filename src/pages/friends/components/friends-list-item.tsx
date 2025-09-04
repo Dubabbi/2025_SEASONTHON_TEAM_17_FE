@@ -33,13 +33,12 @@ export default function FriendsListItem({
   return (
     <li
       className={cn(
-        'w-full items-center justify-between gap-[1.2rem] px-[0.4rem] py-[0.8rem] md:px-0',
-        'flex',
+        'w-full flex-row-between gap-[1.2rem] px-[0.4rem] py-[0.8rem] md:px-0',
         className,
       )}
     >
-      <div className="flex min-w-0 items-center">
-        <div className="h-[5.6rem] w-[5.6rem] overflow-hidden rounded-[12px] outline outline-primary-300">
+      <div className="min-w-0 flex-row-center items-center gap-[2rem]">
+        <div className="h-[8rem] w-[8rem] overflow-hidden rounded-[8px] outline outline-primary-300">
           <img
             src={item.avatarUrl || DefaultProfile}
             alt=""
@@ -47,9 +46,9 @@ export default function FriendsListItem({
             decoding="async"
           />
         </div>
-        <div className="ml-[1.2rem] min-w-0">
-          <div className="heading1-700 truncate text-primary-600">{item.name}</div>
-          <div className="body2-500 truncate text-gray-400">{item.email}</div>
+        <div className="flex-col gap-[1rem]">
+          <div className="heading3-700 text-primary-600">{item.name}</div>
+          <div className="body1-500 truncate text-gray-400">{item.email}</div>
         </div>
       </div>
 
@@ -57,13 +56,13 @@ export default function FriendsListItem({
         {variant === 'list' && (
           <>
             <Button
-              className="rounded-[8px] bg-primary-600 px-[1.6rem] py-[0.7rem] text-gray-50"
+              className="body1-500 rounded-[8px] bg-primary-600 px-[2.6rem] py-[0.6rem] text-gray-50"
               onClick={() => onOpen?.(item.id)}
             >
               보러 가기
             </Button>
             <Button
-              className="rounded-[8px] bg-gray-white px-[1.6rem] py-[0.7rem] text-primary-600 outline outline-primary-600"
+              className="body1-500 rounded-[8px] border bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-600 outline-1 outline-primary-600 outline-offset-[-1px]"
               onClick={() => onCancel?.(item.id)}
             >
               친구 취소
