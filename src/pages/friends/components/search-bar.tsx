@@ -18,7 +18,7 @@ export default function SearchBar({
   defaultValue,
   placeholder = '검색어를 입력하세요',
   disabled,
-  className,
+  className = 'w-full',
   ariaLabel = '검색',
   onChange,
   onSubmit,
@@ -35,7 +35,7 @@ export default function SearchBar({
     <form
       onSubmit={handleSubmit}
       className={cn(
-        'flex-row-between gap-[0.8rem] rounded-[12px] border border-primary-600 bg-gray-50 px-[1.2rem] py-[1.4rem]',
+        'flex-row-between rounded-[12px] border border-primary-600 bg-gray-50 px-[1.2rem] py-[1.4rem]',
         className,
       )}
     >
@@ -53,7 +53,7 @@ export default function SearchBar({
         )}
       />
       <button type="submit" aria-label="검색 실행" disabled={disabled} className="shrink-0">
-        <SearchIcon />
+        <SearchIcon className="h-[2.4rem] w-[2.4rem] text-primary-600" />
       </button>
     </form>
   );
