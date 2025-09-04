@@ -16,9 +16,6 @@ export default function FriendsMorePage() {
     if (!isTab(raw)) setParams({ tab: 'list' }, { replace: true });
   }, [raw, setParams]);
 
-  const title =
-    tab === 'list' ? '내 친구 목록' : tab === 'sent' ? '신청한 친구 목록' : '신청받은 친구 목록';
-
   const placeholder =
     tab === 'list'
       ? '친구를 검색해보세요'
@@ -34,7 +31,6 @@ export default function FriendsMorePage() {
 
   return (
     <main className="min-h-dvh flex-col gap-[1.5rem] px-[2.4rem] py-[1.5rem] pb-[12rem]">
-      <h1 className="heading1-700 text-center text-gray-900">{title}</h1>
       <SearchBar placeholder={placeholder} />
       <FriendsList items={items} variant={tab} />
     </main>

@@ -82,13 +82,13 @@ export default function FriendsListItem({
         {variant === 'received' && (
           <>
             <Button
-              className="body1-500 rounded-[8px] bg-success-bgd px-[2.6rem] py-[0.6rem] text-success-default"
+              className="body1-500 rounded-[8px] bg-success-bgd px-[2.6rem] py-[0.6rem] text-success-default outline outline-success-default outline-offset-[-1px]"
               onClick={() => onAccept?.(item.id)}
             >
               수락하기
             </Button>
             <Button
-              className="body1-500 rounded-[8px] bg-error-bgd px-[2.6rem] py-[0.6rem] text-error-default"
+              className="body1-500 rounded-[8px] bg-error-bgd px-[2.6rem] py-[0.6rem] text-error-default outline outline-error-default outline-offset-[-1px]"
               onClick={() => onReject?.(item.id)}
             >
               거절하기
