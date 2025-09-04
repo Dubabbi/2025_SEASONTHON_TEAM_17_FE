@@ -39,9 +39,9 @@ export default function Banner({
         <p className="body2-500 text-primary-500">{subtitle}</p>
       </div>
 
-      <Diary3D className="h-[20rem] w-[20rem]" />
+      <Diary3D className="z-[1] h-[20rem] w-[20rem]" />
       <PrimaryCTA
-        className="heading2-700"
+        className="heading2-700 z-[1]"
         onClick={handleClick}
         aria-label="오늘의 감정 일기 작성하기"
       >
