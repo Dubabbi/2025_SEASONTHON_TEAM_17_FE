@@ -13,6 +13,7 @@ import InquiryAlertsSection from '@pages/my-page/components/inquiry-alerts-secti
 import ProfileHeader from '@pages/my-page/components/profile-header';
 import SectionTitle from '@pages/my-page/components/section-title';
 import SettingRow from '@pages/my-page/components/setting-row';
+import useLogout from '@pages/my-page/hooks/use-logout';
 import { fileToDataUrl, getMissingFcmEnvKeys } from '@pages/my-page/utils/file-to-data';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -38,7 +39,7 @@ export default function ProfilePage() {
   const logoutSheet = useBottomSheet();
   const nicknameSheet = useBottomSheet();
   const nav = useNavigate();
-
+  const logout = useLogout();
   const { data: me } = useQuery(authQueries.verify());
 
   const [nickname, setNickname] = useState(MOCK_PROFILE.name);
@@ -170,7 +171,9 @@ export default function ProfilePage() {
       <LogoutConfirmSheet
         isOpen={logoutSheet.isOpen}
         onClose={logoutSheet.close}
-        onLogout={() => {
+        onLogout={async () => {
+          await logout();
+          showToast(TOAST_MSG.AUTH.LOGOUT_SUCCESS);
           logoutSheet.close();
         }}
       />
