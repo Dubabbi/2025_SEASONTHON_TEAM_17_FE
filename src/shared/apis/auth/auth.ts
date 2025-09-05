@@ -15,16 +15,15 @@ export const authApi = {
       params: { code },
     }),
 
-  verify: () => http.get<MemberInfo>(ENDPOINTS.test.verify, {}),
+  verify: () => http.get<MemberInfo>(ENDPOINTS.test.verify),
+  getNotifications: () =>
+    http.get<{
+      notifications: { id: number; body: string; createdAt: string }[];
+    }>(ENDPOINTS.fcm.notifications),
 
   saveFcmToken: (body: { token: string; deviceInfo?: string }) =>
     http.post<Rsp<null>, typeof body>(ENDPOINTS.fcm.tokenLogin, body),
 
   disableFcmToken: (body: { token: string }) =>
     http.post<Rsp<null>, typeof body>(ENDPOINTS.fcm.tokenLogout, body),
-
-  getNotifications: () =>
-    http.get<Rsp<{ notifications: { id: number; body: string; createdAt: string }[] }>>(
-      ENDPOINTS.fcm.notifications,
-    ),
 };
