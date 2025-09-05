@@ -1,11 +1,43 @@
-import { createAuthApi } from '@apis/auth/auth';
-import { HttpClient } from '@apis/base/http';
-import { axiosInstance } from '@apis/base/instance';
+import type { QueryKey } from '@tanstack/react-query';
 
-const http = new HttpClient(axiosInstance);
+export const buildQuery = <T>(
+  queryKey: QueryKey,
+  queryFn: () => Promise<T>,
+  options?: {
+    enabled?: boolean;
+    staleTime?: number;
+    refetchOnWindowFocus?: boolean;
+    select?: (data: T) => unknown;
+  },
+) => ({
+  queryKey,
+  queryFn,
+  ...options,
+});
 
-export const api = {
-  auth: createAuthApi(http),
-} as const;
+export const buildInfiniteQuery = <TPage>(
+  queryKey: QueryKey,
+  queryFn: (ctx: { pageParam?: unknown }) => Promise<TPage>,
+  options: {
+    getNextPageParam: (lastPage: TPage, all: TPage[]) => unknown;
+    initialPageParam?: unknown;
+    enabled?: boolean;
+    staleTime?: number;
+    select?: (data: { pages: TPage[]; pageParams: unknown[] }) => unknown;
+  },
+) => ({
+  queryKey,
+  queryFn,
+  ...options,
+});
 
-export type Api = typeof api;
+export const buildMutation = <TData, TVariables = void>(
+  mutationFn: (variables: TVariables) => Promise<TData>,
+  options?: {
+    onSuccess?: (data: TData, variables: TVariables, context: unknown) => void;
+    onError?: (err: unknown, variables: TVariables, context: unknown) => void;
+  },
+) => ({
+  mutationFn,
+  ...options,
+});
