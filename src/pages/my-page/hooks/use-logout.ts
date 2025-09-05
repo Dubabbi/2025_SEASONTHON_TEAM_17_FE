@@ -1,10 +1,11 @@
 import { authApi } from '@apis/auth/auth';
 import { axiosInstance } from '@apis/base/instance';
 import useFcm from '@hooks/use-fcm';
+import { unsyncFcmFromServer } from '@pages/my-page/utils/fcm-sync';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-const LOGOUT_BROADCAST_KEY = '__maeum:logout__';
+export const LOGOUT_BROADCAST_KEY = '__maeum:logout__';
 
 const clearTokens = () => {
   localStorage.removeItem('accessToken');
@@ -16,8 +17,7 @@ const clearTokens = () => {
 export default function useLogout() {
   const qc = useQueryClient();
   const nav = useNavigate();
-
-  const { token, disablePush } = useFcm({
+  const { disablePush, token } = useFcm({
     vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
     autoRequest: false,
   });
@@ -25,17 +25,24 @@ export default function useLogout() {
   return async () => {
     try {
       if (token) await authApi.disableFcmToken({ token }).catch(() => {});
-      await disablePush().catch(() => {});
+      await unsyncFcmFromServer();
+      await disablePush().catch(() => {
+        /* */
+      });
     } finally {
       clearTokens();
       axiosInstance.defaults.headers.common.Authorization = '';
       qc.clear();
       try {
         // @ts-expect-error
-        window?.Kakao?.Auth?.logout?.(() => {});
+        window?.Kakao?.Auth?.logout?.(() => {
+          /* */
+        });
         // @ts-expect-error
         window?.Kakao?.Auth?.setAccessToken?.(null);
-      } catch {}
+      } catch {
+        /* */
+      }
       localStorage.setItem(LOGOUT_BROADCAST_KEY, String(Date.now()));
       nav('/login', { replace: true });
     }

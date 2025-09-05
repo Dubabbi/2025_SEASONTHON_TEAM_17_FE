@@ -1,5 +1,8 @@
+import { authApi } from '@apis/auth/auth';
 import { authMutations } from '@apis/auth/auth-mutations';
 import { useToast } from '@contexts/toast-context';
+import useFcm from '@hooks/use-fcm';
+import { getDeviceInfo } from '@pages/my-page/utils/device-info';
 import { useMutation } from '@tanstack/react-query';
 import { setAccessToken, setRefreshToken } from '@utils/token';
 import { useEffect, useRef } from 'react';
@@ -10,6 +13,17 @@ export default function KakaoCallbackPage() {
   const { showToast } = useToast();
   const { mutateAsync } = useMutation(authMutations.kakaoCallback());
   const once = useRef(false);
+  const { token, permission } = useFcm({
+    vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+    autoRequest: true,
+  });
+  useEffect(() => {
+    if (permission === 'granted' && token) {
+      authApi.saveFcmToken({ token, deviceInfo: getDeviceInfo() }).catch(() => {
+        /* */
+      });
+    }
+  }, [permission, token]);
 
   useEffect(() => {
     if (once.current) return;

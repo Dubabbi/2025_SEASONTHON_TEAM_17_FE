@@ -14,6 +14,7 @@ import ProfileHeader from '@pages/my-page/components/profile-header';
 import SectionTitle from '@pages/my-page/components/section-title';
 import SettingRow from '@pages/my-page/components/setting-row';
 import useLogout from '@pages/my-page/hooks/use-logout';
+import { syncFcmWithServer, unsyncFcmFromServer } from '@pages/my-page/utils/fcm-sync';
 import { fileToDataUrl, getMissingFcmEnvKeys } from '@pages/my-page/utils/file-to-data';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -55,7 +56,7 @@ export default function ProfilePage() {
 
   const goTerms = () => nav('/mypage/terms-service');
 
-  const { supported, permission, enablePush, disablePush } = useFcm({
+  const { supported, permission, enablePush, disablePush, token } = useFcm({
     vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
     autoRequest: false,
   });
@@ -69,14 +70,20 @@ export default function ProfilePage() {
       const missing = getMissingFcmEnvKeys();
       if (missing.length > 0) return showToast(TOAST_MSG.PUSH.ENV_MISSING);
       if (supported === false) return showToast(TOAST_MSG.PUSH.NOT_SUPPORTED);
+
       const ok = await enablePush();
-      if (!ok)
+      if (!ok) {
         return showToast(
           permission === 'denied' ? TOAST_MSG.PUSH.ENABLE_DENIED : TOAST_MSG.PUSH.ENABLE_FAIL,
         );
+      }
+
+      const t = localStorage.getItem('fcm.token') || token;
+      if (t) await syncFcmWithServer(t);
       setPushEnabled(true);
       showToast(TOAST_MSG.PUSH.ENABLE_SUCCESS);
     } else {
+      await unsyncFcmFromServer();
       await disablePush();
       setPushEnabled(false);
       showToast(TOAST_MSG.PUSH.DISABLE_SUCCESS);
