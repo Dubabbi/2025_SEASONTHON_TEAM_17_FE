@@ -1,9 +1,11 @@
 import Calendar from '@components/calendar/calendar';
 import DiaryCard from '@components/card/diary-card';
+import DiaryMammonCard from '@components/card/diary-mammon-card';
+import type { EmotionId, ReactionCounts } from '@components/reaction/reaction-bar-chips-lite';
 import TipInfo from '@components/tipinfo';
 import type { DiaryEntry } from '@pages/diary/diary-page';
 import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type DiaryCreateState =
@@ -21,16 +23,8 @@ const DIARY_ENTRIES: Record<string, DiaryEntry> = {
     content: '순공 시간 12시간 달성했다. 재미 없다,,',
     emotions: ['SAD', 'ANGRY'],
   },
-  '2025-08-09': {
-    title: '휴식',
-    content: '산책으로 머리 식혔다...',
-    emotions: ['SAD'],
-  },
-  '2025-08-15': {
-    title: '왠지 기분이 좋은 날',
-    content: '오랜만에 나들이',
-    emotions: ['EXCITE'],
-  },
+  '2025-08-09': { title: '휴식', content: '산책으로 머리 식혔다...', emotions: ['SAD'] },
+  '2025-08-15': { title: '왠지 기분이 좋은 날', content: '오랜만에 나들이', emotions: ['EXCITE'] },
   '2025-08-27': {
     title: '좋아하는 친구들을 만났다.',
     content: '역시 친구들을 만나니까 기분이 좋은 것 같다.',
@@ -48,12 +42,23 @@ const DIARY_ENTRIES: Record<string, DiaryEntry> = {
   },
 };
 
+const keyOf = (d: Date) => dayjs(d).format('YYYY-MM-DD');
+
+const DEFAULT_COUNTS: ReactionCounts = {
+  HAPPY: 5,
+  SAD: 0,
+  ANGRY: 0,
+  EXCITE: 0,
+  TIRED: 0,
+  SURPRISE: 0,
+};
+
 export default function DiaryRecordPage() {
   const [selected, setSelected] = useState(new Date());
   const navigate = useNavigate();
-
-  const selectedKey = useMemo(() => dayjs(selected).format('YYYY-MM-DD'), [selected]);
+  const selectedKey = useMemo(() => keyOf(selected), [selected]);
   const entry = DIARY_ENTRIES[selectedKey];
+  const hasEntry = !!(entry && (entry.title || entry.content || entry.emotions?.length));
   const marked = useMemo(() => Object.keys(DIARY_ENTRIES), []);
 
   const onCardAction = (type: '작성하기' | '수정하기') => {
@@ -62,11 +67,41 @@ export default function DiaryRecordPage() {
       navigate('/diary/create', { state });
       return;
     }
-
     if (!entry) return;
     const state: DiaryCreateState = { mode: 'edit', date: selectedKey, entry };
     navigate('/diary/create', { state });
   };
+
+  const [countsByDate, setCountsByDate] = useState<Record<string, ReactionCounts>>({});
+  const [togglesByDate, setTogglesByDate] = useState<Record<string, Set<EmotionId>>>({});
+
+  const counts = hasEntry ? (countsByDate[selectedKey] ?? DEFAULT_COUNTS) : DEFAULT_COUNTS;
+  const myToggles = hasEntry
+    ? (togglesByDate[selectedKey] ?? new Set<EmotionId>())
+    : new Set<EmotionId>();
+
+  // 동일 칩 재클릭 시 −1, 아니면 +1
+  const handleToggle = useCallback(
+    (id: EmotionId) => {
+      if (!hasEntry) return;
+
+      setCountsByDate((prev) => {
+        const base = prev[selectedKey] ?? DEFAULT_COUNTS;
+        const next = { ...base };
+        const pressed = (togglesByDate[selectedKey] ?? new Set<EmotionId>()).has(id);
+        next[id] = Math.max(0, (next[id] ?? 0) + (pressed ? -1 : +1));
+        return { ...prev, [selectedKey]: next };
+      });
+
+      setTogglesByDate((prev) => {
+        const set = new Set<EmotionId>(prev[selectedKey] ?? []);
+        if (set.has(id)) set.delete(id);
+        else set.add(id);
+        return { ...prev, [selectedKey]: set };
+      });
+    },
+    [hasEntry, selectedKey, togglesByDate],
+  );
 
   return (
     <div className="flex-col gap-[3rem] px-[2.4rem] pt-[2.2rem] pb-[17rem]">
@@ -82,7 +117,7 @@ export default function DiaryRecordPage() {
         </section>
       </div>
 
-      <div className="pt-[0.8rem]">
+      <div className="flex flex-col gap-[1.2rem] pt-[0.8rem]">
         <DiaryCard
           title={entry?.title}
           content={entry?.content}
@@ -90,6 +125,19 @@ export default function DiaryRecordPage() {
           date={selected}
           onClickButton={onCardAction}
         />
+
+        {/*일기 있는 날짜에만 From.마몬 카드 표시 */}
+        {hasEntry && entry && (
+          <DiaryMammonCard
+            title={entry.title}
+            content={entry.content}
+            date={selected}
+            counts={counts}
+            myToggles={myToggles}
+            onToggle={handleToggle}
+            className="mt-[1.2rem]"
+          />
+        )}
       </div>
     </div>
   );
