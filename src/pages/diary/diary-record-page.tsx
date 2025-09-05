@@ -23,8 +23,16 @@ const DIARY_ENTRIES: Record<string, DiaryEntry> = {
     content: '순공 시간 12시간 달성했다. 재미 없다,,',
     emotions: ['SAD', 'ANGRY'],
   },
-  '2025-08-09': { title: '휴식', content: '산책으로 머리 식혔다...', emotions: ['SAD'] },
-  '2025-08-15': { title: '왠지 기분이 좋은 날', content: '오랜만에 나들이', emotions: ['EXCITE'] },
+  '2025-08-09': {
+    title: '휴식',
+    content: '산책으로 머리 식혔다...',
+    emotions: ['SAD'],
+  },
+  '2025-08-15': {
+    title: '왠지 기분이 좋은 날',
+    content: '오랜만에 나들이',
+    emotions: ['EXCITE'],
+  },
   '2025-08-27': {
     title: '좋아하는 친구들을 만났다.',
     content: '역시 친구들을 만나니까 기분이 좋은 것 같다.',
@@ -117,7 +125,7 @@ export default function DiaryRecordPage() {
         </section>
       </div>
 
-      <div className="flex flex-col gap-[1.2rem] pt-[0.8rem]">
+      <div className="pt-[0.8rem]">
         <DiaryCard
           title={entry?.title}
           content={entry?.content}

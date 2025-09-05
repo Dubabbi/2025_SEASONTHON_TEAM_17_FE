@@ -53,7 +53,7 @@ export default function DiaryMammonCard({
 
       {aiText && (
         <div className="mt-[0.8rem]">
-          <span className="rounded-full bg-gray-50 px-3 py-1 font-semibold text-[12px] text-primary-600">
+          <span className="rounded-[999px] bg-gray-100 px-3 py-1 font-semibold text-[12px] text-primary-600">
             From. 마몬
           </span>
           <p className="body2-500 mt-2 whitespace-pre-wrap text-gray-900">{aiText}</p>

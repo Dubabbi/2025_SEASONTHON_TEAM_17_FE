@@ -1,7 +1,6 @@
 import Button from '@components/button/button';
 import Calendar from '@components/calendar/calendar';
 import DiaryCard from '@components/card/diary-card';
-// [추가] From.마몬 카드 & 리액션 타입
 import DiaryMammonCard from '@components/card/diary-mammon-card';
 import type { EmotionId, ReactionCounts } from '@components/reaction/reaction-bar-chips-lite';
 import Banner from '@pages/diary/components/banner';
@@ -27,7 +26,7 @@ const DIARY_ENTRIES: Record<string, DiaryEntry> = {
   },
   '2025-08-08': {
     title: '집중의 하루',
-    content: '순공 시간 12시간 달성했다. 재미 없다,,',
+    content: '순공 시간 12시간 달성했다. 재미 없다..',
     emotions: ['SAD', 'ANGRY'],
   },
   '2025-08-09': {
@@ -79,9 +78,9 @@ export default function DiaryPage() {
   };
 
   const DEFAULT_COUNTS: ReactionCounts = {
-    HAPPY: 5, // 요구: 행복(5) 시작
-    SAD: 0,
-    ANGRY: 0,
+    HAPPY: 1,
+    SAD: 2,
+    ANGRY: 3,
     EXCITE: 0,
     TIRED: 0,
     SURPRISE: 0,
@@ -135,7 +134,7 @@ export default function DiaryPage() {
 
         <Calendar value={selected} onChange={setSelected} marked={markedDates} />
 
-        <div className="flex flex-col gap-[1.2rem] pt-[1.6rem] pb-[2.4rem]">
+        <div className="gap-[1.2rem] pt-[1.6rem] pb-[2.4rem]">
           <DiaryCard
             title={entry?.title}
             content={entry?.content}
