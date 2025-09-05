@@ -7,9 +7,9 @@ export default function Step3(props: StepProps) {
       {...props}
       title={
         <>
-          위기 키워드 발생 시
+          친구의 감정 일기도 들어가
           <br />
-          자동 알림이 가게 돼요
+          친구의 감정을 확인해보세요
         </>
       }
     />

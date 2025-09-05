@@ -1,4 +1,3 @@
-import NotiBg from '@assets/images/noti-bg.png';
 import EmotionCard from '@components/card/emotion-card';
 import TipInfo from '@components/tipinfo';
 import EmotionStatsSection from '@pages/main/components/emotion-stats-section';

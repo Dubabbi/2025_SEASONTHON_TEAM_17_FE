@@ -7,9 +7,9 @@ export default function Step1(props: StepProps) {
       {...props}
       title={
         <>
-          오늘의 감정 체크로
+          감정 일기로
           <br />
-          오늘의 감정을 체크해보세요
+          나의 속마음을 털어내보세요
         </>
       }
     />
