@@ -1,5 +1,6 @@
 import EmotionCard from '@components/card/emotion-card';
 import TipInfo from '@components/tipinfo';
+import { MOCK_USER } from '@mocks/user';
 import EmotionStatsSection from '@pages/main/components/emotion-stats-section';
 import HeroSection from '@pages/main/components/hero-section';
 import { useState } from 'react';
@@ -14,10 +15,10 @@ export default function MainPage() {
 
   return (
     <div className="min-h-dvh flex-col bg-gradient-bgd2 pb-[15rem]">
-      <HeroSection username="지훈" />
+      <HeroSection username={MOCK_USER.username} />
+
       <section className="flex-col px-[2rem] pt-[2rem]">
         <TipInfo title="최근 감정 일기 기록" text={formattedDate} className="py-[2rem]" />
-
         <div className="py-[2rem]">
           <EmotionCard
             selected={selectedChips}
@@ -28,7 +29,11 @@ export default function MainPage() {
         </div>
       </section>
 
-      <EmotionStatsSection className="pb-[2rem]" />
+      <EmotionStatsSection
+        selfItems={MOCK_USER.statsSelf}
+        friendItems={MOCK_USER.statsFriend}
+        className="pb-[2rem]"
+      />
     </div>
   );
 }

@@ -47,7 +47,7 @@ export default function EmotionBarChart({ items, className }: Props) {
 
 function LegendDot({ className, label }: { className: string; label: string }) {
   return (
-    <div className="flex-row items-center gap-[0.6rem]">
+    <div className="flex-row-center gap-[0.6rem]">
       <span className={cn('block h-[1rem] w-[1rem] rounded-full', className)} />
       <span className="detail text-gray-700">{label}</span>
     </div>
@@ -68,8 +68,8 @@ function BarGroup({
   ready: boolean;
 }) {
   return (
-    <div className="flex-col-items-center gap-[0.8rem]">
-      <div className="flex-row items-end gap-[0.8rem]">
+    <div className="flex-col-center gap-[0.8rem]">
+      <div className="flex-row-end gap-[0.8rem]">
         <Bar value={prev} max={max} color="bg-primary-200" ready={ready} />
         <Bar value={curr} max={max} color="bg-primary-600" ready={ready} />
       </div>
@@ -91,7 +91,7 @@ function Bar({
 }) {
   const h = Math.round((value / max) * 200);
   return (
-    <div className="relative h-[20rem] w-[2.6rem] rounded-[8px] bg-gray-200">
+    <div className="relative h-[20rem] w-[2.5rem] rounded-[8px] bg-primary-100/25">
       <div
         className={cn(
           'absolute right-0 bottom-0 left-0 rounded-[8px] transition-[height] duration-700 ease-out',
