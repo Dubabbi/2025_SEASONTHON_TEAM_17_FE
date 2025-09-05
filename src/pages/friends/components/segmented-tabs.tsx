@@ -20,7 +20,7 @@ export default function SegmentedTabs({
   value,
   onChange,
   className,
-  itemClassName,
+  itemClassName = ' w-[11.5rem]',
   activeClassName,
   inactiveClassName,
   ariaLabel = '탭 목록',
@@ -41,7 +41,7 @@ export default function SegmentedTabs({
             tabIndex={active ? 0 : -1}
             onClick={() => onChange(v)}
             className={cn(
-              'body2-500 w-[11.5rem] rounded-[20px] py-[1.6rem]',
+              'body2-500 whitespace-nowrap rounded-[20px] py-[1.6rem]',
               active ? 'bg-primary-600 text-gray-50' : 'bg-transparent text-gray-900 opacity-60',
               itemClassName,
               active ? activeClassName : inactiveClassName,

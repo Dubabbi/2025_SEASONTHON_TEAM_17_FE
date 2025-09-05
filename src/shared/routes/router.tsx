@@ -10,11 +10,13 @@ const FriendsMorePage = lazy(() => import('@pages/friends/friends-more-page'));
 const LoginPage = lazy(() => import('@pages/login/login-page'));
 const DiaryPage = lazy(() => import('@pages/diary/diary-page'));
 const DiaryCreatePage = lazy(() => import('@pages/diary/diary-create-page'));
+const DiaryResultPage = lazy(() => import('@pages/diary/diary-result-page'));
 const DiaryRecordPage = lazy(() => import('@pages/diary/diary-record-page'));
 const MyPage = lazy(() => import('@pages/my-page/my-page'));
 const TermsServicePage = lazy(() => import('@pages/my-page/terms-service-page'));
 const NotificationsPage = lazy(() => import('@pages/notifications/notifications-page'));
 const NotFound = lazy(() => import('@pages/error/not-found'));
+const FriendDiaryPage = lazy(() => import('@pages/friends/friend-diary-page'));
 const TestPage = lazy(() => import('@pages/main/components-test-page')); // 컴포넌트 테스트
 
 export const router = createBrowserRouter([
@@ -33,6 +35,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <DiaryPage /> },
           { path: 'create', element: <DiaryCreatePage /> },
+          { path: 'result', element: <DiaryResultPage /> },
           { path: 'record', element: <DiaryRecordPage /> },
         ],
       },
@@ -59,6 +62,7 @@ export const router = createBrowserRouter([
           { index: true, element: <FriendsPage /> },
           { path: 'all', element: <FriendsMorePage /> },
           { path: ':id', element: <FriendDetailPage /> },
+          { path: ':id/diary/:date', element: <FriendDiaryPage /> },
         ],
       },
     ],

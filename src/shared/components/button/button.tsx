@@ -17,7 +17,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         type={type}
         className={cn(
-          'flex cursor-pointer items-center justify-center',
+          'flex cursor-pointer items-center justify-center whitespace-nowrap',
           'focus-visible:outline-none',
           className,
         )}

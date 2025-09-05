@@ -1,6 +1,8 @@
 import Header, { type HeaderProps } from '@layouts/header-bar';
 import NavigationBar from '@layouts/nav-bar';
 import Splash from '@layouts/splash';
+import { MOCK_FRIENDS, MOCK_RECEIVED, MOCK_SENT } from '@mocks/friends';
+import dayjs from 'dayjs';
 import { useState } from 'react';
 import { Outlet, ScrollRestoration, useLocation, useMatches, useNavigate } from 'react-router-dom';
 
@@ -10,6 +12,10 @@ const EXCEPTION_HEADERS: Array<{
 }> = [
   {
     test: (p) => p.startsWith('/diary/create'),
+    props: { variant: 'title', title: '감정 일기 작성하기' },
+  },
+  {
+    test: (p) => p.startsWith('/diary/result'),
     props: { variant: 'title', title: '감정 일기 작성하기' },
   },
   {
@@ -39,6 +45,17 @@ function pickHeader(pathname: string, search: string): HeaderProps {
           : '내 친구 목록';
     return { variant: 'title', title };
   }
+
+  const diary = pathname.match(/^\/friends\/([^/]+)\/diary\/(\d{4}-\d{2}-\d{2})$/);
+  if (diary) return { variant: 'title', title: dayjs(diary[2]).format('YYYY.MM.DD') };
+
+  const friend = pathname.match(/^\/friends\/([^/]+)$/);
+  if (friend) {
+    const all = [...MOCK_FRIENDS, ...MOCK_SENT, ...MOCK_RECEIVED];
+    const name = all.find((f) => f.id === friend[1])?.name ?? '친구';
+    return { variant: 'title', title: name };
+  }
+
   return EXCEPTION_HEADERS.find((r) => r.test(pathname))?.props ?? DEFAULT_HEADER;
 }
 
