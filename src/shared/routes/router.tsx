@@ -1,3 +1,4 @@
+import { entryAuthGuard } from '@routes/auth-guard';
 import { lazy } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 
@@ -25,6 +26,8 @@ const TestPage = lazy(() => import('@pages/main/components-test-page')); // ì»´í
 export const router = createBrowserRouter([
   {
     element: <Layout />,
+    loader: entryAuthGuard,
+    shouldRevalidate: () => false,
     children: [
       { index: true, element: <MainPage /> },
       { path: '/login', element: <LoginPage />, handle: { hideChrome: true } },
