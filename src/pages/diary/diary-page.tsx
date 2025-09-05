@@ -134,7 +134,7 @@ export default function DiaryPage() {
 
         <Calendar value={selected} onChange={setSelected} marked={markedDates} />
 
-        <div className="gap-[1.2rem] pt-[1.6rem] pb-[2.4rem]">
+        <div className="pt-[1.6rem] pb-[2.4rem]">
           <DiaryCard
             title={entry?.title}
             content={entry?.content}
