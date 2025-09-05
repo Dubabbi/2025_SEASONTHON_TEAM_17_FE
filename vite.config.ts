@@ -13,6 +13,7 @@ export default defineConfig({
     svgr(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: { globIgnores: ['**/divider-*.js'] },
       injectRegister: 'auto',
       devOptions: { enabled: true },
       manifest: {
