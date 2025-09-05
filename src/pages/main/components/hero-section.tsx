@@ -12,7 +12,7 @@ export default function HeroSection({
   username,
   showSubtitle = true,
   className = '',
-  gradientClass = 'bg-gradient-bgd2',
+  gradientClass = '',
 }: Props) {
   return (
     <section

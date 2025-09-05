@@ -34,7 +34,7 @@ export default function FriendsPage() {
   };
 
   return (
-    <div className="min-h-dvh flex-col pb-[15rem]">
+    <div className="min-h-dvh flex-col bg-gradient-bgd1 pb-[15rem]">
       <FriendsHeader />
       <div className="flex-col-center gap-[1.5rem] px-[2.4rem] py-[1.5rem]">
         <SearchBar placeholder="친구를 검색해 보세요" />
