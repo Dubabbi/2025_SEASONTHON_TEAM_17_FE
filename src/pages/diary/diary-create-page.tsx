@@ -18,18 +18,18 @@ export default function DiaryCreatePage() {
     content: '',
     privacySetting: '',
   });
-  const { state } = useLocation();
+  const { state: createState } = useLocation();
   const createDiary = useMutation(diariesMutations.create());
   const createDiaryWithDate = useMutation(diariesMutations.createWithDate());
   const navigate = useNavigate();
 
   const patchDiary = () => {
     const privacySetting = diaryInfo.privacySetting === '친구 공개' ? 'PUBLIC' : 'PRIVACY';
-    if (state?.date) {
+    if (createState?.date) {
       createDiaryWithDate.mutate({
         ...diaryInfo,
         privacySetting,
-        createdAt: state?.date,
+        createdAt: createState?.date,
       });
     } else {
       createDiary.mutate({
@@ -55,8 +55,7 @@ export default function DiaryCreatePage() {
   const handleGoRecords = () => {
     setIsGoNext(true);
     if (createDiary.isSuccess) {
-      const stateData = state?.date ? state?.date : new Date();
-      navigate('/diary/result', stateData);
+      navigate('/diary/result');
     } else {
       setIsLoading(true);
     }
@@ -64,22 +63,25 @@ export default function DiaryCreatePage() {
   };
 
   useEffect(() => {
-    if (state && state.mode === 'edit' && state.entry) {
+    if (createState && createState.mode === 'edit' && createState.entry) {
       setDiaryInfo((prev) => ({
         ...prev,
-        title: state.entry.title,
-        content: state.entry.content,
+        title: createState.entry.title,
+        content: createState.entry.content,
       }));
     }
-  }, [state]);
+  }, [createState]);
 
   useEffect(() => {
     if ((createDiary.isSuccess || createDiaryWithDate.isSuccess) && isGoNext) {
       setOpen(false);
-      const state = createDiary.isSuccess ? createDiary.data?.data : createDiaryWithDate.data?.data;
+      const date = createState?.date ? createState?.date : new Date();
+      const state = createDiary.isSuccess
+        ? { ...createDiary.data?.data, date }
+        : { ...createDiaryWithDate.data?.data, date };
       navigate('/diary/result', { state });
     }
-  }, [createDiary, createDiaryWithDate, isGoNext, navigate]);
+  }, [createDiary, createDiaryWithDate, createState, isGoNext, navigate]);
 
   if (isLoading) return <Loading />;
 

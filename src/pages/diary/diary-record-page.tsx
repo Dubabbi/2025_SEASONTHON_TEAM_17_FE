@@ -10,8 +10,8 @@ import useBottomSheet from '@hooks/use-bottom-sheet';
 import type { DiaryEntry } from '@pages/diary/diary-page';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type DiaryCreateState = { mode: 'create'; date: string };
 
@@ -22,10 +22,21 @@ type EmotionRaw = string | { type: string };
 export default function DiaryRecordPage() {
   const [selected, setSelected] = useState(new Date());
   const [view, setView] = useState<Date>(selected);
+  const { state } = useLocation();
   const navigate = useNavigate();
   const qc = useQueryClient();
 
+  console.log('state', { ...state });
+
   const deleteSheet = useBottomSheet();
+
+  useEffect(() => {
+    const parsed =
+      typeof state.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(state)
+        ? dayjs(state.date).toDate()
+        : state.date;
+    setSelected(parsed);
+  }, [state]);
 
   const selectedKey = useMemo(() => keyOf(selected), [selected]);
   const y = useMemo(() => dayjs(view).year(), [view]);
