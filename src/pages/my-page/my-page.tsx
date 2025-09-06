@@ -1,3 +1,4 @@
+import { authQueries } from '@apis/auth/auth-queries';
 import defaultProfile from '@assets/icons/3d-hand.svg';
 import LeaveConfirmSheet from '@components/bottom-sheet/leave-confirm-sheet';
 import LogoutConfirmSheet from '@components/bottom-sheet/logout-confirm-sheet';
@@ -12,8 +13,11 @@ import InquiryAlertsSection from '@pages/my-page/components/inquiry-alerts-secti
 import ProfileHeader from '@pages/my-page/components/profile-header';
 import SectionTitle from '@pages/my-page/components/section-title';
 import SettingRow from '@pages/my-page/components/setting-row';
+import useLogout from '@pages/my-page/hooks/use-logout';
+import { syncFcmWithServer, unsyncFcmFromServer } from '@pages/my-page/utils/fcm-sync';
 import { fileToDataUrl, getMissingFcmEnvKeys } from '@pages/my-page/utils/file-to-data';
-import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type MockProfile = {
@@ -36,15 +40,27 @@ export default function ProfilePage() {
   const logoutSheet = useBottomSheet();
   const nicknameSheet = useBottomSheet();
   const nav = useNavigate();
+  const logout = useLogout();
+  const { data: me } = useQuery(authQueries.verify());
+
   const [nickname, setNickname] = useState(MOCK_PROFILE.name);
   const [avatar, setAvatar] = useState(MOCK_PROFILE.avatarUrl);
   const [pushEnabled, setPushEnabled] = useState(MOCK_PROFILE.pushEnabled);
 
+  useEffect(() => {
+    if (me?.email) {
+      const name = me.email.split('@')[0] || MOCK_PROFILE.name;
+      setNickname(name);
+    }
+  }, [me?.email]);
+
   const goTerms = () => nav('/mypage/terms-service');
-  const { supported, permission, enablePush, disablePush } = useFcm({
+
+  const { supported, permission, enablePush, disablePush, token } = useFcm({
     vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
     autoRequest: false,
   });
+
   const { showToast } = useToast?.() ?? {
     showToast: (msg: string) => alert(msg),
   };
@@ -52,26 +68,22 @@ export default function ProfilePage() {
   const handleTogglePush = async (next: boolean) => {
     if (next) {
       const missing = getMissingFcmEnvKeys();
-      if (missing.length > 0) {
-        showToast(TOAST_MSG.PUSH.ENV_MISSING);
-        return;
-      }
-      if (supported === false) {
-        showToast(TOAST_MSG.PUSH.NOT_SUPPORTED);
-        return;
-      }
+      if (missing.length > 0) return showToast(TOAST_MSG.PUSH.ENV_MISSING);
+      if (supported === false) return showToast(TOAST_MSG.PUSH.NOT_SUPPORTED);
+
       const ok = await enablePush();
       if (!ok) {
-        if (permission === 'denied') {
-          showToast(TOAST_MSG.PUSH.ENABLE_DENIED);
-        } else {
-          showToast(TOAST_MSG.PUSH.ENABLE_FAIL);
-        }
-        return;
+        return showToast(
+          permission === 'denied' ? TOAST_MSG.PUSH.ENABLE_DENIED : TOAST_MSG.PUSH.ENABLE_FAIL,
+        );
       }
+
+      const t = localStorage.getItem('fcm.token') || token;
+      if (t) await syncFcmWithServer(t);
       setPushEnabled(true);
       showToast(TOAST_MSG.PUSH.ENABLE_SUCCESS);
     } else {
+      await unsyncFcmFromServer();
       await disablePush();
       setPushEnabled(false);
       showToast(TOAST_MSG.PUSH.DISABLE_SUCCESS);
@@ -104,6 +116,7 @@ export default function ProfilePage() {
               ariaLabel="프로필 사진 변경"
             />
           </section>
+
           <InquiryAlertsSection
             pushEnabled={pushEnabled}
             onTogglePush={handleTogglePush}
@@ -165,7 +178,9 @@ export default function ProfilePage() {
       <LogoutConfirmSheet
         isOpen={logoutSheet.isOpen}
         onClose={logoutSheet.close}
-        onLogout={() => {
+        onLogout={async () => {
+          await logout();
+          showToast(TOAST_MSG.AUTH.LOGOUT_SUCCESS);
           logoutSheet.close();
         }}
       />

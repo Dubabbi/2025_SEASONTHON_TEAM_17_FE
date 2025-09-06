@@ -28,3 +28,5 @@ export const getAuthHeader = (): { Authorization?: string } => {
   const token = getAccessToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
+
+export const setRefreshToken = (v: string) => localStorage.setItem('refresh_token', v);
