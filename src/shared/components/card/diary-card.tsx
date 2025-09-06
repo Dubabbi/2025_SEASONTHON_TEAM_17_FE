@@ -42,31 +42,29 @@ const DiaryCard = ({
       )}
     >
       {!isEmpty && (
-        <div className="flex items-start justify-between gap-[1.2rem]">
-          <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 flex-col gap-[1.2rem]">
+          <div className="flex-row-between">
             <p className="heading3-500">{title}</p>
-            <p className="body2-500 h-[7.2rem] break-words">{content}</p>
+            {privacySetting && (
+              <div className="flex shrink-0 select-none items-center gap-[0.6rem]">
+                <button
+                  type="button"
+                  className="sub-body-700 text-primary-800"
+                  onClick={handleToggleClick}
+                  aria-controls="privacy-switch"
+                  aria-pressed={isPrivate}
+                >
+                  {isPrivate ? '비공개' : '공개'}
+                </button>
+                <ToggleSwitch
+                  id="privacy-switch"
+                  checked={isPrivate}
+                  onChange={(next: boolean) => onTogglePrivacy?.(next ? 'PRIVACY' : 'PUBLIC')}
+                />
+              </div>
+            )}
           </div>
-
-          {privacySetting && (
-            <div className="flex shrink-0 select-none items-center gap-[0.6rem]">
-              <button
-                type="button"
-                className="sub-body-700 text-primary-800"
-                onClick={handleToggleClick}
-                aria-controls="privacy-switch"
-                aria-pressed={isPrivate}
-              >
-                {isPrivate ? '비공개' : '공개'}
-              </button>
-
-              <ToggleSwitch
-                id="privacy-switch"
-                checked={isPrivate}
-                onChange={(next: boolean) => onTogglePrivacy?.(next ? 'PRIVACY' : 'PUBLIC')}
-              />
-            </div>
-          )}
+          <p className="body2-500 min-h-[7.2rem] break-words">{content}</p>
         </div>
       )}
 

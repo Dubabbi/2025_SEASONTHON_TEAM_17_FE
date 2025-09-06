@@ -38,6 +38,13 @@ export const diariesApi = {
   create: (body: { title: string; content: string; privacySetting: 'PUBLIC' | 'PRIVACY' }) =>
     http.post<Rsp<{ diaryId: number }>, typeof body>(ENDPOINTS.diaries.root, body),
 
+  createWithDate: (body: {
+    title: string;
+    content: string;
+    privacySetting: 'PUBLIC' | 'PRIVACY';
+    createdAt: string;
+  }) => http.post<Rsp<{ diaryId: number }>, typeof body>(ENDPOINTS.diaries.with, body),
+
   detail: (diaryId: number) => http.get<DiaryDetailRes>(ENDPOINTS.diaries.byId(diaryId)),
 
   remove: (diaryId: number) => http.delete<Rsp<null>>(ENDPOINTS.diaries.byId(diaryId)),

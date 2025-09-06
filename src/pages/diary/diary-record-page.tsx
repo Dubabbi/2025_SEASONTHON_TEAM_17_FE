@@ -11,8 +11,8 @@ import type { DiaryEntry } from '@pages/diary/diary-page';
 import { emotionLikeStore, useEmotionLikesVersion } from '@pages/diary/stores/emotion-like-store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type DiaryCreateState = { mode: 'create'; date: string };
 
@@ -24,10 +24,21 @@ type EmotionDTO = { id?: number; type: EmotionId; likeCount: number };
 export default function DiaryRecordPage() {
   const [selected, setSelected] = useState(new Date());
   const [view, setView] = useState<Date>(selected);
+  const { state } = useLocation();
   const navigate = useNavigate();
   const qc = useQueryClient();
 
+  console.log('state', { ...state });
+
   const deleteSheet = useBottomSheet();
+
+  useEffect(() => {
+    const parsed =
+      typeof state.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(state)
+        ? dayjs(state.date).toDate()
+        : state.date;
+    setSelected(parsed);
+  }, [state]);
 
   const selectedKey = useMemo(() => keyOf(selected), [selected]);
   const y = useMemo(() => dayjs(view).year(), [view]);
@@ -241,15 +252,21 @@ export default function DiaryRecordPage() {
     mutationFn: (vars: { id: number; next: 'PUBLIC' | 'PRIVACY' }) =>
       updateDiaryPrivacy(vars.id, vars.next),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: diariesQueries.byDate(y, m, d).queryKey });
-      qc.invalidateQueries({ queryKey: diariesQueries.monthDates(y, m).queryKey });
+      qc.invalidateQueries({
+        queryKey: diariesQueries.byDate(y, m, d).queryKey,
+      });
+      qc.invalidateQueries({
+        queryKey: diariesQueries.monthDates(y, m).queryKey,
+      });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => diariesApi.remove(id),
     onMutate: async (_id: number) => {
-      await qc.cancelQueries({ queryKey: diariesQueries.byDate(y, m, d).queryKey });
+      await qc.cancelQueries({
+        queryKey: diariesQueries.byDate(y, m, d).queryKey,
+      });
       const prev = qc.getQueryData(diariesQueries.byDate(y, m, d).queryKey);
       qc.setQueryData(diariesQueries.byDate(y, m, d).queryKey, (p: unknown) => {
         const obj = p as { data?: unknown } | undefined;
@@ -263,7 +280,9 @@ export default function DiaryRecordPage() {
       }
     },
     onSuccess: async () => {
-      qc.invalidateQueries({ queryKey: diariesQueries.monthDates(y, m).queryKey });
+      qc.invalidateQueries({
+        queryKey: diariesQueries.monthDates(y, m).queryKey,
+      });
       void diariesApi.byDate({ year: y, month: m, day: d }).catch(() => undefined);
     },
     onSettled: () => {
@@ -292,39 +311,36 @@ export default function DiaryRecordPage() {
 
         <div className="flex-col gap-[1.5rem]">
           <h1 className="heading1-700">월별 기록</h1>
-          <section>
+          <section className="flex-col gap-[2rem]">
             <Calendar
               value={selected}
               onChange={setSelected}
               marked={marked}
               onMonthChange={setView}
             />
+
+            <DiaryCard
+  title={entryData?.title}
+  content={entryData?.content}
+  emotions={entryEmotions}
+  date={selected}
+  onClickButton={onCardAction}
+  privacySetting={entryData?.privacySetting as 'PUBLIC' | 'PRIVACY' | undefined}
+  onTogglePrivacy={onTogglePrivacy}
+/>
+
+            {hasEntry && entryData && (
+              <DiaryMammonCard
+                title={entryData.feedbackTitle ?? entryData.title}
+                content={entryData.feedbackContent ?? entryData.content}
+                date={selected}
+                counts={counts}
+                order={entryEmotions as EmotionId[]}
+                myToggles={myToggles}
+                onToggle={handleToggle}
+              />
+            )}
           </section>
-        </div>
-
-        <div className="pt-[0.8rem]">
-          <DiaryCard
-            title={entryData?.title}
-            content={entryData?.content}
-            emotions={entryEmotions}
-            date={selected}
-            onClickButton={onCardAction}
-            privacySetting={entryData?.privacySetting as 'PUBLIC' | 'PRIVACY' | undefined}
-            onTogglePrivacy={onTogglePrivacy}
-          />
-
-          {hasEntry && entryData && (
-            <DiaryMammonCard
-              title={entryData.feedbackTitle ?? entryData.title}
-              content={entryData.feedbackContent ?? entryData.content}
-              date={selected}
-              counts={counts}
-              order={entryEmotions}
-              myToggles={myToggles}
-              onToggle={handleToggle}
-              className="mt-[1.2rem]"
-            />
-          )}
         </div>
       </div>
 

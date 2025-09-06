@@ -244,15 +244,21 @@ export default function DiaryPage() {
     mutationFn: (vars: { id: number; next: 'PUBLIC' | 'PRIVACY' }) =>
       updateDiaryPrivacy(vars.id, vars.next),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: diariesQueries.byDate(y, m, d).queryKey });
-      qc.invalidateQueries({ queryKey: diariesQueries.monthDates(y, m).queryKey });
+      qc.invalidateQueries({
+        queryKey: diariesQueries.byDate(y, m, d).queryKey,
+      });
+      qc.invalidateQueries({
+        queryKey: diariesQueries.monthDates(y, m).queryKey,
+      });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => diariesApi.remove(id),
+
     onMutate: async (_id: number) => {
       await qc.cancelQueries({ queryKey: diariesQueries.byDate(y, m, d).queryKey });
+
       const prev = qc.getQueryData(diariesQueries.byDate(y, m, d).queryKey);
       qc.setQueryData(diariesQueries.byDate(y, m, d).queryKey, (p: unknown) => {
         const obj = p as { data?: unknown } | undefined;
@@ -264,8 +270,10 @@ export default function DiaryPage() {
       if (ctx?.prev) qc.setQueryData(diariesQueries.byDate(y, m, d).queryKey, ctx.prev);
     },
     onSuccess: async () => {
+
       qc.invalidateQueries({ queryKey: diariesQueries.monthDates(y, m).queryKey });
       void diariesApi.byDate({ year: y, month: m, day: d }).catch(() => undefined);
+
     },
     onSettled: () => {
       deleteSheet.close();
@@ -300,15 +308,14 @@ export default function DiaryPage() {
               전체 기록 보기
             </Button>
           </div>
+          <div className="flex-col gap-[2rem]">
+            <Calendar
+              value={selected}
+              onChange={setSelected}
+              marked={markedDates}
+              onMonthChange={setView}
+            />
 
-          <Calendar
-            value={selected}
-            onChange={setSelected}
-            marked={markedDates}
-            onMonthChange={setView}
-          />
-
-          <div className="pt-[1.6rem] pb-[2.4rem]">
             <DiaryCard
               title={entryData?.title}
               content={entryData?.content}
