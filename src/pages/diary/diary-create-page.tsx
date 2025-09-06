@@ -17,16 +17,27 @@ export default function DiaryCreatePage() {
     content: '',
     privacySetting: '',
   });
+  const { state } = useLocation();
   const createDiary = useMutation(diariesMutations.create());
+  const createDiaryWithDate = useMutation(diariesMutations.createWithDate());
   const navigate = useNavigate();
 
   const patchDiary = () => {
     const privacySetting = diaryInfo.privacySetting === '친구 공개' ? 'PUBLIC' : 'PRIVACY';
-    createDiary.mutate({
-      ...diaryInfo,
-      privacySetting,
-    });
+    if (state?.date) {
+      createDiaryWithDate.mutate({
+        ...diaryInfo,
+        privacySetting,
+        createdAt: state?.date,
+      });
+    } else {
+      createDiary.mutate({
+        ...diaryInfo,
+        privacySetting,
+      });
+    }
   };
+
   const handleSubmit = () => {
     patchDiary();
     setOpen(true);
@@ -36,7 +47,6 @@ export default function DiaryCreatePage() {
     navigate('/diary');
     setOpen(false);
   };
-  const { state } = useLocation();
 
   const buttonActive =
     diaryInfo.title.length < 100 && diaryInfo.content.length >= 50 && diaryInfo.privacySetting;
@@ -61,12 +71,12 @@ export default function DiaryCreatePage() {
   }, [state]);
 
   useEffect(() => {
-    if (createDiary.isSuccess) {
+    if (createDiary.isSuccess || createDiaryWithDate.isSuccess) {
       setOpen(false);
-      const state = createDiary.data?.data;
+      const state = createDiary.isSuccess ? createDiary.data?.data : createDiaryWithDate.data?.data;
       navigate('/diary/result', { state });
     }
-  }, [createDiary, navigate]);
+  }, [createDiary, createDiaryWithDate, navigate]);
 
   if (isLoading) return <Loading />;
 
