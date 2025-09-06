@@ -18,10 +18,16 @@ export const diariesQueries = {
           last.data.pageInfo.hasNext ? last.data.pageInfo.nextCursor : undefined,
       },
     ),
+
   detail: (id: number) => buildQuery(QK.diaries.detail(id), () => diariesApi.detail(id)),
+
   today: () => buildQuery(QK.diaries.today(), () => diariesApi.today()),
+
+  // /api/v1/diaries/month?year={y}&month={m}
   monthDates: (y: number, m: number) =>
     buildQuery(QK.diaries.month(y, m), () => diariesApi.monthDates({ year: y, month: m })),
+
+  // /api/v1/diaries/date?year={y}&month={m}&day={d}
   byDate: (y: number, m: number, d: number) =>
     buildQuery(QK.diaries.date(y, m, d), () => diariesApi.byDate({ year: y, month: m, day: d })),
 };
