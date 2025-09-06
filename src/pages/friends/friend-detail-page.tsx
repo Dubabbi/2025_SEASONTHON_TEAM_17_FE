@@ -24,7 +24,7 @@ export default function FriendDetailPage() {
       }
     );
   }, [id]);
-
+  const avatarUrl = (friend as any).profileImageUrl ?? (friend as any).avatarUrl ?? '';
   const diaries = useMemo(
     () =>
       Array.from({ length: 6 }).map((_, i) => ({
@@ -44,7 +44,7 @@ export default function FriendDetailPage() {
           <div className="flex min-w-0 items-center gap-[1.2rem]">
             <div className="h-[8rem] w-[8rem] overflow-hidden rounded-[12px] outline outline-primary-300 outline-offset-[-1px]">
               <img
-                src={friend.avatarUrl || DefaultProfile}
+                src={avatarUrl || DefaultProfile}
                 alt=""
                 className="h-full w-full object-cover"
                 decoding="async"

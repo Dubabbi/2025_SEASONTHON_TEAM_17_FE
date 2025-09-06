@@ -1,54 +1,26 @@
-/* eslint-disable no-undef */
 importScripts(
-  'https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js',
+  'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js',
 );
 importScripts(
-  'https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js',
+  'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js',
 );
 
-(function () {
-  const cfg = {
-    apiKey: self.env?.VITE_FIREBASE_API_KEY,
-    authDomain: self.env?.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: self.env?.VITE_FIREBASE_PROJECT_ID,
-    messagingSenderId: self.env?.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: self.env?.VITE_FIREBASE_APP_ID,
-  };
-  if (!cfg.apiKey || !cfg.messagingSenderId || !cfg.appId) return;
+firebase.initializeApp({
+  apiKey: 'AIzaSyA0wy6oq21VSzc3PISVs8z-p03Te5n04hA',
+  authDomain: 'maeum-on.firebaseapp.com',
+  projectId: 'maeum-on',
+  storageBucket: 'maeum-on.firebasestorage.app',
+  messagingSenderId: '853076092029',
+  appId: '1:853076092029:web:d6d05b1b76dc390364bd14',
+  measurementId: 'G-BV704Y1LP1',
+});
 
-  firebase.initializeApp(cfg);
-  const messaging = firebase.messaging();
+const messaging = firebase.messaging();
 
-  messaging.onBackgroundMessage((payload) => {
-    const title = payload.notification?.title ?? '새 알림';
-    const body = payload.notification?.body ?? '';
-    const url = payload.data?.url || '/';
-
-    self.registration.showNotification(title, {
-      body,
-      icon: '/logo-192.png',
-      data: { url },
-    });
+messaging.onBackgroundMessage((payload) => {
+  console.log('백그라운드 메시지 수신:', payload);
+  self.registration.showNotification(payload.notification.title, {
+    body: payload.notification.body,
+    icon: '/icon.png', // 아이콘 이미지 경로
   });
-})();
-
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  const url = event.notification?.data?.url || '/';
-
-  event.waitUntil(
-    clients
-      .matchAll({ type: 'window', includeUncontrolled: true })
-      .then((wins) => {
-        const target = wins.find((w) => w.url.startsWith(self.location.origin));
-        if (target) {
-          const dest = new URL(url, self.location.origin).href;
-          if (target.url !== dest && 'navigate' in target) {
-            return target.navigate(dest).then(() => target.focus());
-          }
-          return target.focus();
-        }
-        return clients.openWindow(url);
-      }),
-  );
 });

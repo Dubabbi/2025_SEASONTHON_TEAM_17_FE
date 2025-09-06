@@ -1,35 +1,28 @@
+import { fcmQueries } from '@apis/fcm/fcm-queries';
 import NotiBg from '@assets/images/noti-bg.png';
 import TipInfo from '@components/tipinfo';
-import useFcm from '@hooks/use-fcm';
-
-type Noti = { title: string; date: string };
-
-const INITIAL_NOTIS: Noti[] = [
-  { title: '감정 일기를 수정했습니다.', date: '2025.08.15' },
-  { title: '새로운 댓글이 달렸습니다.', date: '2025.08.09' },
-  { title: '감정 일기를 등록했습니다.', date: '2025.08.07' },
-  { title: '감정 일기를 등록했습니다.', date: '2025.08.01' },
-  { title: '마음:ON의 새로운 가족이 되었습니다.', date: '2025.08.01' },
-];
+import { useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 
 export default function NotificationsPage() {
-  const { messages } = useFcm({
-    vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
-  });
-  const NOTIS: Noti[] = [...messages, ...INITIAL_NOTIS];
+  const { data = [] } = useQuery(fcmQueries.notifications());
+
+  const notis = data.map((n) => ({
+    id: n.id,
+    title: n.body,
+    date: dayjs(n.createdAt).format('YYYY.MM.DD'),
+  }));
 
   return (
     <div className="fixed-layout inset-0 overflow-hidden">
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-center bg-cover bg-no-repeat"
-        style={{ backgroundImage: `url(${NotiBg})` }}
-      />
+      <div aria-hidden className="absolute inset-0">
+        <img src={NotiBg} alt="" className="h-full w-full object-cover object-center" />
+      </div>
 
       <main className="scrollbar-hide relative z-[1] mx-auto flex h-full w-full max-w-[43rem] flex-col overflow-y-auto">
         <section className="flex w-full flex-col gap-[1.5rem] px-[2.5rem] pt-[9rem] pb-[10rem]">
-          {NOTIS.map((n) => (
-            <TipInfo key={`${n.title}-${n.date}`} title={n.title} text={n.date} />
+          {notis.map((n) => (
+            <TipInfo key={n.id} title={n.title} text={n.date} />
           ))}
         </section>
       </main>
