@@ -12,6 +12,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export default function DiaryCreatePage() {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoNext, setIsGoNext] = useState(false);
   const [diaryInfo, setDiaryInfo] = useState({
     title: '',
     content: '',
@@ -52,8 +53,10 @@ export default function DiaryCreatePage() {
     diaryInfo.title.length < 100 && diaryInfo.content.length >= 50 && diaryInfo.privacySetting;
 
   const handleGoRecords = () => {
+    setIsGoNext(true);
     if (createDiary.isSuccess) {
-      navigate('/diary/result');
+      const stateData = state?.date ? state?.date : new Date();
+      navigate('/diary/result', stateData);
     } else {
       setIsLoading(true);
     }
@@ -71,12 +74,12 @@ export default function DiaryCreatePage() {
   }, [state]);
 
   useEffect(() => {
-    if (createDiary.isSuccess || createDiaryWithDate.isSuccess) {
+    if ((createDiary.isSuccess || createDiaryWithDate.isSuccess) && isGoNext) {
       setOpen(false);
       const state = createDiary.isSuccess ? createDiary.data?.data : createDiaryWithDate.data?.data;
       navigate('/diary/result', { state });
     }
-  }, [createDiary, createDiaryWithDate, navigate]);
+  }, [createDiary, createDiaryWithDate, isGoNext, navigate]);
 
   if (isLoading) return <Loading />;
 
