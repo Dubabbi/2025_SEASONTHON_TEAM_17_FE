@@ -1,5 +1,3 @@
-// src/pages/diary/diary-page.tsx
-
 import { updateDiaryPrivacy } from '@apis/diaries/diaries';
 import { diariesQueries } from '@apis/diaries/diaries-queries';
 import Button from '@components/button/button';
