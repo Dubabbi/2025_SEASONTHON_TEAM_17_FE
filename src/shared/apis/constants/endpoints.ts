@@ -12,6 +12,7 @@ export const ENDPOINTS = {
   },
   diaries: {
     root: '/api/v1/diaries',
+    with: '/api/v1/diaries/with-date',
     byId: (diaryId: number | string) => `/api/v1/diaries/${diaryId}`,
     today: '/api/v1/diaries/today',
     month: '/api/v1/diaries/month',
