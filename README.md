@@ -36,7 +36,7 @@
 <br>
 
 <details>
-<summary><b style="font-size:1.7rem">📁 파일/폴더 컨벤션</b></summary>
+<summary><b style="font-size:2rem">📁 파일/폴더 컨벤션</b></summary>
 
 - **폴더/파일명**: kebab-case
 - **컴포넌트**: PascalCase
@@ -52,7 +52,7 @@
 <br>
 
 <details>
-<summary><b style="font-size:1.7rem">🎨 스타일 가이드</b></summary>
+<summary><b style="font-size:2rem">🎨 스타일 가이드</b></summary>
 
 - 전역 기준: `10px = 1rem`
 - 전역 스타일 진입점
@@ -69,7 +69,7 @@
 <br>
 
 <details>
-<summary><b style="font-size:1.7rem">📁 절대 경로(alias)</b></summary>
+<summary><b style="font-size:2rem">📁 절대 경로(alias)</b></summary>
 
 - `@pages` → `src/pages`
 - `@styles`, `@components`, `@hooks`, `@libs`, `@constants`, `@utils`, `@apis`, `@assets`, `@types` → `src/shared/*`
@@ -80,7 +80,7 @@
 <br />
 
 <details>
-<summary><b style="font-size:1.7rem">📑 Commit Convention</b></summary>
+<summary><b style="font-size:2rem">📑 Commit Convention</b></summary>
 우리 프로젝트는 다음과 같은 커밋 규칙을 따릅니다.  
 <br />
   
