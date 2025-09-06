@@ -42,10 +42,12 @@ export default function DiaryRecordPage() {
   );
 
   const { data: entryRes } = useQuery(diariesQueries.byDate(y, m, d));
-  const entryData = entryRes?.data as DiaryEntry & {
-    diaryId?: number;
-    emotions?: EmotionRaw[];
-  };
+  const entryData = entryRes?.data as
+    | (DiaryEntry & {
+        diaryId?: number;
+        emotions?: EmotionRaw[];
+      })
+    | undefined;
 
   const entryEmotions = useMemo<string[]>(() => {
     const raw = entryData?.emotions as unknown;
@@ -54,7 +56,7 @@ export default function DiaryRecordPage() {
   }, [entryData]);
 
   const hasEntry = !!(entryData && (entryData.title || entryData.content || entryEmotions.length));
-  const entryId = (entryData as any)?.diaryId ?? (entryData as any)?.id;
+  const entryId: number | undefined = entryData?.diaryId ?? entryData?.id;
 
   const onCardAction = (type: '작성하기' | '삭제하기') => {
     if (type === '작성하기') {
@@ -72,12 +74,13 @@ export default function DiaryRecordPage() {
   const [countsByDate, setCountsByDate] = useState<Record<string, ReactionCounts>>({});
   const [togglesByDate, setTogglesByDate] = useState<Record<string, Set<EmotionId>>>({});
 
-  const INITIAL_COUNTS: ReactionCounts = useMemo(() => {
+  const INITIAL_COUNTS = useMemo<ReactionCounts>(() => {
     const ids = (entryEmotions ?? []) as EmotionId[];
-    return ids.reduce((acc, id) => {
-      (acc as any)[id] = (acc as any)[id] ?? 0;
-      return acc;
-    }, {} as ReactionCounts);
+    const result = {} as ReactionCounts;
+    ids.forEach((id) => {
+      if (result[id] == null) result[id] = 0;
+    });
+    return result;
   }, [entryEmotions]);
 
   const counts = hasEntry ? (countsByDate[selectedKey] ?? INITIAL_COUNTS) : INITIAL_COUNTS;
@@ -91,10 +94,10 @@ export default function DiaryRecordPage() {
       if (!hasEntry) return;
       setCountsByDate((prev) => {
         const base = prev[selectedKey] ?? INITIAL_COUNTS;
-        const next = { ...base };
+        const next: ReactionCounts = { ...base };
         const pressed = (togglesByDate[selectedKey] ?? new Set<EmotionId>()).has(id);
-        const cur = (next as any)[id] ?? 0;
-        (next as any)[id] = Math.max(0, cur + (pressed ? -1 : 1));
+        const cur = next[id] ?? 0;
+        next[id] = Math.max(0, cur + (pressed ? -1 : 1));
         return { ...prev, [selectedKey]: next };
       });
       setTogglesByDate((prev) => {
@@ -118,22 +121,23 @@ export default function DiaryRecordPage() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => diariesApi.remove(id),
-    onMutate: async (id: number) => {
+    onMutate: async (_id: number) => {
       await qc.cancelQueries({ queryKey: diariesQueries.byDate(y, m, d).queryKey });
       const prev = qc.getQueryData(diariesQueries.byDate(y, m, d).queryKey);
-      qc.setQueryData(diariesQueries.byDate(y, m, d).queryKey, (p: any) =>
-        p ? { ...p, data: null } : { data: null },
-      );
+      qc.setQueryData(diariesQueries.byDate(y, m, d).queryKey, (p: unknown) => {
+        const obj = p as { data?: unknown } | undefined;
+        return obj ? { ...obj, data: null } : { data: null };
+      });
       return { prev };
     },
     onError: (_e, _id, ctx) => {
-      if (ctx?.prev) qc.setQueryData(diariesQueries.byDate(y, m, d).queryKey, ctx.prev);
+      if (ctx?.prev) {
+        qc.setQueryData(diariesQueries.byDate(y, m, d).queryKey, ctx.prev);
+      }
     },
     onSuccess: async () => {
       qc.invalidateQueries({ queryKey: diariesQueries.monthDates(y, m).queryKey });
-      try {
-        await diariesApi.byDate({ year: y, month: m, day: d });
-      } catch (_e) {}
+      void diariesApi.byDate({ year: y, month: m, day: d }).catch(() => undefined);
     },
     onSettled: () => {
       deleteSheet.close();
@@ -141,8 +145,8 @@ export default function DiaryRecordPage() {
   });
 
   const onTogglePrivacy = () => {
-    if (!(entryData as any)?.privacySetting || !entryId) return;
-    const next = (entryData as any).privacySetting === 'PUBLIC' ? 'PRIVACY' : 'PUBLIC';
+    if (!entryId || !entryData?.privacySetting) return;
+    const next = entryData.privacySetting === 'PUBLIC' ? 'PRIVACY' : 'PUBLIC';
     privacyMutation.mutate({ id: entryId, next });
   };
 
@@ -178,14 +182,14 @@ export default function DiaryRecordPage() {
             emotions={entryEmotions}
             date={selected}
             onClickButton={onCardAction}
-            privacySetting={(entryData as any)?.privacySetting as 'PUBLIC' | 'PRIVACY' | undefined}
+            privacySetting={entryData?.privacySetting as 'PUBLIC' | 'PRIVACY' | undefined}
             onTogglePrivacy={onTogglePrivacy}
           />
 
           {hasEntry && entryData && (
             <DiaryMammonCard
-              title={(entryData as any)?.feedbackTitle ?? entryData.title}
-              content={(entryData as any)?.feedbackContent ?? entryData.content}
+              title={entryData.feedbackTitle ?? entryData.title}
+              content={entryData.feedbackContent ?? entryData.content}
               date={selected}
               counts={counts}
               order={entryEmotions as EmotionId[]}

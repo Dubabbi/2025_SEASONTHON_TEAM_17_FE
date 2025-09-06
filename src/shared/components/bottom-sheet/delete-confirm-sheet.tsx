@@ -1,4 +1,3 @@
-// src/components/bottom-sheet/delete-confirm-sheet.tsx
 import BottomSheet from '@components/bottom-sheet/bottom-sheet';
 import Button from '@components/button/button';
 import { PrimaryStrongCTA } from '@components/button/cta-button';
