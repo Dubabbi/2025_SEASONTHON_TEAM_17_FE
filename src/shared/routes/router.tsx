@@ -21,8 +21,6 @@ const FriendDiaryPage = lazy(() => import('@pages/friends/friend-diary-page'));
 
 import KakaoCallbackPage from '@pages/login/kakao-callback-page';
 
-const TestPage = lazy(() => import('@pages/main/components-test-page')); // 컴포넌트 테스트
-
 export const router = createBrowserRouter([
   {
     element: <Layout />,
@@ -59,10 +57,6 @@ export const router = createBrowserRouter([
 
       { path: '*', element: <NotFound />, handle: { hideChrome: true } },
 
-      {
-        path: '/test',
-        element: <TestPage />, //컴포넌트 페이지
-      },
       {
         path: '/friends',
         children: [
