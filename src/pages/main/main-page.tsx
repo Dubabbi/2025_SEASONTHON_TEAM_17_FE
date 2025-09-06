@@ -14,7 +14,7 @@ export default function MainPage() {
 
   return (
     <div className="min-h-dvh flex-col bg-gradient-bgd2 pb-[15rem]">
-      <HeroSection username={MOCK_USER.username} />
+      <HeroSection />
 
       <section className="flex-col px-[2rem] pt-[2rem]">
         <TipInfo title="최근 감정 일기 기록" text={formattedDate} className="py-[2rem]" />
