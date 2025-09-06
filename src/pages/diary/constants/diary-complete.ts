@@ -18,6 +18,5 @@ export const DIARY_COMPLETE_COPY: Record<DiaryCompleteVariant, Copy> = {
 
 /** 보조 버튼 라벨 */
 export const DIARY_COMPLETE_SECONDARY = {
-  withMain: '일기 메인 페이지로 이동',
   later: '나중에 확인하기',
 } as const;

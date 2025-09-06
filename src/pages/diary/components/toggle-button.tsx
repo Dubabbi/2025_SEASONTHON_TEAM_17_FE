@@ -4,7 +4,7 @@ import { cn } from '@libs/cn';
 interface ToggleButtonProps {
   leftItem: string;
   rightItem: string;
-  activeTab: string;
+  activeTab?: string;
   setActiveTab: (type: string) => void;
 }
 

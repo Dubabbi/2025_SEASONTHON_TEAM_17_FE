@@ -13,6 +13,7 @@ interface Props {
   date: Date;
   aiText?: string;
   counts: ReactionCounts;
+  order?: EmotionId[];
   myToggles: Set<EmotionId>;
   onToggle: (id: EmotionId) => void;
   onClickCheck?: () => void;
@@ -24,6 +25,7 @@ export default function DiaryMammonCard({
   content,
   date,
   aiText,
+  order,
   counts,
   myToggles,
   onToggle,
@@ -42,7 +44,12 @@ export default function DiaryMammonCard({
       <p className="body2-500 min-h-[4.8rem] break-words">{content}</p>
 
       {/* 리액션 칩 */}
-      <ReactionBarChipsLite counts={counts} myToggles={myToggles} onToggle={onToggle} />
+      <ReactionBarChipsLite
+        counts={counts}
+        order={order}
+        myToggles={myToggles}
+        onToggle={onToggle}
+      />
 
       <Divider />
 
