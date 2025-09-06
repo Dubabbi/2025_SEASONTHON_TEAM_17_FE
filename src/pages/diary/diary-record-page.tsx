@@ -8,6 +8,7 @@ import type { EmotionId, ReactionCounts } from '@components/reaction/reaction-ba
 import TipInfo from '@components/tipinfo';
 import useBottomSheet from '@hooks/use-bottom-sheet';
 import type { DiaryEntry } from '@pages/diary/diary-page';
+import { emotionLikeStore, useEmotionLikesVersion } from '@pages/diary/stores/emotion-like-store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
@@ -17,7 +18,8 @@ type DiaryCreateState = { mode: 'create'; date: string };
 
 const keyOf = (d: Date) => dayjs(d).format('YYYY-MM-DD');
 
-type EmotionRaw = string | { type: string };
+type EmotionRaw = string | { emotionId: number; type: string; likeCount: number };
+type EmotionDTO = { id?: number; type: EmotionId; likeCount: number };
 
 export default function DiaryRecordPage() {
   const [selected, setSelected] = useState(new Date());
@@ -41,21 +43,60 @@ export default function DiaryRecordPage() {
     [monthRes?.data, y, m],
   );
 
-  const { data: entryRes } = useQuery(diariesQueries.byDate(y, m, d));
-  const entryData = entryRes?.data as
+  const entryQ = useQuery({
+    ...diariesQueries.byDate(y, m, d),
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
+    refetchOnReconnect: true,
+    refetchOnWindowFocus: true,
+  });
+
+  const entryData = entryQ.data?.data as
     | (DiaryEntry & {
         diaryId?: number;
         emotions?: EmotionRaw[];
       })
     | undefined;
 
-  const entryEmotions = useMemo<string[]>(() => {
-    const raw = entryData?.emotions as unknown;
-    if (!Array.isArray(raw)) return [];
-    return (raw as EmotionRaw[]).map((e) => (typeof e === 'string' ? e : e.type));
-  }, [entryData]);
+  const emotionDtos = useMemo<EmotionDTO[]>(() => {
+    const arr = entryData?.emotions as unknown;
+    if (!Array.isArray(arr)) return [];
+    return (arr as EmotionRaw[])
+      .map((e) => {
+        if (typeof e === 'string') return { id: undefined, type: e as EmotionId, likeCount: 0 };
+        const t = typeof e.type === 'string' ? (e.type as EmotionId) : undefined;
+        if (!t) return null;
+        return { id: e.emotionId, type: t, likeCount: Number(e.likeCount ?? 0) };
+      })
+      .filter((v): v is EmotionDTO => v !== null);
+  }, [entryData?.emotions]);
 
-  const hasEntry = !!(entryData && (entryData.title || entryData.content || entryEmotions.length));
+  const entryEmotions = useMemo<EmotionId[]>(() => emotionDtos.map((e) => e.type), [emotionDtos]);
+
+  const initialCounts = useMemo<ReactionCounts>(() => {
+    return emotionDtos.reduce<ReactionCounts>((acc, e) => {
+      acc[e.type] = e.likeCount;
+      return acc;
+    }, {} as ReactionCounts);
+  }, [emotionDtos]);
+
+  const emotionIdByType = useMemo<Record<EmotionId, number | undefined>>(() => {
+    const map = {} as Record<EmotionId, number | undefined>;
+    emotionDtos.forEach((e) => {
+      map[e.type] = e.id;
+    });
+    return map;
+  }, [emotionDtos]);
+
+  const hasServerIds = useMemo(
+    () => emotionDtos.some((e) => typeof e.id === 'number'),
+    [emotionDtos],
+  );
+
+  const hasEntry = !!(
+    entryData &&
+    (entryData.title || entryData.content || entryEmotions.length > 0)
+  );
   const entryId: number | undefined = entryData?.diaryId ?? entryData?.id;
 
   const onCardAction = (type: '작성하기' | '삭제하기') => {
@@ -73,41 +114,127 @@ export default function DiaryRecordPage() {
 
   const [countsByDate, setCountsByDate] = useState<Record<string, ReactionCounts>>({});
   const [togglesByDate, setTogglesByDate] = useState<Record<string, Set<EmotionId>>>({});
+  const likesVer = useEmotionLikesVersion();
 
-  const INITIAL_COUNTS = useMemo<ReactionCounts>(() => {
-    const ids = (entryEmotions ?? []) as EmotionId[];
-    const result = {} as ReactionCounts;
-    ids.forEach((id) => {
-      if (result[id] == null) result[id] = 0;
-    });
-    return result;
-  }, [entryEmotions]);
+  const counts = hasEntry ? (countsByDate[selectedKey] ?? initialCounts) : initialCounts;
 
-  const counts = hasEntry ? (countsByDate[selectedKey] ?? INITIAL_COUNTS) : INITIAL_COUNTS;
+  const currentSelectedType = useMemo<EmotionId | undefined>(() => {
+    void likesVer;
+    if (!hasEntry) return undefined;
+    if (hasServerIds) {
+      for (const t of entryEmotions) {
+        const eid = emotionIdByType[t];
+        if (eid && emotionLikeStore.isLiked(eid)) return t;
+      }
+      return undefined;
+    }
+    const set = togglesByDate[selectedKey] ?? new Set<EmotionId>();
+    for (const t of set) return t;
+    return undefined;
+  }, [
+    hasEntry,
+    hasServerIds,
+    entryEmotions,
+    emotionIdByType,
+    togglesByDate,
+    selectedKey,
+    likesVer,
+  ]);
 
-  const myToggles = hasEntry
-    ? (togglesByDate[selectedKey] ?? new Set<EmotionId>())
-    : new Set<EmotionId>();
+  const myToggles = useMemo(() => {
+    void likesVer;
+    if (!hasEntry) return new Set<EmotionId>();
+    if (hasServerIds) {
+      const s = new Set<EmotionId>();
+      if (currentSelectedType) s.add(currentSelectedType);
+      return s;
+    }
+    return togglesByDate[selectedKey] ?? new Set<EmotionId>();
+  }, [hasEntry, hasServerIds, currentSelectedType, togglesByDate, selectedKey, likesVer]);
 
   const handleToggle = useCallback(
-    (id: EmotionId) => {
+    async (typeId: EmotionId) => {
       if (!hasEntry) return;
-      setCountsByDate((prev) => {
-        const base = prev[selectedKey] ?? INITIAL_COUNTS;
-        const next: ReactionCounts = { ...base };
-        const pressed = (togglesByDate[selectedKey] ?? new Set<EmotionId>()).has(id);
-        const cur = next[id] ?? 0;
-        next[id] = Math.max(0, cur + (pressed ? -1 : 1));
-        return { ...prev, [selectedKey]: next };
-      });
-      setTogglesByDate((prev) => {
-        const set = new Set<EmotionId>(prev[selectedKey] ?? []);
-        if (set.has(id)) set.delete(id);
-        else set.add(id);
-        return { ...prev, [selectedKey]: set };
-      });
+      const prevType = currentSelectedType;
+      const same = prevType === typeId;
+      const nextType = same ? undefined : typeId;
+
+      if (hasServerIds) {
+        const prevId = prevType ? emotionIdByType[prevType] : undefined;
+        const nextId = nextType ? emotionIdByType[nextType] : undefined;
+
+        const prevLiked = prevId ? emotionLikeStore.isLiked(prevId) : false;
+        const nextLiked = nextId ? emotionLikeStore.isLiked(nextId) : false;
+
+        if (prevId && prevLiked) emotionLikeStore.setLiked(prevId, false);
+        if (nextId && !same) emotionLikeStore.setLiked(nextId, true);
+        if (prevType) {
+          setCountsByDate((p) => {
+            const base = p[selectedKey] ?? initialCounts;
+            const n = { ...base };
+            const cur = n[prevType] ?? 0;
+            n[prevType] = Math.max(0, cur - 1);
+            return { ...p, [selectedKey]: n };
+          });
+        }
+        if (nextType) {
+          setCountsByDate((p) => {
+            const base = p[selectedKey] ?? initialCounts;
+            const n = { ...base };
+            const cur = n[nextType] ?? 0;
+            n[nextType] = Math.max(0, cur + 1);
+            return { ...p, [selectedKey]: n };
+          });
+        }
+
+        try {
+          if (prevId && prevLiked) await diariesApi.likeEmotion(prevId);
+          if (nextId && !same && !nextLiked) await diariesApi.likeEmotion(nextId);
+        } catch {
+          if (prevId) emotionLikeStore.setLiked(prevId, prevLiked);
+          if (nextId) emotionLikeStore.setLiked(nextId, nextLiked);
+          setCountsByDate((p) => ({ ...p, [selectedKey]: initialCounts }));
+        } finally {
+          qc.invalidateQueries({ queryKey: diariesQueries.byDate(y, m, d).queryKey });
+        }
+      } else {
+        setTogglesByDate((prev) => {
+          const set = new Set<EmotionId>();
+          if (nextType) set.add(nextType);
+          return { ...prev, [selectedKey]: set };
+        });
+        if (prevType) {
+          setCountsByDate((p) => {
+            const base = p[selectedKey] ?? initialCounts;
+            const n = { ...base };
+            const cur = n[prevType] ?? 0;
+            n[prevType] = Math.max(0, cur - 1);
+            return { ...p, [selectedKey]: n };
+          });
+        }
+        if (nextType) {
+          setCountsByDate((p) => {
+            const base = p[selectedKey] ?? initialCounts;
+            const n = { ...base };
+            const cur = n[nextType] ?? 0;
+            n[nextType] = Math.max(0, cur + 1);
+            return { ...p, [selectedKey]: n };
+          });
+        }
+      }
     },
-    [hasEntry, selectedKey, togglesByDate, INITIAL_COUNTS],
+    [
+      hasEntry,
+      hasServerIds,
+      currentSelectedType,
+      emotionIdByType,
+      selectedKey,
+      initialCounts,
+      qc,
+      y,
+      m,
+      d,
+    ],
   );
 
   const privacyMutation = useMutation({
@@ -192,7 +319,7 @@ export default function DiaryRecordPage() {
               content={entryData.feedbackContent ?? entryData.content}
               date={selected}
               counts={counts}
-              order={entryEmotions as EmotionId[]}
+              order={entryEmotions}
               myToggles={myToggles}
               onToggle={handleToggle}
               className="mt-[1.2rem]"

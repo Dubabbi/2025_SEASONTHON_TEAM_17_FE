@@ -1,11 +1,13 @@
+import { diariesApi } from '@apis/diaries/diaries';
 import { diariesQueries } from '@apis/diaries/diaries-queries';
 import ThinkIcon from '@assets/icons/thinking.svg?react';
 import DiaryCard from '@components/card/diary-card';
 import DiaryMammonCard from '@components/card/diary-mammon-card';
 import type { EmotionId, ReactionCounts } from '@components/reaction/reaction-bar-chips-lite';
 import { DIARY_EMOTIONS } from '@pages/diary/constants/diary-emotions';
+import { emotionLikeStore, useEmotionLikesVersion } from '@pages/diary/stores/emotion-like-store';
 import { type DetailVM, toDetailVM } from '@pages/friends/utils/to-detail-vm';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -15,13 +17,10 @@ const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object
 function isListEmptyPayload(raw: unknown) {
   const d = isObj(raw) && 'data' in raw ? ((raw as { data?: unknown }).data ?? raw) : raw;
   if (Array.isArray(d)) return d.length === 0;
-
   const d1 = isObj(d) ? (d as Record<string, unknown>).data : undefined;
   if (Array.isArray(d1)) return d1.length === 0;
-
   const d2 = isObj(d1) ? (d1 as Record<string, unknown>).data : undefined;
   if (Array.isArray(d2)) return d2.length === 0;
-
   return false;
 }
 
@@ -34,6 +33,8 @@ export default function FriendDiaryPage() {
   const { diaryId } = useParams<{ diaryId: string }>();
   const idNum = Number(diaryId);
   const enabled = Number.isFinite(idNum);
+  const qc = useQueryClient();
+  const likesVer = useEmotionLikesVersion();
 
   const detailQ = useQuery({ ...diariesQueries.detail(idNum), enabled });
 
@@ -41,7 +42,9 @@ export default function FriendDiaryPage() {
 
   const root = useMemo(() => {
     const r =
-      isObj(detailQ.data) && 'data' in detailQ.data ? (detailQ.data as any).data : detailQ.data;
+      isObj(detailQ.data) && 'data' in detailQ.data
+        ? (detailQ.data as Record<string, unknown>).data
+        : detailQ.data;
     return r ?? null;
   }, [detailQ.data]);
 
@@ -60,9 +63,9 @@ export default function FriendDiaryPage() {
     if (!Array.isArray(arr)) return [];
     return arr
       .map((e) => {
-        const id = Number((e as any)?.emotionId);
-        const typeRaw = (e as any)?.type;
-        const likeCount = Number((e as any)?.likeCount ?? 0);
+        const id = Number((e as Record<string, unknown>)?.emotionId);
+        const typeRaw = (e as Record<string, unknown>)?.type;
+        const likeCount = Number((e as Record<string, unknown>)?.likeCount ?? 0);
         return Number.isFinite(id) && isEmotionId(typeRaw)
           ? ({ id, type: typeRaw, likeCount } as EmotionDTO)
           : null;
@@ -77,33 +80,92 @@ export default function FriendDiaryPage() {
     }, {} as ReactionCounts);
   }, [emotionDtos]);
 
+  const emotionIdByType = useMemo<Record<EmotionId, number | undefined>>(() => {
+    const map = {} as Record<EmotionId, number | undefined>;
+    emotionDtos.forEach((e) => {
+      map[e.type] = e.id;
+    });
+    return map;
+  }, [emotionDtos]);
+
   const [counts, setCounts] = useState<ReactionCounts>(initialCounts);
   const [myToggles, setMyToggles] = useState<Set<EmotionId>>(new Set());
 
   useEffect(() => {
+    const set = new Set<EmotionId>();
+    for (const e of emotionDtos) {
+      if (emotionLikeStore.isLiked(e.id)) {
+        set.add(e.type);
+        break;
+      }
+    }
+    setMyToggles(set);
+  }, [emotionDtos]);
+
+  useEffect(() => {
     setCounts(initialCounts);
-    setMyToggles(new Set());
   }, [initialCounts]);
 
   const order = useMemo<EmotionId[]>(() => emotionDtos.map((e) => e.type), [emotionDtos]);
 
+  const currentSelectedType = useMemo<EmotionId | undefined>(() => {
+    void likesVer;
+    for (const e of emotionDtos) {
+      if (emotionLikeStore.isLiked(e.id)) return e.type;
+    }
+    for (const t of myToggles) return t;
+    return undefined;
+  }, [emotionDtos, myToggles, likesVer]);
+
   const handleToggle = useCallback(
-    (id: EmotionId) => {
-      setCounts((prev) => {
-        const next = { ...prev };
-        const pressed = myToggles.has(id);
-        const cur = next[id] ?? 0;
-        next[id] = Math.max(0, cur + (pressed ? -1 : 1));
-        return next;
+    async (id: EmotionId) => {
+      const nextId = emotionIdByType[id];
+      if (!nextId) return;
+
+      const prevType = currentSelectedType;
+      const same = prevType === id;
+      const prevEmotionId = prevType ? emotionIdByType[prevType] : undefined;
+
+      const prevLiked = prevEmotionId ? emotionLikeStore.isLiked(prevEmotionId) : false;
+      const nextLiked = emotionLikeStore.isLiked(nextId);
+
+      if (prevEmotionId && prevLiked) emotionLikeStore.setLiked(prevEmotionId, false);
+      if (!same && !nextLiked) emotionLikeStore.setLiked(nextId, true);
+
+      if (prevType) {
+        setCounts((p) => {
+          const n = { ...p };
+          const cur = n[prevType] ?? 0;
+          n[prevType] = Math.max(0, cur - 1);
+          return n;
+        });
+      }
+      if (!same) {
+        setCounts((p) => {
+          const n = { ...p };
+          const cur = n[id] ?? 0;
+          n[id] = Math.max(0, cur + 1);
+          return n;
+        });
+      }
+
+      setMyToggles(() => {
+        const s = new Set<EmotionId>();
+        if (!same) s.add(id);
+        return s;
       });
-      setMyToggles((prev) => {
-        const set = new Set(prev);
-        if (set.has(id)) set.delete(id);
-        else set.add(id);
-        return set;
-      });
+
+      try {
+        if (prevEmotionId && prevLiked) await diariesApi.likeEmotion(prevEmotionId);
+        if (!same && !nextLiked) await diariesApi.likeEmotion(nextId);
+      } catch {
+        if (prevEmotionId) emotionLikeStore.setLiked(prevEmotionId, prevLiked);
+        emotionLikeStore.setLiked(nextId, nextLiked);
+        setCounts(initialCounts);
+        qc.invalidateQueries({ queryKey: diariesQueries.detail(idNum).queryKey });
+      }
     },
-    [myToggles],
+    [emotionIdByType, currentSelectedType, initialCounts, qc, idNum],
   );
 
   return (
@@ -117,14 +179,14 @@ export default function FriendDiaryPage() {
         ) : (
           <>
             <DiaryCard
-              title={vm.title || '제목 없음'}
-              content={vm.content || ''}
+              title={vm?.title || '제목 없음'}
+              content={vm?.content || ''}
               date={dateObj}
-              emotions={vm.emotions}
+              emotions={vm?.emotions || []}
             />
             <DiaryMammonCard
-              title={(root?.feedbackTitle as string) || vm.title || '제목 없음'}
-              content={(root?.feedbackContent as string) || vm.content || ''}
+              title={(root?.feedbackTitle as string) || vm?.title || '제목 없음'}
+              content={(root?.feedbackContent as string) || vm?.content || ''}
               date={dateObj}
               counts={counts}
               order={order}
