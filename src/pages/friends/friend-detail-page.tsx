@@ -1,40 +1,31 @@
+import { diariesQueries } from '@apis/diaries/diaries-queries';
 import DefaultProfile from '@assets/icons/3d-hand.svg';
 import FriendCancelSheet from '@components/bottom-sheet/friend-cancel-sheet';
 import Button from '@components/button/button';
 import DiaryCard from '@components/card/diary-card';
 import { cn } from '@libs/cn';
-import { MOCK_FRIENDS, MOCK_RECEIVED, MOCK_SENT } from '@mocks/friends';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 export default function FriendDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const email = id ?? '';
   const [openCancel, setOpenCancel] = useState(false);
   const nav = useNavigate();
 
-  const friend = useMemo(() => {
-    const all = [...MOCK_FRIENDS, ...MOCK_SENT, ...MOCK_RECEIVED];
-    return (
-      all.find((f) => f.id === id) ?? {
-        id: id ?? '',
-        name: '사용자',
-        email: '이메일',
-        avatarUrl: '',
-      }
-    );
-  }, [id]);
+  const friend = useMemo(() => ({ id: email, name: '사용자', email, avatarUrl: '' }), [email]);
   const avatarUrl = (friend as any).profileImageUrl ?? (friend as any).avatarUrl ?? '';
+
+  const diariesQ = useInfiniteQuery({
+    ...diariesQueries.listInfinite({ email, limit: 6 }),
+    enabled: !!email,
+  });
+
   const diaries = useMemo(
-    () =>
-      Array.from({ length: 6 }).map((_, i) => ({
-        id: String(i + 1),
-        title: '피곤하다..',
-        content: '아야...',
-        emotions: [],
-        date: new Date(2025, 7, 7),
-      })),
-    [],
+    () => (diariesQ.data?.pages ?? []).flatMap((p: any) => p.data?.diaries ?? p.data?.data ?? []),
+    [diariesQ.data],
   );
 
   return (
@@ -74,20 +65,20 @@ export default function FriendDetailPage() {
         <h2 className="heading1-700 text-gray-900">{friend.name}님의 감정일기</h2>
 
         <div className="grid grid-cols-2 gap-[0.9rem]">
-          {diaries.map((d) => (
+          {diaries.map((d: any) => (
             <button
               key={d.id}
               type="button"
               onClick={() =>
-                nav(`/friends/${friend.id}/diary/${dayjs(d.date).format('YYYY-MM-DD')}`)
+                nav(`/friends/${friend.id}/diary/${dayjs(d.createdAt).format('YYYY-MM-DD')}`)
               }
               className="text-left"
             >
               <DiaryCard
-                title={d.title}
-                content={d.content}
-                emotions={d.emotions}
-                date={d.date}
+                title={d.title ?? '제목 없음'}
+                content={d.content ?? ''}
+                emotions={[]}
+                date={new Date(d.createdAt)}
                 className="bg-gray-50"
               />
             </button>

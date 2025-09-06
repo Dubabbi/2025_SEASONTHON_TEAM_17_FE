@@ -10,12 +10,14 @@ export const diariesQueries = {
         diariesApi.list({
           email: args.email,
           limit: args.limit ?? 3,
-          cursor: (pageParam as number | null | undefined) ?? null,
+          cursor: typeof pageParam === 'number' ? pageParam : null,
         }),
       {
         initialPageParam: null,
-        getNextPageParam: (last) =>
-          last.data.pageInfo.hasNext ? last.data.pageInfo.nextCursor : undefined,
+        getNextPageParam: (last) => {
+          const info = (last as any)?.data?.pageInfo;
+          return info && info.hasNext ? (info.nextCursor ?? undefined) : undefined;
+        },
       },
     ),
   detail: (id: number) => buildQuery(QK.diaries.detail(id), () => diariesApi.detail(id)),

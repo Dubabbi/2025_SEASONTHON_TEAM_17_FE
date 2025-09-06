@@ -2,13 +2,12 @@ import { friendsMutations } from '@apis/friends/friends-mutations';
 import { friendsQueries } from '@apis/friends/friends-queries';
 import ThinkIcon from '@assets/icons/thinking.svg?react';
 import FriendCancelSheet from '@components/bottom-sheet/friend-cancel-sheet';
-import FriendsHeader from '@pages/friends/components/friends-header';
 import FriendsList from '@pages/friends/components/friends-list';
 import SearchBar from '@pages/friends/components/search-bar';
 import SegmentedTabs from '@pages/friends/components/segmented-tabs';
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export type FriendsTab = 'list' | 'sent' | 'received';
 const isTab = (v: unknown): v is FriendsTab => v === 'list' || v === 'sent' || v === 'received';
@@ -30,6 +29,7 @@ export default function FriendsMorePage() {
     type: 'friend' | 'request';
     email: string;
   } | null>(null);
+  const nav = useNavigate();
 
   const listQ = useInfiniteQuery({
     ...friendsQueries.listInfinite(10),
@@ -107,20 +107,12 @@ export default function FriendsMorePage() {
     return () => io.disconnect();
   }, [active.hasNextPage, active.isFetchingNextPage, active.fetchNextPage]);
 
-  const headingLabel =
+  const placeholderMsg =
     tab === 'list' ? '내 친구 목록' : tab === 'sent' ? '요청한 친구 목록' : '요청받은 친구 목록';
 
   return (
-    <div className="min-h-dvh flex-col bg-gradient-bgd1 pb-[15rem]">
-      <FriendsHeader />
+    <div className="min-h-dvh flex-col pb-[15rem]">
       <div className="flex-col-center gap-[1.5rem] px-[2.4rem] py-[1.5rem]">
-        <SearchBar
-          value={kw}
-          placeholder="이 탭에서 검색해 보세요"
-          onChange={setKw}
-          onSubmit={(q) => setKw(q)}
-        />
-
         <SegmentedTabs
           items={[
             { value: 'list', label: '내 친구 목록' },
@@ -128,13 +120,22 @@ export default function FriendsMorePage() {
             { value: 'received', label: '요청받은 친구 목록' },
           ]}
           value={tab}
-          onChange={(v) => setParams({ tab: v })}
+          onChange={(v) => {
+            const next = v as FriendsTab;
+            const sp = new URLSearchParams(params);
+            sp.set('tab', next);
+            setParams(sp, { replace: true });
+            setKw('');
+          }}
           className="w-full"
         />
 
-        <div className="w-full flex-row-between">
-          <span className="heading1-700">{headingLabel}</span>
-        </div>
+        <SearchBar
+          value={kw}
+          placeholder={placeholderMsg}
+          onChange={setKw}
+          onSubmit={(q) => setKw(q)}
+        />
 
         {items.length === 0 ? (
           <div className="flex-col-center gap-[3rem] py-[2.6rem]">
@@ -146,8 +147,13 @@ export default function FriendsMorePage() {
             <FriendsList
               items={items}
               variant={tab}
+              onOpen={(email) => nav(`/friends/${email}`)}
               onCancel={
-                tab === 'list' ? (email) => setConfirm({ type: 'friend', email }) : undefined
+                tab === 'list'
+                  ? (email) => setConfirm({ type: 'friend', email })
+                  : tab === 'sent'
+                    ? (email) => cancelMut.mutate(email)
+                    : undefined
               }
               onAccept={tab === 'received' ? (email) => acceptMut.mutate({ email }) : undefined}
               onReject={tab === 'received' ? (email) => rejectMut.mutate({ email }) : undefined}
