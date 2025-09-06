@@ -26,23 +26,19 @@ function toItems(data: ReportResponse['data']): EmotionItem[] {
 
 export const emotionQueries = {
   report: () =>
-    buildQuery<EmotionItem[]>(
-      ['emotion', 'report'],
-      async () => {
-        const token = localStorage.getItem('access_token');
+    buildQuery<EmotionItem[]>(['emotion', 'report'], async () => {
+      const token = localStorage.getItem('access_token');
 
-        const res = await fetch(`${BASE_URL}${ENDPOINTS.emotions.report}`, {
-          credentials: 'include',
-          headers: {
-            accept: '*/*',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        });
+      const res = await fetch(`${BASE_URL}${ENDPOINTS.emotions.report}`, {
+        credentials: 'include',
+        headers: {
+          accept: '*/*',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
 
-        if (!res.ok) throw new Error('failed to fetch emotion report');
-        const json: ReportResponse = await res.json();
-        return toItems(json.data);
-      },
-      { staleTime: 60_000 },
-    ),
+      if (!res.ok) throw new Error('failed to fetch emotion report');
+      const json: ReportResponse = await res.json();
+      return toItems(json.data);
+    }),
 };

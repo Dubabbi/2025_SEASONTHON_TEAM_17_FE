@@ -21,23 +21,19 @@ const isRawMypageDto = (v: unknown): v is RawMypageDto => {
 
 export const membersQueries = {
   mypage: () =>
-    buildQuery<MypageVM>(
-      QK.members.mypage(),
-      async () => {
-        const res = await membersApi.mypage();
+    buildQuery<MypageVM>(QK.members.mypage(), async () => {
+      const res = await membersApi.mypage();
 
-        let dto: RawMypageDto = {};
-        if (hasData(res) && isRawMypageDto(res.data)) {
-          dto = res.data;
-        } else if (isRawMypageDto(res)) {
-          dto = res;
-        }
+      let dto: RawMypageDto = {};
+      if (hasData(res) && isRawMypageDto(res.data)) {
+        dto = res.data;
+      } else if (isRawMypageDto(res)) {
+        dto = res;
+      }
 
-        return {
-          nickname: dto.nickname ?? '',
-          profileUrl: dto.profilePath ?? undefined,
-        };
-      },
-      { staleTime: 10_000 },
-    ),
+      return {
+        nickname: dto.nickname ?? '',
+        profileUrl: dto.profilePath ?? undefined,
+      };
+    }),
 };
