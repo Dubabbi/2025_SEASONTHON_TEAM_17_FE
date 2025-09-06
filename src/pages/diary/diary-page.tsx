@@ -6,6 +6,7 @@ import Calendar from '@components/calendar/calendar';
 import DiaryCard from '@components/card/diary-card';
 import DiaryMammonCard from '@components/card/diary-mammon-card';
 import type { EmotionId, ReactionCounts } from '@components/reaction/reaction-bar-chips-lite';
+import { useToast } from '@contexts/toast-context';
 import useBottomSheet from '@hooks/use-bottom-sheet';
 import Banner from '@pages/diary/components/banner';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -165,11 +166,19 @@ export default function DiaryPage() {
     if (!entryId) return;
     deleteMutation.mutate(entryId);
   };
-
+  const { data: today } = useQuery(diariesQueries.today());
+  const { showToast } = useToast();
+  const handleClickToday = () => {
+    if (!today?.data?.written) {
+      navigate('/diary/create');
+    } else {
+      showToast(today.message);
+    }
+  };
   return (
     <>
       <div className="min-h-dvh w-full flex-col bg-cover bg-gradient-bgd1 bg-no-repeat pb-[17rem]">
-        <Banner gradientClass="bg-gradient-bgd3" />
+        <Banner gradientClass="bg-gradient-bgd3" onClick={handleClickToday} />
         <div className="flex-col px-[2rem]">
           <div className="flex-row-between">
             <div className="flex-col gap-[0.4rem] pt-[3.2rem] pb-[2rem]">
