@@ -5,6 +5,7 @@ import DiaryCard from '@components/card/diary-card';
 import DiaryMammonCard from '@components/card/diary-mammon-card';
 import type { EmotionId, ReactionCounts } from '@components/reaction/reaction-bar-chips-lite';
 import TipInfo from '@components/tipinfo';
+import { DIARY_COUNT } from '@pages/diary/constants/diary-emotions';
 import type { DiaryEntry } from '@pages/diary/diary-page';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
@@ -15,17 +16,45 @@ type DiaryCreateState =
   | { mode: 'create'; date: string }
   | { mode: 'edit'; date: string; entry: DiaryEntry };
 
-const keyOf = (d: Date) => dayjs(d).format('YYYY-MM-DD');
-
-const DEFAULT_COUNTS: ReactionCounts = {
-  HAPPY: 5,
-  SAD: 0,
-  ANGRY: 0,
-  EXCITE: 0,
-  TIRED: 0,
-  SURPRISE: 0,
+const DIARY_ENTRIES: Record<string, DiaryEntry> = {
+  '2025-08-01': {
+    title: '오늘은...',
+    content: '맛있는 걸 먹어서 기분이 좋은 날이다.',
+    emotions: ['HAPPY'],
+  },
+  '2025-08-08': {
+    title: '집중의 하루',
+    content: '순공 시간 12시간 달성했다. 재미 없다,,',
+    emotions: ['SAD', 'ANGRY'],
+  },
+  '2025-08-09': {
+    title: '휴식',
+    content: '산책으로 머리 식혔다...',
+    emotions: ['SAD'],
+  },
+  '2025-08-15': {
+    title: '왠지 기분이 좋은 날',
+    content: '오랜만에 나들이',
+    emotions: ['EXCITE'],
+  },
+  '2025-08-27': {
+    title: '좋아하는 친구들을 만났다.',
+    content: '역시 친구들을 만나니까 기분이 좋은 것 같다.',
+    emotions: ['EXCITE'],
+  },
+  '2025-09-03': {
+    title: '행복',
+    content: '좋아하는 휘낭시에랑 마들렌을 잔뜩 먹었다!! 맛있으면 0칼로리;;',
+    emotions: ['HAPPY'],
+  },
+  '2025-09-14': {
+    title: '슬픈 영화를 봤다.',
+    content: '베일리 어게인 보고 내내 울었다...',
+    emotions: ['SAD'],
+  },
 };
 
+const keyOf = (d: Date) => dayjs(d).format('YYYY-MM-DD');
 type EmotionRaw = string | { type: string };
 
 export default function DiaryRecordPage() {
@@ -71,6 +100,7 @@ export default function DiaryRecordPage() {
       navigate('/diary/create', { state });
       return;
     }
+
     if (!entryData) return;
     const state: DiaryCreateState = {
       mode: 'edit',
@@ -88,7 +118,7 @@ export default function DiaryRecordPage() {
   const [countsByDate, setCountsByDate] = useState<Record<string, ReactionCounts>>({});
   const [togglesByDate, setTogglesByDate] = useState<Record<string, Set<EmotionId>>>({});
 
-  const counts = hasEntry ? (countsByDate[selectedKey] ?? DEFAULT_COUNTS) : DEFAULT_COUNTS;
+  const counts = hasEntry ? (countsByDate[selectedKey] ?? DIARY_COUNT) : DIARY_COUNT;
   const myToggles = hasEntry
     ? (togglesByDate[selectedKey] ?? new Set<EmotionId>())
     : new Set<EmotionId>();
@@ -97,7 +127,7 @@ export default function DiaryRecordPage() {
     (id: EmotionId) => {
       if (!hasEntry) return;
       setCountsByDate((prev) => {
-        const base = prev[selectedKey] ?? DEFAULT_COUNTS;
+        const base = prev[selectedKey] ?? DIARY_COUNT;
         const next = { ...base };
         const pressed = (togglesByDate[selectedKey] ?? new Set<EmotionId>()).has(id);
         next[id] = Math.max(0, (next[id] ?? 0) + (pressed ? -1 : +1));
@@ -137,12 +167,7 @@ export default function DiaryRecordPage() {
       <div className="flex-col gap-[1.5rem]">
         <h1 className="heading1-700">월별 기록</h1>
         <section>
-          <Calendar
-            value={selected}
-            onChange={setSelected}
-            marked={marked}
-            onMonthChange={setView}
-          />
+          <Calendar value={selected} onChange={setSelected} marked={marked} />
         </section>
       </div>
 
