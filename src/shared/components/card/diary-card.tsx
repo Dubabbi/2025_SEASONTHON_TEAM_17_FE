@@ -1,4 +1,3 @@
-// src/shared/components/card/diary-card.tsx
 import Button from '@components/button/button';
 import Divider from '@components/divider';
 import { cn } from '@libs/cn';
