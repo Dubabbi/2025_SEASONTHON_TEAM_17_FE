@@ -1,10 +1,13 @@
+import { diariesMutations } from '@apis/diaries/diaries-mutations';
 import Button from '@components/button/button';
 import Divider from '@components/divider';
 import { cn } from '@libs/cn';
 import ToggleSwitch from '@pages/my-page/components/toggle-switch';
+import { useMutation } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 
 interface DiaryCardProps {
+  diaryId?: number;
   title?: string;
   content?: string;
   emotions?: string[];
@@ -16,6 +19,7 @@ interface DiaryCardProps {
 }
 
 const DiaryCard = ({
+  diaryId,
   title,
   content,
   emotions = [],
@@ -28,9 +32,11 @@ const DiaryCard = ({
   const hasSomething = Boolean(title?.trim() || content?.trim() || emotions.length > 0);
   const isEmpty = !hasSomething;
   const type = isEmpty ? '작성하기' : '삭제하기';
+  const patchToggle = useMutation(diariesMutations.togglePrivacy());
 
   const isPrivate = privacySetting === 'PRIVACY';
   const handleToggleClick = () => {
+    diaryId && patchToggle.mutate(diaryId);
     onTogglePrivacy?.(isPrivate ? 'PUBLIC' : 'PRIVACY');
   };
 
@@ -76,12 +82,14 @@ const DiaryCard = ({
 
       <div className="flex-row-between">
         <p className="detail text-gray-400">{dayjs(date).format('YYYY.MM.DD')}</p>
-        <Button
-          onClick={() => onClickButton?.(type)}
-          className="detail rounded-[999px] bg-gray-100 px-[1.6rem] py-[0.7rem] text-gray-600"
-        >
-          {type}
-        </Button>
+        {onClickButton && (
+          <Button
+            onClick={() => onClickButton?.(type)}
+            className="detail rounded-[999px] bg-gray-100 px-[1.6rem] py-[0.7rem] text-gray-600"
+          >
+            {type}
+          </Button>
+        )}
       </div>
     </div>
   );
