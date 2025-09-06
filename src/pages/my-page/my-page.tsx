@@ -42,10 +42,10 @@ export default function ProfilePage() {
   const nav = useNavigate();
   const logout = useLogout();
   const { data: me } = useQuery(authQueries.verify());
-
   const [nickname, setNickname] = useState(MOCK_PROFILE.name);
   const [avatar, setAvatar] = useState(MOCK_PROFILE.avatarUrl);
   const [pushEnabled, setPushEnabled] = useState(MOCK_PROFILE.pushEnabled);
+  const [pushToggling, setPushToggling] = useState(false);
 
   useEffect(() => {
     if (me?.email) {
@@ -66,27 +66,33 @@ export default function ProfilePage() {
   };
 
   const handleTogglePush = async (next: boolean) => {
-    if (next) {
-      const missing = getMissingFcmEnvKeys();
-      if (missing.length > 0) return showToast(TOAST_MSG.PUSH.ENV_MISSING);
-      if (supported === false) return showToast(TOAST_MSG.PUSH.NOT_SUPPORTED);
+    if (pushToggling) return;
+    setPushToggling(true);
+    try {
+      if (next) {
+        const missing = getMissingFcmEnvKeys();
+        if (missing.length > 0) return showToast(TOAST_MSG.PUSH.ENV_MISSING);
+        if (supported === false) return showToast(TOAST_MSG.PUSH.NOT_SUPPORTED);
 
-      const ok = await enablePush();
-      if (!ok) {
-        return showToast(
-          permission === 'denied' ? TOAST_MSG.PUSH.ENABLE_DENIED : TOAST_MSG.PUSH.ENABLE_FAIL,
-        );
+        const ok = await enablePush();
+        if (!ok) {
+          return showToast(
+            permission === 'denied' ? TOAST_MSG.PUSH.ENABLE_DENIED : TOAST_MSG.PUSH.ENABLE_FAIL,
+          );
+        }
+
+        const t = localStorage.getItem('fcm.token') || token;
+        if (t) await syncFcmWithServer(t);
+        setPushEnabled(true);
+        showToast(TOAST_MSG.PUSH.ENABLE_SUCCESS);
+      } else {
+        await unsyncFcmFromServer();
+        await disablePush();
+        setPushEnabled(false);
+        showToast(TOAST_MSG.PUSH.DISABLE_SUCCESS);
       }
-
-      const t = localStorage.getItem('fcm.token') || token;
-      if (t) await syncFcmWithServer(t);
-      setPushEnabled(true);
-      showToast(TOAST_MSG.PUSH.ENABLE_SUCCESS);
-    } else {
-      await unsyncFcmFromServer();
-      await disablePush();
-      setPushEnabled(false);
-      showToast(TOAST_MSG.PUSH.DISABLE_SUCCESS);
+    } finally {
+      setPushToggling(false);
     }
   };
 
@@ -121,6 +127,7 @@ export default function ProfilePage() {
             pushEnabled={pushEnabled}
             onTogglePush={handleTogglePush}
             onOpenTerms={goTerms}
+            busy={pushToggling}
           />
 
           <section>
