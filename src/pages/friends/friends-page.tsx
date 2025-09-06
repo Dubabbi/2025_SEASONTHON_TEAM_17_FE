@@ -3,11 +3,13 @@ import { friendsQueries } from '@apis/friends/friends-queries';
 import ThinkIcon from '@assets/icons/thinking.svg?react';
 import FriendCancelSheet from '@components/bottom-sheet/friend-cancel-sheet';
 import Button from '@components/button/button';
+import { useToast } from '@contexts/toast-context';
 import { cn } from '@libs/cn';
 import FriendsHeader from '@pages/friends/components/friends-header';
 import FriendsList from '@pages/friends/components/friends-list';
 import SearchBar from '@pages/friends/components/search-bar';
 import SegmentedTabs from '@pages/friends/components/segmented-tabs';
+import { getErrorMessage } from '@pages/friends/utils/get-error-toast-msg';
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +27,7 @@ export default function FriendsPage() {
   const [tab, setTab] = useState<FriendsTab>('list');
   const [kw, setKw] = useState('');
   const searching = kw.trim().length >= 1;
-
+  const { showToast } = useToast();
   const [confirm, setConfirm] = useState<{
     type: 'friend' | 'request';
     email: string;
@@ -60,6 +62,8 @@ export default function FriendsPage() {
       name: (f as FriendRow).nickname,
       email: (f as FriendRow).email,
       profileImageUrl: (f as FriendRow).profileImageUrl,
+      isFriend: (f as AllRow).isFriend,
+      isRequested: (f as AllRow).isRequested,
     }));
   }, [active.data]);
 
@@ -75,18 +79,41 @@ export default function FriendsPage() {
   const acceptMut = useMutation({
     ...friendsMutations.accept(),
     onSuccess: () => receivedQ.refetch(),
+    onError: (err) => {
+      showToast(getErrorMessage(err));
+    },
   });
   const rejectMut = useMutation({
     ...friendsMutations.reject(),
     onSuccess: () => receivedQ.refetch(),
+    onError: (err) => {
+      showToast(getErrorMessage(err));
+    },
   });
   const removeMut = useMutation({
     ...friendsMutations.remove(),
     onSuccess: () => listQ.refetch(),
+    onError: (err) => {
+      showToast(getErrorMessage(err));
+    },
   });
   const cancelMut = useMutation({
     ...friendsMutations.cancel(),
     onSuccess: () => sentQ.refetch(),
+    onError: (err) => {
+      showToast(getErrorMessage(err));
+    },
+  });
+
+  const requestMut = useMutation({
+    ...friendsMutations.request(),
+    onSuccess: () => {
+      sentQ.refetch();
+      searchQ.refetch();
+    },
+    onError: (err) => {
+      showToast(getErrorMessage(err));
+    },
   });
 
   const handleConfirmCancel = () => {
@@ -190,6 +217,7 @@ export default function FriendsPage() {
                   ? (email) => rejectMut.mutate({ email })
                   : undefined
               }
+              onRequest={searching ? (email) => requestMut.mutate({ email }) : undefined}
             />
             {searching && <div ref={sentinelRef} className="h-[1px]" />}
           </>

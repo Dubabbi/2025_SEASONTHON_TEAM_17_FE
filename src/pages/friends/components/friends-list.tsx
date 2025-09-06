@@ -1,5 +1,5 @@
 import { cn } from '@libs/cn';
-import FriendsListItem, { type Friend } from './friends-list-item';
+import FriendsListItem, { type Friend } from '@pages/friends/components/friends-list-item';
 
 type Variant = 'list' | 'sent' | 'received';
 
@@ -11,6 +11,7 @@ type Props = {
   onCancel?: (id: string) => void;
   onAccept?: (id: string) => void;
   onReject?: (id: string) => void;
+  onRequest?: (id: string) => void;
 };
 
 export default function FriendsList({ items, variant, className, ...handlers }: Props) {

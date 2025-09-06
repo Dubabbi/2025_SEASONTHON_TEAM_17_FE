@@ -8,6 +8,8 @@ export type Friend = {
   email: string;
   profileImageUrl?: string | null;
   cursorId?: number | null;
+  isFriend?: boolean;
+  isRequested?: boolean;
 };
 
 type Variant = 'list' | 'sent' | 'received';
@@ -20,6 +22,7 @@ type Props = {
   onCancel?: (id: string) => void;
   onAccept?: (id: string) => void;
   onReject?: (id: string) => void;
+  onRequest?: (id: string) => void;
 };
 
 export default function FriendsListItem({
@@ -30,7 +33,11 @@ export default function FriendsListItem({
   onCancel,
   onAccept,
   onReject,
+  onRequest,
 }: Props) {
+  const isFriend = item.isFriend === true;
+  const isRequested = item.isRequested === true;
+
   return (
     <li
       className={cn(
@@ -54,7 +61,7 @@ export default function FriendsListItem({
         </div>
 
         <div className={cn('flex-row-center shrink-0 gap-[1.7rem]')}>
-          {variant === 'list' && (
+          {variant === 'list' && isFriend && (
             <>
               <Button
                 className="body1-500 rounded-[8px] bg-primary-500 px-[2.6rem] py-[0.6rem] text-gray-50 max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
@@ -71,9 +78,26 @@ export default function FriendsListItem({
             </>
           )}
 
+          {variant === 'list' && !isFriend && !isRequested && (
+            <>
+              <Button
+                className="body1-500 rounded-[8px] bg-primary-500 px-[2.6rem] py-[0.6rem] text-gray-50 max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
+                onClick={() => onOpen?.(item.id)}
+              >
+                보러 가기
+              </Button>
+              <Button
+                className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
+                onClick={() => onRequest?.(item.id)}
+              >
+                친구 요청
+              </Button>
+            </>
+          )}
+
           {variant === 'sent' && (
             <>
-              <span className="body1-500 cursor-default rounded-[8px] bg-gray-100 px-[4.1rem] py-[0.6rem] text-gray-500 outline outline-gray-500 outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]">
+              <span className="body1-500 cursor-default whitespace-nowrap rounded-[8px] bg-gray-100 px-[4.1rem] py-[0.6rem] text-gray-500 outline outline-gray-500 outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]">
                 대기
               </span>
               <Button
