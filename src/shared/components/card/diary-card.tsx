@@ -1,3 +1,4 @@
+// src/shared/components/card/diary-card.tsx
 import Button from '@components/button/button';
 import Divider from '@components/divider';
 import { cn } from '@libs/cn';
@@ -48,18 +49,23 @@ const DiaryCard = ({
           </div>
 
           {privacySetting && (
-            <button
-              type="button"
-              onClick={handleToggleClick}
-              className="flex shrink-0 items-center gap-[0.6rem]"
-              role="switch"
-              aria-checked={isPrivate}
-            >
-              <span className="sub-body-700 text-primary-800">{isPrivate ? '비공개' : '공개'}</span>
-              <div className="pointer-events-none">
-                <ToggleSwitch checked={isPrivate} aria-hidden="true" />
-              </div>
-            </button>
+            <div className="flex shrink-0 select-none items-center gap-[0.6rem]">
+              <button
+                type="button"
+                className="sub-body-700 text-primary-800"
+                onClick={handleToggleClick}
+                aria-controls="privacy-switch"
+                aria-pressed={isPrivate}
+              >
+                {isPrivate ? '비공개' : '공개'}
+              </button>
+
+              <ToggleSwitch
+                id="privacy-switch"
+                checked={isPrivate}
+                onChange={(next: boolean) => onTogglePrivacy?.(next ? 'PRIVACY' : 'PUBLIC')}
+              />
+            </div>
           )}
         </div>
       )}

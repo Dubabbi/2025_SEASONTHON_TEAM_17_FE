@@ -1,4 +1,6 @@
 // src/pages/diary/diary-page.tsx
+
+import { updateDiaryPrivacy } from '@apis/diaries/diaries';
 import { diariesQueries } from '@apis/diaries/diaries-queries';
 import Button from '@components/button/button';
 import Calendar from '@components/calendar/calendar';
@@ -6,15 +8,19 @@ import DiaryCard from '@components/card/diary-card';
 import DiaryMammonCard from '@components/card/diary-mammon-card';
 import type { EmotionId, ReactionCounts } from '@components/reaction/reaction-bar-chips-lite';
 import Banner from '@pages/diary/components/banner';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export type DiaryEntry = {
+  id?: number;
   title: string;
   content: string;
   emotions: string[];
+  privacySetting?: 'PUBLIC' | 'PRIVACY';
+  feedbackTitle?: string;
+  feedbackContent?: string;
 };
 
 type EmotionRaw = string | { type: string };
@@ -27,6 +33,7 @@ export default function DiaryPage() {
   const [selected, setSelected] = useState(new Date());
   const [view, setView] = useState<Date>(selected);
   const navigate = useNavigate();
+  const qc = useQueryClient();
 
   const selectedKey = useMemo(() => dayjs(selected).format('YYYY-MM-DD'), [selected]);
   const y = useMemo(() => dayjs(view).year(), [view]);
@@ -43,7 +50,7 @@ export default function DiaryPage() {
   );
 
   const { data: entryRes } = useQuery(diariesQueries.byDate(y, m, d));
-  const entryData = entryRes?.data;
+  const entryData = entryRes?.data as DiaryEntry | undefined;
 
   const entryEmotions = useMemo<string[]>(() => {
     const raw = entryData?.emotions as unknown;
@@ -69,6 +76,7 @@ export default function DiaryPage() {
         title: entryData.title,
         content: entryData.content,
         emotions: entryEmotions,
+        privacySetting: entryData.privacySetting,
       },
     };
     navigate('/diary/create', { state });
@@ -111,6 +119,20 @@ export default function DiaryPage() {
     [hasEntry, selectedKey, togglesByDate],
   );
 
+  const privacyMutation = useMutation({
+    mutationFn: (vars: { id: number; next: 'PUBLIC' | 'PRIVACY' }) =>
+      updateDiaryPrivacy(vars.id, vars.next),
+    onSuccess: () => {
+      qc.invalidateQueries();
+    },
+  });
+
+  const onTogglePrivacy = () => {
+    if (!entryData?.id || !entryData?.privacySetting) return;
+    const next = entryData.privacySetting === 'PUBLIC' ? 'PRIVACY' : 'PUBLIC';
+    privacyMutation.mutate({ id: entryData.id, next });
+  };
+
   return (
     <div className="min-h-dvh w-full flex-col bg-cover bg-gradient-bgd1 bg-no-repeat pb-[17rem]">
       <Banner gradientClass="bg-gradient-bgd3" />
@@ -143,7 +165,7 @@ export default function DiaryPage() {
             date={selected}
             onClickButton={handleCardAction}
             privacySetting={entryData?.privacySetting as 'PUBLIC' | 'PRIVACY' | undefined}
-            onTogglePrivacy={undefined}
+            onTogglePrivacy={onTogglePrivacy}
           />
 
           {hasEntry && entryData && (

@@ -30,10 +30,6 @@ export type DiaryDetailRes = Rsp<{
   emotions: { emotionId: number; type: string; likeCount: number }[] | string[];
 }>;
 
-const pad2 = (n: number) => String(n).padStart(2, '0');
-// const toDateParam = ({ year, month, day }: { year: number; month: number; day: number }) =>
-//   `${year}-${pad2(month)}-${pad2(day)}`;
-
 export const diariesApi = {
   list: (params: { email: string; cursor?: number | null; limit?: number }) =>
     http.get<DiariesListRes>(ENDPOINTS.diaries.root, { params }),
@@ -50,6 +46,12 @@ export const diariesApi = {
       ENDPOINTS.diaries.byId(diaryId),
       {},
     ),
+
+  updatePrivacy: (diaryId: number, privacySetting: 'PUBLIC' | 'PRIVACY') =>
+    http.patch<
+      Rsp<{ diaryId: number; privacySetting: 'PUBLIC' | 'PRIVACY' }>,
+      { privacySetting: 'PUBLIC' | 'PRIVACY' }
+    >(ENDPOINTS.diaries.byId(diaryId), { privacySetting }),
 
   today: () =>
     http.get<
@@ -76,3 +78,6 @@ export const diariesApi = {
       },
     }),
 };
+
+export const updateDiaryPrivacy = (diaryId: number, privacySetting: 'PUBLIC' | 'PRIVACY') =>
+  diariesApi.updatePrivacy(diaryId, privacySetting);

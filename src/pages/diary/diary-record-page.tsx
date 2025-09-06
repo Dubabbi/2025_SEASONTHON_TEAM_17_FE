@@ -1,3 +1,6 @@
+// src/pages/diary/diary-record-page.tsx
+
+import { updateDiaryPrivacy } from '@apis/diaries/diaries';
 import { diariesQueries } from '@apis/diaries/diaries-queries';
 import Calendar from '@components/calendar/calendar';
 import DiaryCard from '@components/card/diary-card';
@@ -5,7 +8,7 @@ import DiaryMammonCard from '@components/card/diary-mammon-card';
 import type { EmotionId, ReactionCounts } from '@components/reaction/reaction-bar-chips-lite';
 import TipInfo from '@components/tipinfo';
 import type { DiaryEntry } from '@pages/diary/diary-page';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +34,7 @@ export default function DiaryRecordPage() {
   const [selected, setSelected] = useState(new Date());
   const [view, setView] = useState<Date>(selected);
   const navigate = useNavigate();
+  const qc = useQueryClient();
 
   const selectedKey = useMemo(() => keyOf(selected), [selected]);
   const y = useMemo(() => dayjs(view).year(), [view]);
@@ -47,7 +51,13 @@ export default function DiaryRecordPage() {
   );
 
   const { data: entryRes } = useQuery(diariesQueries.byDate(y, m, d));
-  const entryData = entryRes?.data;
+  const entryData = entryRes?.data as DiaryEntry & {
+    id?: number;
+    privacySetting?: 'PUBLIC' | 'PRIVACY';
+    feedbackTitle?: string;
+    feedbackContent?: string;
+    emotions?: EmotionRaw[];
+  };
 
   const entryEmotions = useMemo<string[]>(() => {
     const raw = entryData?.emotions as unknown;
@@ -57,12 +67,24 @@ export default function DiaryRecordPage() {
 
   const hasEntry = !!(entryData && (entryData.title || entryData.content || entryEmotions.length));
 
-  const onCardAction = (type: '작성하기' | '삭제하기') => {
+  const onCardAction = (type: '작성하기' | '수정하기') => {
     if (type === '작성하기') {
       const state: DiaryCreateState = { mode: 'create', date: selectedKey };
       navigate('/diary/create', { state });
       return;
     }
+    if (!entryData) return;
+    const state: DiaryCreateState = {
+      mode: 'edit',
+      date: selectedKey,
+      entry: {
+        title: entryData.title,
+        content: entryData.content,
+        emotions: entryEmotions,
+        privacySetting: entryData.privacySetting,
+      },
+    };
+    navigate('/diary/create', { state });
   };
 
   const [countsByDate, setCountsByDate] = useState<Record<string, ReactionCounts>>({});
@@ -93,6 +115,20 @@ export default function DiaryRecordPage() {
     [hasEntry, selectedKey, togglesByDate],
   );
 
+  const privacyMutation = useMutation({
+    mutationFn: (vars: { id: number; next: 'PUBLIC' | 'PRIVACY' }) =>
+      updateDiaryPrivacy(vars.id, vars.next),
+    onSuccess: () => {
+      qc.invalidateQueries();
+    },
+  });
+
+  const onTogglePrivacy = () => {
+    if (!entryData?.id || !entryData?.privacySetting) return;
+    const next = entryData.privacySetting === 'PUBLIC' ? 'PRIVACY' : 'PUBLIC';
+    privacyMutation.mutate({ id: entryData.id, next });
+  };
+
   return (
     <div className="flex-col gap-[3rem] px-[2.4rem] pt-[2.2rem] pb-[17rem]">
       <TipInfo
@@ -120,7 +156,7 @@ export default function DiaryRecordPage() {
           date={selected}
           onClickButton={onCardAction}
           privacySetting={entryData?.privacySetting as 'PUBLIC' | 'PRIVACY' | undefined}
-          onTogglePrivacy={undefined}
+          onTogglePrivacy={onTogglePrivacy}
         />
 
         {hasEntry && entryData && (
