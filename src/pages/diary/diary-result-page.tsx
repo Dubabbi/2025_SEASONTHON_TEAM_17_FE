@@ -16,7 +16,7 @@ export type DiaryEntry = {
 };
 
 export default function DiaryResultPage() {
-  const { state } = useLocation();
+  const { state: resultState } = useLocation();
   const [open, setOpen] = useState(false);
   const [counts, setCounts] = useState<ReactionCounts>(DIARY_COUNT);
   const [myToggles, setMyToggles] = useState<Set<EmotionId>>(new Set());
@@ -28,7 +28,8 @@ export default function DiaryResultPage() {
     setOpen(false);
   };
   const handleGoRecords = () => {
-    navigate('/diary/record');
+    const state = { date: resultState.date };
+    navigate('/diary/record', { state });
   };
   const handleToggle = (id: EmotionId) => {
     setCounts((prev) => {
@@ -57,10 +58,10 @@ export default function DiaryResultPage() {
         분석한 감정을 확인해보세요!
       </p>
       <DiaryMammonCard
-        title={state.feedbackTitle}
-        content={state.feedbackContent}
+        title={resultState.feedbackTitle}
+        content={resultState.feedbackContent}
         date={new Date()}
-        order={state.emotions}
+        order={resultState.emotions}
         counts={counts}
         myToggles={myToggles}
         onClickCheck={handleOpen}

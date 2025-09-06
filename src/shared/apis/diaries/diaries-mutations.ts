@@ -3,6 +3,7 @@ import { buildMutation } from '@apis/factory';
 
 export const diariesMutations = {
   create: () => buildMutation(diariesApi.create),
+  createWithDate: () => buildMutation(diariesApi.createWithDate),
   remove: () => buildMutation((diaryId: number) => diariesApi.remove(diaryId)),
   togglePrivacy: () => buildMutation((diaryId: number) => diariesApi.togglePrivacy(diaryId)),
 };
