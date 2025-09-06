@@ -1,55 +1,87 @@
+import { diariesMutations } from '@apis/diaries/diaries-mutations';
 import DiaryCompleteSheet from '@components/bottom-sheet/diary-complete-sheet';
 import { PrimaryStrongCTA } from '@components/button/cta-button';
 import InputField from '@components/inputfield';
 import TextField from '@components/textfield';
 import Loading from '@pages/diary/components/loading';
 import ToggleButton from '@pages/diary/components/toggle-button';
+import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function DiaryCreatePage() {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoNext, setIsGoNext] = useState(false);
   const [diaryInfo, setDiaryInfo] = useState({
     title: '',
     content: '',
-    range: '',
+    privacySetting: '',
   });
+  const { state: createState } = useLocation();
+  const createDiary = useMutation(diariesMutations.create());
+  const createDiaryWithDate = useMutation(diariesMutations.createWithDate());
   const navigate = useNavigate();
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => {
+
+  const patchDiary = () => {
+    const privacySetting = diaryInfo.privacySetting === '친구 공개' ? 'PUBLIC' : 'PRIVACY';
+    if (createState?.date) {
+      createDiaryWithDate.mutate({
+        ...diaryInfo,
+        privacySetting,
+        createdAt: createState?.date,
+      });
+    } else {
+      createDiary.mutate({
+        ...diaryInfo,
+        privacySetting,
+      });
+    }
+  };
+
+  const handleSubmit = () => {
+    patchDiary();
+    setOpen(true);
+  };
+
+  const handleGoMain = () => {
     navigate('/diary');
     setOpen(false);
   };
-  const { state } = useLocation();
 
   const buttonActive =
-    diaryInfo.title.length < 100 && diaryInfo.content.length >= 100 && diaryInfo.range;
+    diaryInfo.title.length < 100 && diaryInfo.content.length >= 50 && diaryInfo.privacySetting;
 
   const handleGoRecords = () => {
-    // TODO: mutate function 처리할때 loading 처리
-    setIsLoading(true);
+    setIsGoNext(true);
+    if (createDiary.isSuccess) {
+      navigate('/diary/result');
+    } else {
+      setIsLoading(true);
+    }
     setOpen(false);
   };
 
   useEffect(() => {
-    if (state && state.mode === 'edit' && state.entry) {
+    if (createState && createState.mode === 'edit' && createState.entry) {
       setDiaryInfo((prev) => ({
         ...prev,
-        title: state.entry.title,
-        content: state.entry.content,
+        title: createState.entry.title,
+        content: createState.entry.content,
       }));
     }
-  }, [state]);
+  }, [createState]);
 
   useEffect(() => {
-    if (isLoading) {
-      // 로딩 임시처리, 추후 api 연결시 api에 맞춰 변경
-      setTimeout(() => {
-        navigate('/diary/result');
-      }, 1000);
+    if ((createDiary.isSuccess || createDiaryWithDate.isSuccess) && isGoNext) {
+      setOpen(false);
+      const date = createState?.date ? createState?.date : new Date();
+      const state = createDiary.isSuccess
+        ? { ...createDiary.data?.data, date }
+        : { ...createDiaryWithDate.data?.data, date };
+      navigate('/diary/result', { state });
     }
-  }, [isLoading, navigate]);
+  }, [createDiary, createDiaryWithDate, createState, isGoNext, navigate]);
 
   if (isLoading) return <Loading />;
 
@@ -81,15 +113,15 @@ export default function DiaryCreatePage() {
             value={diaryInfo.content}
             onChange={(e) => setDiaryInfo((prev) => ({ ...prev, content: e.target.value }))}
             variant={
-              !diaryInfo.content ? 'default' : diaryInfo.content.length < 100 ? 'error' : 'success'
+              !diaryInfo.content ? 'default' : diaryInfo.content.length < 50 ? 'error' : 'success'
             }
             placeholder="일기 내용을 입력해 주세요"
             helperText={
               !diaryInfo.content
-                ? '내용은 최소 100자 이상으로 적어야 합니다.'
-                : diaryInfo.content.length < 100
-                  ? `현재 ${diaryInfo.content.length}자 (100자 이상 입력해야 합니다.)`
-                  : `100자 넘었습니다. (현재 ${diaryInfo.content.length}자)`
+                ? '내용은 최소 50자 이상으로 적어야 합니다.'
+                : diaryInfo.content.length < 50
+                  ? `현재 ${diaryInfo.content.length}자 (50자 이상 입력해야 합니다.)`
+                  : `50자 넘었습니다. (현재 ${diaryInfo.content.length}자)`
             }
           />
         </div>
@@ -97,22 +129,22 @@ export default function DiaryCreatePage() {
         <div className="flex-col gap-[1rem]">
           <p className="heading3-700 text-gray-900">공개 범위</p>
           <ToggleButton
-            activeTab={diaryInfo.range}
-            setActiveTab={(type) => setDiaryInfo((prev) => ({ ...prev, range: type }))}
+            activeTab={diaryInfo.privacySetting}
+            setActiveTab={(type) => setDiaryInfo((prev) => ({ ...prev, privacySetting: type }))}
             leftItem="친구 공개"
             rightItem="나만 보기"
           />
         </div>
       </div>
       <PrimaryStrongCTA
-        onClick={handleOpen}
+        onClick={handleSubmit}
         disabled={!buttonActive}
         className={buttonActive ? '' : 'bg-gray-100 text-gary-500'}
       >
         작성 완료
       </PrimaryStrongCTA>
 
-      <DiaryCompleteSheet isOpen={open} onClose={handleClose} onGoRecords={handleGoRecords} />
+      <DiaryCompleteSheet isOpen={open} onClose={handleGoMain} onGoRecords={handleGoRecords} />
     </div>
   );
 }

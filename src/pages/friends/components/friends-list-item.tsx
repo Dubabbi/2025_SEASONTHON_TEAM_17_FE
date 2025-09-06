@@ -8,6 +8,8 @@ export type Friend = {
   email: string;
   profileImageUrl?: string | null;
   cursorId?: number | null;
+  isFriend?: boolean;
+  isRequested?: boolean;
 };
 
 type Variant = 'list' | 'sent' | 'received';
@@ -20,6 +22,7 @@ type Props = {
   onCancel?: (id: string) => void;
   onAccept?: (id: string) => void;
   onReject?: (id: string) => void;
+  onRequest?: (id: string) => void;
 };
 
 export default function FriendsListItem({
@@ -30,7 +33,11 @@ export default function FriendsListItem({
   onCancel,
   onAccept,
   onReject,
+  onRequest,
 }: Props) {
+  const isFriend = item.isFriend === true;
+  const isRequested = item.isRequested === true;
+
   return (
     <li
       className={cn(
@@ -47,38 +54,55 @@ export default function FriendsListItem({
         />
       </div>
 
-      <div className="flex-col gap-[0.7rem]">
+      <div className="flex-col items-start gap-[0.7rem]">
         <div className="flex gap-[1rem]">
           <div className="heading3-700 text-primary-500">{item.name}</div>
           <div className="body1-500 text-gray-500">{item.email}</div>
         </div>
 
-        <div className={cn('flex-row-center shrink-0 gap-[1.7rem]')}>
-          {variant === 'list' && (
+        <div className={cn('flex-row-center gap-[1.7rem]')}>
+          {variant === 'list' && isFriend && (
             <>
               <Button
                 className="body1-500 rounded-[8px] bg-primary-500 px-[2.6rem] py-[0.6rem] text-gray-50 max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
-                onClick={() => onOpen?.(item.id)}
+                onClick={() => onOpen?.(item.email)}
               >
                 보러 가기
               </Button>
               <Button
                 className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
-                onClick={() => onCancel?.(item.id)}
+                onClick={() => onCancel?.(item.email)}
               >
                 친구 취소
               </Button>
             </>
           )}
 
+          {variant === 'list' && !isFriend && !isRequested && (
+            <>
+              <Button
+                className="body1-500 rounded-[8px] bg-primary-500 px-[2.6rem] py-[0.6rem] text-gray-50 max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
+                onClick={() => onOpen?.(item.email)}
+              >
+                보러 가기
+              </Button>
+              <Button
+                className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
+                onClick={() => onRequest?.(item.email)}
+              >
+                친구 요청
+              </Button>
+            </>
+          )}
+
           {variant === 'sent' && (
             <>
-              <span className="body1-500 cursor-default rounded-[8px] bg-gray-100 px-[4.1rem] py-[0.6rem] text-gray-500 outline outline-gray-500 outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]">
+              <span className="body1-500 cursor-default whitespace-nowrap rounded-[8px] bg-gray-100 px-[4.1rem] py-[0.6rem] text-gray-500 outline outline-gray-500 outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]">
                 대기
               </span>
               <Button
                 className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px] max-[360px]:w-full max-[360px]:px-[1.2rem]"
-                onClick={() => onCancel?.(item.id)}
+                onClick={() => onCancel?.(item.email)}
               >
                 요청 취소
               </Button>
@@ -89,13 +113,13 @@ export default function FriendsListItem({
             <>
               <Button
                 className="body1-500 rounded-[8px] bg-success-bgd px-[2.6rem] py-[0.6rem] text-success-default outline outline-success-default outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
-                onClick={() => onAccept?.(item.id)}
+                onClick={() => onAccept?.(item.email)}
               >
                 수락하기
               </Button>
               <Button
                 className="body1-500 rounded-[8px] bg-error-bgd px-[2.6rem] py-[0.6rem] text-error-default outline outline-error-default outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
-                onClick={() => onReject?.(item.id)}
+                onClick={() => onReject?.(item.email)}
               >
                 거절하기
               </Button>

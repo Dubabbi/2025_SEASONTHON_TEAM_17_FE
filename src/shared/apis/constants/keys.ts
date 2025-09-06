@@ -19,6 +19,9 @@ export const QK = {
     searchReceived: (keyword: string) => ['friends', 'search', 'received', keyword] as const,
     searchMy: (keyword: string) => ['friends', 'search', 'my', keyword] as const,
   },
+  members: {
+    mypage: () => ['members', 'mypage'] as const,
+  },
   emotions: {
     like: (emotionId: number | string) => ['emotions', 'like', emotionId] as const,
   },

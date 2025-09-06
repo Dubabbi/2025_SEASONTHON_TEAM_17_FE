@@ -6,6 +6,7 @@ type ToggleSwitchProps = {
   disabled?: boolean;
   className?: string;
   label?: string;
+  loading?: boolean;
 };
 
 export default function ToggleSwitch({
@@ -14,19 +15,23 @@ export default function ToggleSwitch({
   disabled,
   className,
   label,
+  loading,
 }: ToggleSwitchProps) {
+  const isBlocked = disabled || loading;
+
   return (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
       aria-label={label}
-      disabled={disabled}
-      onClick={() => !disabled && onChange(!checked)}
+      disabled={loading}
+      aria-busy={loading || undefined}
+      onClick={() => !isBlocked && onChange(!checked)}
       className={cn(
-        'relative inline-flex h-[2.6rem] w-[4.8rem] shrink-0 cursor-pointer rounded-full outline-[0.15rem] outline-primary-600 transition-colors',
+        'relative inline-flex h-[2.6rem] w-[4.8rem] shrink-0 rounded-full outline-[0.15rem] outline-primary-600 transition-colors',
         checked ? 'bg-primary-600' : 'bg-gray-50',
-        disabled && 'cursor-not-allowed',
+        loading ? 'cursor-wait' : 'cursor-pointer',
         className,
       )}
     >

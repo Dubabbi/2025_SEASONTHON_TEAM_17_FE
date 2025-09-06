@@ -11,6 +11,6 @@ export async function entryAuthGuard({ request }: LoaderFunctionArgs) {
     await authApi.verify();
     return null;
   } catch {
-    throw redirect('/login');
+    throw redirect('/onboarding');
   }
 }

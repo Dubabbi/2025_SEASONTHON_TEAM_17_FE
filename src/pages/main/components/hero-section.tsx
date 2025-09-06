@@ -1,19 +1,23 @@
+import { membersQueries } from '@apis/members/members-queries';
 import Heart from '@assets/icons/3d-heart.svg?react';
 import { cn } from '@libs/cn';
+import { useQuery } from '@tanstack/react-query';
 
 type Props = {
-  username: string;
   showSubtitle?: boolean;
   className?: string;
   gradientClass?: string;
 };
 
 export default function HeroSection({
-  username,
   showSubtitle = true,
   className = '',
   gradientClass = '',
 }: Props) {
+  const { data: mypage } = useQuery(membersQueries.mypage());
+
+  const username = mypage?.nickname ?? mypage?.nickname ?? '마몬';
+
   return (
     <section
       className={cn(
