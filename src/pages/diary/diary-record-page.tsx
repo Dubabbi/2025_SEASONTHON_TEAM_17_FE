@@ -1,3 +1,4 @@
+import { updateDiaryPrivacy } from '@apis/diaries/diaries';
 import { diariesQueries } from '@apis/diaries/diaries-queries';
 import Calendar from '@components/calendar/calendar';
 import DiaryCard from '@components/card/diary-card';
@@ -5,7 +6,7 @@ import DiaryMammonCard from '@components/card/diary-mammon-card';
 import type { EmotionId, ReactionCounts } from '@components/reaction/reaction-bar-chips-lite';
 import TipInfo from '@components/tipinfo';
 import type { DiaryEntry } from '@pages/diary/diary-page';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -25,10 +26,13 @@ const DEFAULT_COUNTS: ReactionCounts = {
   SURPRISE: 0,
 };
 
+type EmotionRaw = string | { type: string };
+
 export default function DiaryRecordPage() {
   const [selected, setSelected] = useState(new Date());
   const [view, setView] = useState<Date>(selected);
   const navigate = useNavigate();
+  const qc = useQueryClient();
 
   const selectedKey = useMemo(() => keyOf(selected), [selected]);
   const y = useMemo(() => dayjs(view).year(), [view]);
@@ -45,11 +49,21 @@ export default function DiaryRecordPage() {
   );
 
   const { data: entryRes } = useQuery(diariesQueries.byDate(y, m, d));
-  const entryData = entryRes?.data;
-  const hasEntry = !!(
-    entryData &&
-    (entryData.title || entryData.content || entryData.emotions?.length)
-  );
+  const entryData = entryRes?.data as DiaryEntry & {
+    id?: number;
+    privacySetting?: 'PUBLIC' | 'PRIVACY';
+    feedbackTitle?: string;
+    feedbackContent?: string;
+    emotions?: EmotionRaw[];
+  };
+
+  const entryEmotions = useMemo<string[]>(() => {
+    const raw = entryData?.emotions as unknown;
+    if (!Array.isArray(raw)) return [];
+    return (raw as EmotionRaw[]).map((e) => (typeof e === 'string' ? e : e.type));
+  }, [entryData]);
+
+  const hasEntry = !!(entryData && (entryData.title || entryData.content || entryEmotions.length));
 
   const onCardAction = (type: '작성하기' | '수정하기') => {
     if (type === '작성하기') {
@@ -64,7 +78,8 @@ export default function DiaryRecordPage() {
       entry: {
         title: entryData.title,
         content: entryData.content,
-        emotions: (entryData.emotions ?? []).map((e) => e.type),
+        emotions: entryEmotions,
+        privacySetting: entryData.privacySetting,
       },
     };
     navigate('/diary/create', { state });
@@ -78,11 +93,9 @@ export default function DiaryRecordPage() {
     ? (togglesByDate[selectedKey] ?? new Set<EmotionId>())
     : new Set<EmotionId>();
 
-  // 동일 칩 재클릭 시 −1, 아니면 +1
   const handleToggle = useCallback(
     (id: EmotionId) => {
       if (!hasEntry) return;
-
       setCountsByDate((prev) => {
         const base = prev[selectedKey] ?? DEFAULT_COUNTS;
         const next = { ...base };
@@ -90,7 +103,6 @@ export default function DiaryRecordPage() {
         next[id] = Math.max(0, (next[id] ?? 0) + (pressed ? -1 : +1));
         return { ...prev, [selectedKey]: next };
       });
-
       setTogglesByDate((prev) => {
         const set = new Set<EmotionId>(prev[selectedKey] ?? []);
         if (set.has(id)) set.delete(id);
@@ -100,6 +112,20 @@ export default function DiaryRecordPage() {
     },
     [hasEntry, selectedKey, togglesByDate],
   );
+
+  const privacyMutation = useMutation({
+    mutationFn: (vars: { id: number; next: 'PUBLIC' | 'PRIVACY' }) =>
+      updateDiaryPrivacy(vars.id, vars.next),
+    onSuccess: () => {
+      qc.invalidateQueries();
+    },
+  });
+
+  const onTogglePrivacy = () => {
+    if (!entryData?.id || !entryData?.privacySetting) return;
+    const next = entryData.privacySetting === 'PUBLIC' ? 'PRIVACY' : 'PUBLIC';
+    privacyMutation.mutate({ id: entryData.id, next });
+  };
 
   return (
     <div className="flex-col gap-[3rem] px-[2.4rem] pt-[2.2rem] pb-[17rem]">
@@ -124,16 +150,17 @@ export default function DiaryRecordPage() {
         <DiaryCard
           title={entryData?.title}
           content={entryData?.content}
-          emotions={(entryData?.emotions ?? []).map((e) => e.type)}
+          emotions={entryEmotions}
           date={selected}
           onClickButton={onCardAction}
+          privacySetting={entryData?.privacySetting as 'PUBLIC' | 'PRIVACY' | undefined}
+          onTogglePrivacy={onTogglePrivacy}
         />
 
-        {/*일기 있는 날짜에만 From.마몬 카드 표시 */}
         {hasEntry && entryData && (
           <DiaryMammonCard
-            title={entryData.title}
-            content={entryData.content}
+            title={entryData.feedbackTitle ?? entryData.title}
+            content={entryData.feedbackContent ?? entryData.content}
             date={selected}
             counts={counts}
             myToggles={myToggles}
