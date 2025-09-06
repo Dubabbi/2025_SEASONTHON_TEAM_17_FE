@@ -1,5 +1,4 @@
 import TipInfo from '@components/tipinfo';
-import { MOCK_USER } from '@mocks/user';
 import EmotionStatsSection from '@pages/main/components/emotion-stats-section';
 import HeroSection from '@pages/main/components/hero-section';
 
@@ -14,14 +13,10 @@ export default function MainPage() {
       <HeroSection />
 
       <section className="flex-col px-[2rem] pt-[2rem]">
-        <TipInfo title="최근 감정 일기 기록" text={formattedDate} className="py-[2rem]" />
+        <TipInfo title="최근 감정 일기 작성" text={formattedDate} className="py-[2rem]" />
       </section>
 
-      <EmotionStatsSection
-        selfItems={MOCK_USER.statsSelf}
-        friendItems={MOCK_USER.statsFriend}
-        className="pb-[2rem]"
-      />
+      <EmotionStatsSection className="pb-[2rem]" />
     </div>
   );
 }
