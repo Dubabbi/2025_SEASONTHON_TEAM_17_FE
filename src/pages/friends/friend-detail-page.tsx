@@ -1,4 +1,5 @@
 import { diariesQueries } from '@apis/diaries/diaries-queries';
+import { friendsMutations } from '@apis/friends/friends-mutations';
 import DefaultProfile from '@assets/icons/3d-hand.svg';
 import Button from '@components/button/button';
 import DiaryCard from '@components/card/diary-card';
@@ -9,7 +10,7 @@ import {
   diaryDetailPath,
   extractDiariesFromPage,
 } from '@pages/friends/utils/normalize';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
@@ -75,10 +76,32 @@ export default function FriendDetailPage() {
     enabled: !!email,
   });
 
+  const requestMutation = useMutation({
+    ...friendsMutations.request(),
+    onSuccess: () => {
+      showToast('친구 요청을 보냈어요.');
+      nav(pathname + search, {
+        replace: true,
+        state: {
+          ...s,
+          nickname: friend.name,
+          email: friend.email,
+          profileImageUrl: friend.profileImageUrl ?? null,
+          isFriend,
+          isRequested: true,
+        },
+      });
+    },
+    onError: () => {
+      showToast('요청을 보낼 수 없어요. 잠시 후 다시 시도해 주세요.');
+    },
+  });
+
   const pages = diariesQ.data?.pages ?? [];
   const diaries: DiaryPreview[] = useMemo(() => pages.flatMap(extractDiariesFromPage), [pages]);
 
   const avatarUrl = friend.profileImageUrl ?? '';
+  const requested = isRequested || requestMutation.isSuccess;
 
   return (
     <div className="min-h-dvh flex-col gap-[1.6rem] bg-gradient-bgd1 pb-[16rem]">
@@ -104,10 +127,15 @@ export default function FriendDetailPage() {
                   <span className="body1-500 cursor-default rounded-[8px] bg-primary-500 px-[4.1rem] py-[0.6rem] text-gray-50">
                     친구
                   </span>
+                ) : requested ? (
+                  <span className="body1-500 cursor-default rounded-[8px] bg-gray-200 px-[2.6rem] py-[0.6rem] text-gray-700">
+                    요청됨
+                  </span>
                 ) : (
                   <Button
                     className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px]"
-                    onClick={() => showToast('친구 요청을 보냈어요.')}
+                    onClick={() => requestMutation.mutate({ email })}
+                    disabled={requestMutation.isPending || !email}
                   >
                     친구 요청
                   </Button>
@@ -133,7 +161,7 @@ export default function FriendDetailPage() {
                     email: friend.email,
                     profileImageUrl: friend.profileImageUrl ?? null,
                     isFriend,
-                    isRequested,
+                    isRequested: requested,
                   },
                 })
               }
