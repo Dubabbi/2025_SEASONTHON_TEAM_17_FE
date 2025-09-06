@@ -73,8 +73,32 @@
 
 - `@pages` → `src/pages`
 - `@styles`, `@components`, `@hooks`, `@libs`, `@constants`, `@utils`, `@apis`, `@assets`, `@types` → `src/shared/*`
-- **단일 소스**: `tsconfig.json`의 `paths` 기준, Vite 플러그인으로 동기화
+- 단일 소스: `tsconfig.json`의 `paths` 기준, Vite 플러그인으로 동기화
 
 > 상세: [`absolute-paths.md`](./docs/absolute-paths.md)
+</details>
+<br />
+
+<details>
+<summary><b style="font-size:1.7rem">📑 Commit Convention</b></summary>
+우리 프로젝트는 다음과 같은 커밋 규칙을 따릅니다.  
+<br />
+  
+| 타입           | 의미                      |
+| ------------ | ----------------------- |
+| **feat**     | 새로운 기능 추가               |
+| **fix**      | 버그 수정                   |
+| **chore**    | 빌드/도구/패키지 설정 등 잡무 변경    |
+| **style**    | 코드 스타일 변경 (포맷팅, 세미콜론 등) |
+| **hotfix**   | 긴급 버그 수정                |
+| **docs**     | 문서 관련 변경 (README 등)     |
+| **refactor** | 코드 리팩터링 (기능 변화 없음)      |
+| **test**     | 테스트 코드 추가/수정            |
+| **init**     | 프로젝트 초기 설정/세팅           |
+| **build**    | 빌드 관련 변경 (배포, 빌드 설정 등)  |
+
+- scope: 선택 (비워도 허용)
+- subject: 마침표 금지
+- header: 최대 100자
 
 </details>
