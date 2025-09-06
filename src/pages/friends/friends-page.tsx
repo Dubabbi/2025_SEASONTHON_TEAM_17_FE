@@ -15,8 +15,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type FriendsTab = 'list' | 'sent' | 'received';
+
 type FriendRow = {
-  memberId: number;
+  memberId: number | string;
   nickname: string;
   email: string;
   profileImageUrl?: string | null;
@@ -207,7 +208,16 @@ export default function FriendsPage() {
             <FriendsList
               items={previewItems}
               variant={variantForView}
-              onOpen={(email) => nav(`/friends/${email}`)}
+              onOpen={(email) => {
+                const item = items.find((i) => i.email === email);
+                nav(`/friends/${encodeURIComponent(email)}`, {
+                  state: {
+                    nickname: item?.name ?? '친구',
+                    email,
+                    profileImageUrl: item?.profileImageUrl ?? null,
+                  },
+                });
+              }}
               onCancel={
                 !searching && tab === 'list'
                   ? (email) => setConfirm({ type: 'friend', email })

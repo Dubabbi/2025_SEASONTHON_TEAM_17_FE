@@ -63,7 +63,7 @@ export const router = createBrowserRouter([
           { index: true, element: <FriendsPage /> },
           { path: 'all', element: <FriendsMorePage /> },
           { path: ':id', element: <FriendDetailPage /> },
-          { path: ':id/diary/:date', element: <FriendDiaryPage /> },
+          { path: ':id/diary/:diaryId', element: <FriendDiaryPage /> },
         ],
       },
     ],
