@@ -15,6 +15,7 @@ interface Props {
   counts: ReactionCounts;
   myToggles: Set<EmotionId>;
   onToggle: (id: EmotionId) => void;
+  onClickCheck?: () => void;
   className?: string;
 }
 
@@ -26,6 +27,7 @@ export default function DiaryMammonCard({
   counts,
   myToggles,
   onToggle,
+  onClickCheck,
   className,
 }: Props) {
   return (
@@ -46,8 +48,11 @@ export default function DiaryMammonCard({
 
       <div className="flex-row-between items-center">
         <p className="detail text-gray-400">{dayjs(date).format('YYYY.MM.DD')}</p>
-        <Button className="detail rounded-[999px] border border-primary-600 bg-gray-50 px-[1.6rem] py-[0.7rem] text-primary-600">
-          From. 마몬
+        <Button
+          onClick={onClickCheck || undefined}
+          className="detail rounded-[999px] border border-primary-600 bg-gray-50 px-[1.6rem] py-[0.7rem] text-primary-600"
+        >
+          {onClickCheck ? '확인' : 'From. 마몬'}
         </Button>
       </div>
 

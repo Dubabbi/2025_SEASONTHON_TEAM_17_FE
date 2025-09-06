@@ -1,5 +1,4 @@
 import Button from '@components/button/button';
-import Chips from '@components/chips/chips';
 import Divider from '@components/divider';
 import { cn } from '@libs/cn';
 import dayjs from 'dayjs';
@@ -35,9 +34,6 @@ const DiaryCard = ({
         <>
           <p className="heading3-500">{title}</p>
           <p className="body2-500 h-[7.2rem] break-words">{content}</p>
-          <div className="pr-[7.1rem]">
-            <Chips size="small" emotions={emotions} />
-          </div>
         </>
       )}
       {isEmpty && (

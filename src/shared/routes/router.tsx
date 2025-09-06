@@ -1,3 +1,4 @@
+import { entryAuthGuard } from '@routes/auth-guard';
 import { lazy } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 
@@ -17,14 +18,20 @@ const TermsServicePage = lazy(() => import('@pages/my-page/terms-service-page'))
 const NotificationsPage = lazy(() => import('@pages/notifications/notifications-page'));
 const NotFound = lazy(() => import('@pages/error/not-found'));
 const FriendDiaryPage = lazy(() => import('@pages/friends/friend-diary-page'));
+
+import KakaoCallbackPage from '@pages/login/kakao-callback-page';
+
 const TestPage = lazy(() => import('@pages/main/components-test-page')); // 컴포넌트 테스트
 
 export const router = createBrowserRouter([
   {
     element: <Layout />,
+    loader: entryAuthGuard,
+    shouldRevalidate: () => false,
     children: [
       { index: true, element: <MainPage /> },
       { path: '/login', element: <LoginPage />, handle: { hideChrome: true } },
+      { path: '/login/callback', element: <KakaoCallbackPage /> },
       {
         path: '/onboarding',
         element: <OnboardingPage />,
