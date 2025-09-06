@@ -12,6 +12,7 @@ export const ENDPOINTS = {
   },
   diaries: {
     root: '/api/v1/diaries',
+    with: '/api/v1/diaries/with-date',
     byId: (diaryId: number | string) => `/api/v1/diaries/${diaryId}`,
     today: '/api/v1/diaries/today',
     month: '/api/v1/diaries/month',
@@ -19,6 +20,7 @@ export const ENDPOINTS = {
   },
   emotions: {
     like: (emotionId: number | string) => `/api/v1/emotions/${emotionId}/like`,
+    report: '/api/v1/emotion-analysis/emotions/report',
   },
   friends: {
     root: '/api/v1/friends',
@@ -32,6 +34,9 @@ export const ENDPOINTS = {
     searchSent: '/api/v1/friends/search/sent',
     searchReceived: '/api/v1/friends/search/received',
     searchMy: '/api/v1/friends/search/my-friends',
+  },
+  members: {
+    mypage: '/api/v1/members/mypage',
   },
   test: {
     verify: '/api/v1/test/verify',

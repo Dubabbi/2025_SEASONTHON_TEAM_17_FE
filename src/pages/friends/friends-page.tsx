@@ -3,18 +3,21 @@ import { friendsQueries } from '@apis/friends/friends-queries';
 import ThinkIcon from '@assets/icons/thinking.svg?react';
 import FriendCancelSheet from '@components/bottom-sheet/friend-cancel-sheet';
 import Button from '@components/button/button';
+import { useToast } from '@contexts/toast-context';
 import { cn } from '@libs/cn';
 import FriendsHeader from '@pages/friends/components/friends-header';
 import FriendsList from '@pages/friends/components/friends-list';
 import SearchBar from '@pages/friends/components/search-bar';
 import SegmentedTabs from '@pages/friends/components/segmented-tabs';
+import { getErrorMessage } from '@pages/friends/utils/get-error-toast-msg';
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type FriendsTab = 'list' | 'sent' | 'received';
+
 type FriendRow = {
-  memberId: number;
+  memberId: number | string;
   nickname: string;
   email: string;
   profileImageUrl?: string | null;
@@ -25,7 +28,7 @@ export default function FriendsPage() {
   const [tab, setTab] = useState<FriendsTab>('list');
   const [kw, setKw] = useState('');
   const searching = kw.trim().length >= 1;
-
+  const { showToast } = useToast();
   const [confirm, setConfirm] = useState<{
     type: 'friend' | 'request';
     email: string;
@@ -60,6 +63,8 @@ export default function FriendsPage() {
       name: (f as FriendRow).nickname,
       email: (f as FriendRow).email,
       profileImageUrl: (f as FriendRow).profileImageUrl,
+      isFriend: (f as AllRow).isFriend,
+      isRequested: (f as AllRow).isRequested,
     }));
   }, [active.data]);
 
@@ -74,19 +79,48 @@ export default function FriendsPage() {
 
   const acceptMut = useMutation({
     ...friendsMutations.accept(),
-    onSuccess: () => receivedQ.refetch(),
+    onSuccess: () => {
+      showToast('친구 요청을 수락했어요.');
+      receivedQ.refetch();
+    },
+    onError: (err) => showToast(getErrorMessage(err)),
   });
+
   const rejectMut = useMutation({
     ...friendsMutations.reject(),
-    onSuccess: () => receivedQ.refetch(),
+    onSuccess: () => {
+      showToast('친구 요청을 거절했어요.');
+      receivedQ.refetch();
+    },
+    onError: (err) => showToast(getErrorMessage(err)),
   });
+
   const removeMut = useMutation({
     ...friendsMutations.remove(),
-    onSuccess: () => listQ.refetch(),
+    onSuccess: () => {
+      showToast('친구를 취소했어요.');
+      listQ.refetch();
+    },
+    onError: (err) => showToast(getErrorMessage(err)),
   });
+
   const cancelMut = useMutation({
     ...friendsMutations.cancel(),
-    onSuccess: () => sentQ.refetch(),
+    onSuccess: () => {
+      showToast('요청을 취소했어요.');
+      sentQ.refetch();
+    },
+    onError: (err) => showToast(getErrorMessage(err)),
+  });
+
+  const requestMut = useMutation({
+    ...friendsMutations.request(),
+    onSuccess: () => {
+      showToast('친구 요청을 보냈어요.');
+      sentQ.refetch();
+      searchQ.refetch();
+    },
+    onError: (err) => showToast(getErrorMessage(err)),
   });
 
   const handleConfirmCancel = () => {
@@ -133,16 +167,22 @@ export default function FriendsPage() {
             { value: 'received', label: '요청받은 친구 목록' },
           ]}
           value={tab}
-          onChange={(v) => setTab(v as FriendsTab)}
+          onChange={(v) => {
+            const next = v as FriendsTab;
+            setTab(next);
+            if (searching) setKw('');
+          }}
           className="w-full"
         />
 
         <div className="w-full flex-row-between">
-          <span className="heading1-700">
-            {tab === 'list' && '내 친구 목록'}
-            {tab === 'sent' && '요청한 친구 목록'}
-            {tab === 'received' && '요청받은 친구 목록'}
-          </span>
+          {!searching && (
+            <span className="heading1-700">
+              {tab === 'list' && '내 친구 목록'}
+              {tab === 'sent' && '요청한 친구 목록'}
+              {tab === 'received' && '요청받은 친구 목록'}
+            </span>
+          )}
           {showAllButton && (
             <Button
               className={cn(
@@ -164,22 +204,42 @@ export default function FriendsPage() {
             </span>
           </div>
         ) : (
-          <FriendsList
-            items={previewItems}
-            variant={variantForView}
-            onOpen={(id) => nav(`/friends/${id}`)}
-            onCancel={
-              !searching && tab === 'list'
-                ? (email) => setConfirm({ type: 'friend', email })
-                : undefined
-            }
-            onAccept={
-              !searching && tab === 'received' ? (email) => acceptMut.mutate({ email }) : undefined
-            }
-            onReject={
-              !searching && tab === 'received' ? (email) => rejectMut.mutate({ email }) : undefined
-            }
-          />
+          <>
+            <FriendsList
+              items={previewItems}
+              variant={variantForView}
+              onOpen={(email) => {
+                const item = items.find((i) => i.email === email);
+                nav(`/friends/${encodeURIComponent(email)}`, {
+                  state: {
+                    nickname: item?.name ?? '친구',
+                    email,
+                    profileImageUrl: item?.profileImageUrl ?? null,
+                    isFriend: item?.isFriend,
+                  },
+                });
+              }}
+              onCancel={
+                !searching && tab === 'list'
+                  ? (email) => setConfirm({ type: 'friend', email })
+                  : !searching && tab === 'sent'
+                    ? (email) => cancelMut.mutate(email)
+                    : undefined
+              }
+              onAccept={
+                !searching && tab === 'received'
+                  ? (email) => acceptMut.mutate({ email })
+                  : undefined
+              }
+              onReject={
+                !searching && tab === 'received'
+                  ? (email) => rejectMut.mutate({ email })
+                  : undefined
+              }
+              onRequest={searching ? (email) => requestMut.mutate({ email }) : undefined}
+            />
+            {searching && <div ref={sentinelRef} className="h-[1px]" />}
+          </>
         )}
       </div>
 

@@ -1,152 +1,359 @@
+import { diariesApi, updateDiaryPrivacy } from '@apis/diaries/diaries';
+import { diariesQueries } from '@apis/diaries/diaries-queries';
+import DeleteConfirmSheet from '@components/bottom-sheet/delete-confirm-sheet';
 import Calendar from '@components/calendar/calendar';
 import DiaryCard from '@components/card/diary-card';
 import DiaryMammonCard from '@components/card/diary-mammon-card';
 import type { EmotionId, ReactionCounts } from '@components/reaction/reaction-bar-chips-lite';
 import TipInfo from '@components/tipinfo';
+import useBottomSheet from '@hooks/use-bottom-sheet';
 import type { DiaryEntry } from '@pages/diary/diary-page';
+import { emotionLikeStore, useEmotionLikesVersion } from '@pages/diary/stores/emotion-like-store';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-type DiaryCreateState =
-  | { mode: 'create'; date: string }
-  | { mode: 'edit'; date: string; entry: DiaryEntry };
-
-const DIARY_ENTRIES: Record<string, DiaryEntry> = {
-  '2025-08-01': {
-    title: '오늘은...',
-    content: '맛있는 걸 먹어서 기분이 좋은 날이다.',
-    emotions: ['HAPPY'],
-  },
-  '2025-08-08': {
-    title: '집중의 하루',
-    content: '순공 시간 12시간 달성했다. 재미 없다,,',
-    emotions: ['SAD', 'ANGRY'],
-  },
-  '2025-08-09': {
-    title: '휴식',
-    content: '산책으로 머리 식혔다...',
-    emotions: ['SAD'],
-  },
-  '2025-08-15': {
-    title: '왠지 기분이 좋은 날',
-    content: '오랜만에 나들이',
-    emotions: ['EXCITE'],
-  },
-  '2025-08-27': {
-    title: '좋아하는 친구들을 만났다.',
-    content: '역시 친구들을 만나니까 기분이 좋은 것 같다.',
-    emotions: ['EXCITE'],
-  },
-  '2025-09-03': {
-    title: '행복',
-    content: '좋아하는 휘낭시에랑 마들렌을 잔뜩 먹었다!! 맛있으면 0칼로리;;',
-    emotions: ['HAPPY'],
-  },
-  '2025-09-14': {
-    title: '슬픈 영화를 봤다.',
-    content: '베일리 어게인 보고 내내 울었다...',
-    emotions: ['SAD'],
-  },
-};
+type DiaryCreateState = { mode: 'create'; date: string };
 
 const keyOf = (d: Date) => dayjs(d).format('YYYY-MM-DD');
 
-const DEFAULT_COUNTS: ReactionCounts = {
-  HAPPY: 5,
-  SAD: 0,
-  ANGRY: 0,
-  EXCITE: 0,
-  TIRED: 0,
-  SURPRISE: 0,
-};
+type EmotionRaw = string | { emotionId: number; type: string; likeCount: number };
+type EmotionDTO = { id?: number; type: EmotionId; likeCount: number };
 
 export default function DiaryRecordPage() {
   const [selected, setSelected] = useState(new Date());
+  const [view, setView] = useState<Date>(selected);
+  const { state } = useLocation();
   const navigate = useNavigate();
-  const selectedKey = useMemo(() => keyOf(selected), [selected]);
-  const entry = DIARY_ENTRIES[selectedKey];
-  const hasEntry = !!(entry && (entry.title || entry.content || entry.emotions?.length));
-  const marked = useMemo(() => Object.keys(DIARY_ENTRIES), []);
+  const qc = useQueryClient();
 
-  const onCardAction = (type: '작성하기' | '수정하기') => {
+  const deleteSheet = useBottomSheet();
+
+  useEffect(() => {
+    const parsed =
+      typeof state?.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(state)
+        ? dayjs(state?.date).toDate()
+        : state?.date;
+    setSelected(parsed);
+  }, [state]);
+
+  const selectedKey = useMemo(() => keyOf(selected), [selected]);
+  const y = useMemo(() => dayjs(view).year(), [view]);
+  const m = useMemo(() => dayjs(view).month() + 1, [view]);
+  const d = useMemo(() => dayjs(selected).date(), [selected]);
+
+  const { data: monthRes } = useQuery(diariesQueries.monthDates(y, m));
+  const marked = useMemo(
+    () =>
+      (monthRes?.data ?? []).map(
+        (dayNum: number) => `${y}-${String(m).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`,
+      ),
+    [monthRes?.data, y, m],
+  );
+
+  const entryQ = useQuery({
+    ...diariesQueries.byDate(y, m, d),
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
+    refetchOnReconnect: true,
+    refetchOnWindowFocus: true,
+  });
+
+  const entryData = entryQ.data?.data as
+    | (DiaryEntry & {
+        diaryId?: number;
+        emotions?: EmotionRaw[];
+      })
+    | undefined;
+
+  const emotionDtos = useMemo<EmotionDTO[]>(() => {
+    const arr = entryData?.emotions as unknown;
+    if (!Array.isArray(arr)) return [];
+    return (arr as EmotionRaw[])
+      .map((e) => {
+        if (typeof e === 'string') return { id: undefined, type: e as EmotionId, likeCount: 0 };
+        const t = typeof e.type === 'string' ? (e.type as EmotionId) : undefined;
+        if (!t) return null;
+        return {
+          id: e.emotionId,
+          type: t,
+          likeCount: Number(e.likeCount ?? 0),
+        };
+      })
+      .filter((v): v is EmotionDTO => v !== null);
+  }, [entryData?.emotions]);
+
+  const entryEmotions = useMemo<EmotionId[]>(() => emotionDtos.map((e) => e.type), [emotionDtos]);
+
+  const initialCounts = useMemo<ReactionCounts>(() => {
+    return emotionDtos.reduce<ReactionCounts>((acc, e) => {
+      acc[e.type] = e.likeCount;
+      return acc;
+    }, {} as ReactionCounts);
+  }, [emotionDtos]);
+
+  const emotionIdByType = useMemo<Record<EmotionId, number | undefined>>(() => {
+    const map = {} as Record<EmotionId, number | undefined>;
+    emotionDtos.forEach((e) => {
+      map[e.type] = e.id;
+    });
+    return map;
+  }, [emotionDtos]);
+
+  const hasServerIds = useMemo(
+    () => emotionDtos.some((e) => typeof e.id === 'number'),
+    [emotionDtos],
+  );
+
+  const hasEntry = !!(
+    entryData &&
+    (entryData.title || entryData.content || entryEmotions.length > 0)
+  );
+  const entryId: number | undefined = entryData?.diaryId ?? entryData?.id;
+
+  const onCardAction = (type: '작성하기' | '삭제하기') => {
     if (type === '작성하기') {
       const state: DiaryCreateState = { mode: 'create', date: selectedKey };
       navigate('/diary/create', { state });
       return;
     }
-    if (!entry) return;
-    const state: DiaryCreateState = { mode: 'edit', date: selectedKey, entry };
-    navigate('/diary/create', { state });
+    if (type === '삭제하기') {
+      if (!hasEntry) return;
+      deleteSheet.open();
+      return;
+    }
   };
 
   const [countsByDate, setCountsByDate] = useState<Record<string, ReactionCounts>>({});
   const [togglesByDate, setTogglesByDate] = useState<Record<string, Set<EmotionId>>>({});
+  const likesVer = useEmotionLikesVersion();
 
-  const counts = hasEntry ? (countsByDate[selectedKey] ?? DEFAULT_COUNTS) : DEFAULT_COUNTS;
-  const myToggles = hasEntry
-    ? (togglesByDate[selectedKey] ?? new Set<EmotionId>())
-    : new Set<EmotionId>();
+  const counts = hasEntry ? (countsByDate[selectedKey] ?? initialCounts) : initialCounts;
 
-  // 동일 칩 재클릭 시 −1, 아니면 +1
+  const currentSelectedType = useMemo<EmotionId | undefined>(() => {
+    void likesVer;
+    if (!hasEntry) return undefined;
+    if (hasServerIds) {
+      for (const t of entryEmotions) {
+        const eid = emotionIdByType[t];
+        if (eid && emotionLikeStore.isLiked(eid)) return t;
+      }
+      return undefined;
+    }
+    const set = togglesByDate[selectedKey] ?? new Set<EmotionId>();
+    for (const t of set) return t;
+    return undefined;
+  }, [
+    hasEntry,
+    hasServerIds,
+    entryEmotions,
+    emotionIdByType,
+    togglesByDate,
+    selectedKey,
+    likesVer,
+  ]);
+
+  const myToggles = useMemo(() => {
+    void likesVer;
+    if (!hasEntry) return new Set<EmotionId>();
+    if (hasServerIds) {
+      const s = new Set<EmotionId>();
+      if (currentSelectedType) s.add(currentSelectedType);
+      return s;
+    }
+    return togglesByDate[selectedKey] ?? new Set<EmotionId>();
+  }, [hasEntry, hasServerIds, currentSelectedType, togglesByDate, selectedKey, likesVer]);
+
   const handleToggle = useCallback(
-    (id: EmotionId) => {
+    async (typeId: EmotionId) => {
       if (!hasEntry) return;
+      const prevType = currentSelectedType;
+      const same = prevType === typeId;
+      const nextType = same ? undefined : typeId;
 
-      setCountsByDate((prev) => {
-        const base = prev[selectedKey] ?? DEFAULT_COUNTS;
-        const next = { ...base };
-        const pressed = (togglesByDate[selectedKey] ?? new Set<EmotionId>()).has(id);
-        next[id] = Math.max(0, (next[id] ?? 0) + (pressed ? -1 : +1));
-        return { ...prev, [selectedKey]: next };
-      });
+      if (hasServerIds) {
+        const prevId = prevType ? emotionIdByType[prevType] : undefined;
+        const nextId = nextType ? emotionIdByType[nextType] : undefined;
 
-      setTogglesByDate((prev) => {
-        const set = new Set<EmotionId>(prev[selectedKey] ?? []);
-        if (set.has(id)) set.delete(id);
-        else set.add(id);
-        return { ...prev, [selectedKey]: set };
-      });
+        const prevLiked = prevId ? emotionLikeStore.isLiked(prevId) : false;
+        const nextLiked = nextId ? emotionLikeStore.isLiked(nextId) : false;
+
+        if (prevId && prevLiked) emotionLikeStore.setLiked(prevId, false);
+        if (nextId && !same) emotionLikeStore.setLiked(nextId, true);
+        if (prevType) {
+          setCountsByDate((p) => {
+            const base = p[selectedKey] ?? initialCounts;
+            const n = { ...base };
+            const cur = n[prevType] ?? 0;
+            n[prevType] = Math.max(0, cur - 1);
+            return { ...p, [selectedKey]: n };
+          });
+        }
+        if (nextType) {
+          setCountsByDate((p) => {
+            const base = p[selectedKey] ?? initialCounts;
+            const n = { ...base };
+            const cur = n[nextType] ?? 0;
+            n[nextType] = Math.max(0, cur + 1);
+            return { ...p, [selectedKey]: n };
+          });
+        }
+
+        try {
+          if (prevId && prevLiked) await diariesApi.likeEmotion(prevId);
+          if (nextId && !same && !nextLiked) await diariesApi.likeEmotion(nextId);
+        } catch {
+          if (prevId) emotionLikeStore.setLiked(prevId, prevLiked);
+          if (nextId) emotionLikeStore.setLiked(nextId, nextLiked);
+          setCountsByDate((p) => ({ ...p, [selectedKey]: initialCounts }));
+        } finally {
+          qc.invalidateQueries({
+            queryKey: diariesQueries.byDate(y, m, d).queryKey,
+          });
+        }
+      } else {
+        setTogglesByDate((prev) => {
+          const set = new Set<EmotionId>();
+          if (nextType) set.add(nextType);
+          return { ...prev, [selectedKey]: set };
+        });
+        if (prevType) {
+          setCountsByDate((p) => {
+            const base = p[selectedKey] ?? initialCounts;
+            const n = { ...base };
+            const cur = n[prevType] ?? 0;
+            n[prevType] = Math.max(0, cur - 1);
+            return { ...p, [selectedKey]: n };
+          });
+        }
+        if (nextType) {
+          setCountsByDate((p) => {
+            const base = p[selectedKey] ?? initialCounts;
+            const n = { ...base };
+            const cur = n[nextType] ?? 0;
+            n[nextType] = Math.max(0, cur + 1);
+            return { ...p, [selectedKey]: n };
+          });
+        }
+      }
     },
-    [hasEntry, selectedKey, togglesByDate],
+    [
+      hasEntry,
+      hasServerIds,
+      currentSelectedType,
+      emotionIdByType,
+      selectedKey,
+      initialCounts,
+      qc,
+      y,
+      m,
+      d,
+    ],
   );
 
+  const privacyMutation = useMutation({
+    mutationFn: (vars: { id: number; next: 'PUBLIC' | 'PRIVACY' }) =>
+      updateDiaryPrivacy(vars.id, vars.next),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: diariesQueries.byDate(y, m, d).queryKey,
+      });
+      qc.invalidateQueries({
+        queryKey: diariesQueries.monthDates(y, m).queryKey,
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => diariesApi.remove(id),
+    onMutate: async (_id: number) => {
+      await qc.cancelQueries({
+        queryKey: diariesQueries.byDate(y, m, d).queryKey,
+      });
+      const prev = qc.getQueryData(diariesQueries.byDate(y, m, d).queryKey);
+      qc.setQueryData(diariesQueries.byDate(y, m, d).queryKey, (p: unknown) => {
+        const obj = p as { data?: unknown } | undefined;
+        return obj ? { ...obj, data: null } : { data: null };
+      });
+      return { prev };
+    },
+    onError: (_e, _id, ctx) => {
+      if (ctx?.prev) {
+        qc.setQueryData(diariesQueries.byDate(y, m, d).queryKey, ctx.prev);
+      }
+    },
+    onSuccess: async () => {
+      qc.invalidateQueries({
+        queryKey: diariesQueries.monthDates(y, m).queryKey,
+      });
+      void diariesApi.byDate({ year: y, month: m, day: d }).catch(() => undefined);
+    },
+    onSettled: () => {
+      deleteSheet.close();
+    },
+  });
+
+  const onTogglePrivacy = () => {
+    if (!entryId || !entryData?.privacySetting) return;
+    const next = entryData.privacySetting === 'PUBLIC' ? 'PRIVACY' : 'PUBLIC';
+    privacyMutation.mutate({ id: entryId, next });
+  };
+
+  const onConfirmDelete = () => {
+    if (!entryId) return;
+    deleteMutation.mutate(entryId);
+  };
+
   return (
-    <div className="flex-col gap-[3rem] px-[2.4rem] pt-[2.2rem] pb-[17rem]">
-      <TipInfo
-        title="나의 감정 일기 기록 이용 TIP"
-        text="아래 날짜를 클릭하면 당시 기록한 감정 일기를 볼 수 있어요"
-      />
-
-      <div className="flex-col gap-[1.5rem]">
-        <h1 className="heading1-700">월별 기록</h1>
-        <section>
-          <Calendar value={selected} onChange={setSelected} marked={marked} />
-        </section>
-      </div>
-
-      <div className="pt-[0.8rem]">
-        <DiaryCard
-          title={entry?.title}
-          content={entry?.content}
-          emotions={entry?.emotions ?? []}
-          date={selected}
-          onClickButton={onCardAction}
+    <>
+      <div className="flex-col gap-[3rem] px-[2.4rem] pt-[2.2rem] pb-[17rem]">
+        <TipInfo
+          title="나의 감정 일기 기록 이용 TIP"
+          text="아래 날짜를 클릭하면 당시 기록한 감정 일기를 볼 수 있어요"
         />
 
-        {/*일기 있는 날짜에만 From.마몬 카드 표시 */}
-        {hasEntry && entry && (
-          <DiaryMammonCard
-            title={entry.title}
-            content={entry.content}
-            date={selected}
-            counts={counts}
-            myToggles={myToggles}
-            onToggle={handleToggle}
-            className="mt-[1.2rem]"
-          />
-        )}
+        <div className="flex-col gap-[1.5rem]">
+          <h1 className="heading1-700">월별 기록</h1>
+          <section className="flex-col gap-[2rem]">
+            <Calendar
+              value={selected}
+              onChange={setSelected}
+              marked={marked}
+              onMonthChange={setView}
+            />
+
+            <DiaryCard
+              title={entryData?.title}
+              content={entryData?.content}
+              emotions={entryEmotions}
+              date={selected}
+              onClickButton={onCardAction}
+              privacySetting={entryData?.privacySetting as 'PUBLIC' | 'PRIVACY' | undefined}
+              onTogglePrivacy={onTogglePrivacy}
+            />
+
+            {hasEntry && entryData && (
+              <DiaryMammonCard
+                title={entryData.feedbackTitle ?? entryData.title}
+                content={entryData.feedbackContent ?? entryData.content}
+                date={selected}
+                counts={counts}
+                order={entryEmotions as EmotionId[]}
+                myToggles={myToggles}
+                onToggle={handleToggle}
+              />
+            )}
+          </section>
+        </div>
       </div>
-    </div>
+
+      <DeleteConfirmSheet
+        isOpen={deleteSheet.isOpen}
+        onClose={deleteSheet.close}
+        onConfirm={onConfirmDelete}
+        confirmDisabled={!entryId || deleteMutation.isPending}
+      />
+    </>
   );
 }

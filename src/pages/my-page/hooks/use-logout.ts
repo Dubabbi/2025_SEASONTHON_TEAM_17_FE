@@ -8,10 +8,8 @@ import { useNavigate } from 'react-router-dom';
 export const LOGOUT_BROADCAST_KEY = '__maeum:logout__';
 
 const clearTokens = () => {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-  sessionStorage.removeItem('accessToken');
-  sessionStorage.removeItem('refreshToken');
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
 };
 
 export default function useLogout() {
