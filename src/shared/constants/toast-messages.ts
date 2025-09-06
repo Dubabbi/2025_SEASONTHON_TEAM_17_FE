@@ -7,6 +7,9 @@ export const TOAST_MSG = {
     ENABLE_FAIL: '푸시 알림을 활성화하지 못했어요. 잠시 후 다시 시도해 주세요.',
     DISABLE_SUCCESS: '푸시 알림을 껐어요.',
   },
+  AUTH: {
+    LOGOUT_SUCCESS: '로그아웃을 완료했어요.',
+  },
 } as const;
 
 export type ToastMsgKey =
@@ -15,4 +18,5 @@ export type ToastMsgKey =
   | 'PUSH.ENABLE_SUCCESS'
   | 'PUSH.ENABLE_DENIED'
   | 'PUSH.ENABLE_FAIL'
-  | 'PUSH.DISABLE_SUCCESS';
+  | 'PUSH.DISABLE_SUCCESS'
+  | 'AUTH.LOGOUT_SUCCESS';

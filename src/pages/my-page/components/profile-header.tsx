@@ -24,7 +24,7 @@ export default function ProfileHeader({ name, avatarSrc, className }: ProfileHea
         <span
           className={cn(
             'detail rounded-[4px] bg-kakao-bgd text-kakao-text',
-            'select-none px-[0.8rem] py-[0.4rem]',
+            'select-none px-[0.8rem] py-[0.4rem] text-center',
           )}
         >
           카카오 로그인
