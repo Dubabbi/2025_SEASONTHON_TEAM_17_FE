@@ -33,6 +33,9 @@ export const ENDPOINTS = {
     searchReceived: '/api/v1/friends/search/received',
     searchMy: '/api/v1/friends/search/my-friends',
   },
+  members: {
+    mypage: '/api/v1/members/mypage',
+  },
   test: {
     verify: '/api/v1/test/verify',
     token: '/api/v1/test/token',

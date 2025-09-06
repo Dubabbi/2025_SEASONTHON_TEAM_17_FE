@@ -31,7 +31,7 @@ export default function ToggleSwitch({
       className={cn(
         'relative inline-flex h-[2.6rem] w-[4.8rem] shrink-0 rounded-full outline-[0.15rem] outline-primary-600 transition-colors',
         checked ? 'bg-primary-600' : 'bg-gray-50',
-        loading ? 'cursor-progress' : 'cursor-pointer',
+        loading ? 'cursor-wait' : 'cursor-pointer',
         className,
       )}
     >

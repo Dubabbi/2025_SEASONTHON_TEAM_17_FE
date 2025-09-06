@@ -1,23 +1,40 @@
 import { cn } from '@libs/cn';
 import FriendsListItem, { type Friend } from './friends-list-item';
 
-type Variant = 'list' | 'sent' | 'received';
-
 type Props = {
   items: Friend[];
-  variant: Variant;
+  variant: 'list' | 'sent' | 'received';
+  onOpen?: (email: string) => void;
+  onCancel?: (email: string) => void;
+  onAccept?: (email: string) => void;
+  onReject?: (email: string) => void;
+  onRequest?: (email: string) => void;
   className?: string;
-  onOpen?: (id: string) => void;
-  onCancel?: (id: string) => void;
-  onAccept?: (id: string) => void;
-  onReject?: (id: string) => void;
 };
 
-export default function FriendsList({ items, variant, className, ...handlers }: Props) {
+export default function FriendsList({
+  items,
+  variant,
+  onOpen,
+  onCancel,
+  onAccept,
+  onReject,
+  onRequest,
+  className,
+}: Props) {
   return (
-    <ul className={cn('w-full space-y-[1.2rem]', className)}>
+    <ul className={cn('w-full flex-col gap-[1.2rem]', className)}>
       {items.map((it) => (
-        <FriendsListItem key={it.id} item={it} variant={variant} {...handlers} />
+        <FriendsListItem
+          key={it.email}
+          item={it}
+          variant={variant}
+          onOpen={onOpen}
+          onCancel={onCancel}
+          onAccept={onAccept}
+          onReject={onReject}
+          onRequest={onRequest}
+        />
       ))}
     </ul>
   );

@@ -54,7 +54,7 @@ export default function NavigationBar() {
             <span className={`${isActive ? 'text-primary-600' : 'text-gray-600'}`}>
               {menu.icon}
             </span>
-            <span className={`ct4 ${isActive ? 'text-primary-600' : 'text-gray-600'}`}>
+            <span className={`detail ${isActive ? 'text-primary-600' : 'text-gray-600'}`}>
               {menu.title}
             </span>
           </Link>

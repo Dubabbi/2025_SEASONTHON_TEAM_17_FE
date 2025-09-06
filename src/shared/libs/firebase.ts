@@ -35,7 +35,7 @@ let _app: FirebaseApp | null = null;
 export function getFirebaseApp(): FirebaseApp | null {
   if (_app) return _app;
   const cfg = readFirebaseOptions();
-  if (!cfg) return null; // env 미설정이면 앱을 만들지 않도록
+  if (!cfg) return null;
   _app = getApps().length ? getApp() : initializeApp(cfg);
   return _app;
 }
