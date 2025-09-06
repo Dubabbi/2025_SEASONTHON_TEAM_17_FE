@@ -78,7 +78,7 @@ export default function FriendsListItem({
             </>
           )}
 
-          {variant === 'list' && !isFriend && !isRequested && (
+          {variant === 'list' && !isFriend && (
             <>
               <Button
                 className="body1-500 rounded-[8px] bg-primary-500 px-[2.6rem] py-[0.6rem] text-gray-50 max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
@@ -94,7 +94,6 @@ export default function FriendsListItem({
               </Button>
             </>
           )}
-
           {variant === 'sent' && (
             <>
               <span className="body1-500 cursor-default whitespace-nowrap rounded-[8px] bg-gray-100 px-[4.1rem] py-[0.6rem] text-gray-500 outline outline-gray-500 outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]">
