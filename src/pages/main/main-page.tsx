@@ -1,4 +1,3 @@
-import EmotionCard from '@components/card/emotion-card';
 import TipInfo from '@components/tipinfo';
 import { MOCK_USER } from '@mocks/user';
 import EmotionStatsSection from '@pages/main/components/emotion-stats-section';
@@ -19,14 +18,6 @@ export default function MainPage() {
 
       <section className="flex-col px-[2rem] pt-[2rem]">
         <TipInfo title="최근 감정 일기 기록" text={formattedDate} className="py-[2rem]" />
-        <div className="py-[2rem]">
-          <EmotionCard
-            selected={selectedChips}
-            onChange={setSelectedChips}
-            onClickCheck={() => {}}
-            onClickClose={() => setSelectedChips([])}
-          />
-        </div>
       </section>
 
       <EmotionStatsSection

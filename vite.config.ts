@@ -13,7 +13,13 @@ export default defineConfig({
     svgr(),
     VitePWA({
       registerType: 'autoUpdate',
-      workbox: { globIgnores: ['**/divider-*.js'] },
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        globIgnores: ['**/assets/divider-*.js'],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+      },
       injectRegister: 'auto',
       devOptions: { enabled: true },
       manifest: {

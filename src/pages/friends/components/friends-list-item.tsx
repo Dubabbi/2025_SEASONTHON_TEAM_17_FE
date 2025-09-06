@@ -1,13 +1,13 @@
 import DefaultProfile from '@assets/icons/3d-hand.svg';
 import Button from '@components/button/button';
 import { cn } from '@libs/cn';
-import { useNavigate } from 'react-router-dom';
 
 export type Friend = {
   id: string;
   name: string;
   email: string;
-  avatarUrl?: string | null;
+  profileImageUrl?: string | null;
+  cursorId?: number | null;
 };
 
 type Variant = 'list' | 'sent' | 'received';
@@ -31,8 +31,6 @@ export default function FriendsListItem({
   onAccept,
   onReject,
 }: Props) {
-  const nav = useNavigate();
-
   return (
     <li
       className={cn(
@@ -42,23 +40,25 @@ export default function FriendsListItem({
     >
       <div className="h-[8rem] w-[8rem] overflow-hidden rounded-[8px] outline outline-primary-300 outline-offset-[-1px]">
         <img
-          src={item.avatarUrl || DefaultProfile}
+          src={item.profileImageUrl || DefaultProfile}
           alt=""
           className="h-full w-full object-cover"
           decoding="async"
         />
       </div>
+
       <div className="flex-col gap-[0.7rem]">
         <div className="flex gap-[1rem]">
           <div className="heading3-700 text-primary-500">{item.name}</div>
           <div className="body1-500 text-gray-500">{item.email}</div>
         </div>
-        <div className={cn('flex flex-row-center shrink-0 gap-[1.7rem]')}>
+
+        <div className={cn('flex-row-center shrink-0 gap-[1.7rem]')}>
           {variant === 'list' && (
             <>
               <Button
                 className="body1-500 rounded-[8px] bg-primary-500 px-[2.6rem] py-[0.6rem] text-gray-50 max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
-                onClick={() => (onOpen ? onOpen(item.id) : nav(`/friends/${item.id}`))}
+                onClick={() => onOpen?.(item.id)}
               >
                 보러 가기
               </Button>
@@ -73,9 +73,9 @@ export default function FriendsListItem({
 
           {variant === 'sent' && (
             <>
-              <Button className="body1-500 cursor-default rounded-[8px] bg-gray-100 px-[4.1rem] py-[0.6rem] text-gray-500 outline outline-gray-500 outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]">
+              <span className="body1-500 cursor-default rounded-[8px] bg-gray-100 px-[4.1rem] py-[0.6rem] text-gray-500 outline outline-gray-500 outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]">
                 대기
-              </Button>
+              </span>
               <Button
                 className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px] max-[360px]:w-full max-[360px]:px-[1.2rem]"
                 onClick={() => onCancel?.(item.id)}
