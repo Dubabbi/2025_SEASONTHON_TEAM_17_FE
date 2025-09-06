@@ -1,6 +1,7 @@
 import Button from '@components/button/button';
 import Divider from '@components/divider';
 import { cn } from '@libs/cn';
+import ToggleSwitch from '@pages/my-page/components/toggle-switch';
 import dayjs from 'dayjs';
 
 interface DiaryCardProps {
@@ -8,8 +9,10 @@ interface DiaryCardProps {
   content?: string;
   emotions?: string[];
   date?: Date;
-  onClickButton?: (type: '작성하기' | '수정하기') => void;
+  onClickButton?: (type: '작성하기' | '삭제하기') => void;
   className?: string;
+  privacySetting?: 'PUBLIC' | 'PRIVACY';
+  onTogglePrivacy?: (next: 'PUBLIC' | 'PRIVACY') => void;
 }
 
 const DiaryCard = ({
@@ -19,9 +22,16 @@ const DiaryCard = ({
   date,
   className = 'bg-gray-50',
   onClickButton,
+  privacySetting,
+  onTogglePrivacy,
 }: DiaryCardProps) => {
   const isEmpty = !title && !content && emotions?.length === 0;
-  const type = isEmpty ? '작성하기' : '수정하기';
+  const type = isEmpty ? '작성하기' : '삭제하기';
+
+  const isPrivate = privacySetting === 'PRIVACY';
+  const handleToggleClick = () => {
+    onTogglePrivacy?.(isPrivate ? 'PUBLIC' : 'PRIVACY');
+  };
 
   return (
     <div
@@ -31,15 +41,40 @@ const DiaryCard = ({
       )}
     >
       {!isEmpty && (
-        <>
-          <p className="heading3-500">{title}</p>
-          <p className="body2-500 min-h-[7.2rem] break-words">{content}</p>
-        </>
+        <div className="flex items-start justify-between gap-[1.2rem]">
+          <div className="min-w-0 flex-1">
+            <p className="heading3-500">{title}</p>
+            <p className="body2-500 h-[7.2rem] break-words">{content}</p>
+          </div>
+
+          {privacySetting && (
+            <div className="flex shrink-0 select-none items-center gap-[0.6rem]">
+              <button
+                type="button"
+                className="sub-body-700 text-primary-800"
+                onClick={handleToggleClick}
+                aria-controls="privacy-switch"
+                aria-pressed={isPrivate}
+              >
+                {isPrivate ? '비공개' : '공개'}
+              </button>
+
+              <ToggleSwitch
+                id="privacy-switch"
+                checked={isPrivate}
+                onChange={(next: boolean) => onTogglePrivacy?.(next ? 'PRIVACY' : 'PUBLIC')}
+              />
+            </div>
+          )}
+        </div>
       )}
+
       {isEmpty && (
         <p className="body1-500 text-gray-900">해당 날짜에는 감정 일기 기록이 없어요😢</p>
       )}
+
       <Divider />
+
       <div className="flex-row-between">
         <p className="detail text-gray-400">{dayjs(date).format('YYYY.MM.DD')}</p>
         <Button

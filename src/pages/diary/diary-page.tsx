@@ -1,3 +1,4 @@
+import { updateDiaryPrivacy } from '@apis/diaries/diaries';
 import { diariesQueries } from '@apis/diaries/diaries-queries';
 import Button from '@components/button/button';
 import Calendar from '@components/calendar/calendar';
@@ -5,16 +6,22 @@ import DiaryCard from '@components/card/diary-card';
 import DiaryMammonCard from '@components/card/diary-mammon-card';
 import type { EmotionId, ReactionCounts } from '@components/reaction/reaction-bar-chips-lite';
 import Banner from '@pages/diary/components/banner';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export type DiaryEntry = {
+  id?: number;
   title: string;
   content: string;
   emotions: string[];
+  privacySetting?: 'PUBLIC' | 'PRIVACY';
+  feedbackTitle?: string;
+  feedbackContent?: string;
 };
+
+type EmotionRaw = string | { type: string };
 
 type DiaryCreateState =
   | { mode: 'create'; date: string }
@@ -24,6 +31,7 @@ export default function DiaryPage() {
   const [selected, setSelected] = useState(new Date());
   const [view, setView] = useState<Date>(selected);
   const navigate = useNavigate();
+  const qc = useQueryClient();
 
   const selectedKey = useMemo(() => dayjs(selected).format('YYYY-MM-DD'), [selected]);
   const y = useMemo(() => dayjs(view).year(), [view]);
@@ -40,11 +48,15 @@ export default function DiaryPage() {
   );
 
   const { data: entryRes } = useQuery(diariesQueries.byDate(y, m, d));
-  const entryData = entryRes?.data;
-  const hasEntry = !!(
-    entryData &&
-    (entryData.title || entryData.content || entryData.emotions?.length)
-  );
+  const entryData = entryRes?.data as DiaryEntry | undefined;
+
+  const entryEmotions = useMemo<string[]>(() => {
+    const raw = entryData?.emotions as unknown;
+    if (!Array.isArray(raw)) return [];
+    return (raw as EmotionRaw[]).map((e) => (typeof e === 'string' ? e : e.type));
+  }, [entryData]);
+
+  const hasEntry = !!(entryData && (entryData.title || entryData.content || entryEmotions.length));
 
   const goRecord = () => navigate('/diary/record');
 
@@ -61,7 +73,8 @@ export default function DiaryPage() {
       entry: {
         title: entryData.title,
         content: entryData.content,
-        emotions: (entryData.emotions ?? []).map((e) => e.type),
+        emotions: entryEmotions,
+        privacySetting: entryData.privacySetting,
       },
     };
     navigate('/diary/create', { state });
@@ -104,6 +117,20 @@ export default function DiaryPage() {
     [hasEntry, selectedKey, togglesByDate],
   );
 
+  const privacyMutation = useMutation({
+    mutationFn: (vars: { id: number; next: 'PUBLIC' | 'PRIVACY' }) =>
+      updateDiaryPrivacy(vars.id, vars.next),
+    onSuccess: () => {
+      qc.invalidateQueries();
+    },
+  });
+
+  const onTogglePrivacy = () => {
+    if (!entryData?.id || !entryData?.privacySetting) return;
+    const next = entryData.privacySetting === 'PUBLIC' ? 'PRIVACY' : 'PUBLIC';
+    privacyMutation.mutate({ id: entryData.id, next });
+  };
+
   return (
     <div className="min-h-dvh w-full flex-col bg-cover bg-gradient-bgd1 bg-no-repeat pb-[17rem]">
       <Banner gradientClass="bg-gradient-bgd3" />
@@ -132,16 +159,17 @@ export default function DiaryPage() {
           <DiaryCard
             title={entryData?.title}
             content={entryData?.content}
-            emotions={(entryData?.emotions ?? []).map((e) => e.type)}
+            emotions={entryEmotions}
             date={selected}
             onClickButton={handleCardAction}
+            privacySetting={entryData?.privacySetting as 'PUBLIC' | 'PRIVACY' | undefined}
+            onTogglePrivacy={onTogglePrivacy}
           />
 
-          {/*  일기 있는 날짜에만 From.마몬 카드 노출 */}
           {hasEntry && entryData && (
             <DiaryMammonCard
-              title={entryData.title}
-              content={entryData.content}
+              title={entryData.feedbackTitle ?? entryData.title}
+              content={entryData.feedbackContent ?? entryData.content}
               date={selected}
               counts={counts}
               myToggles={myToggles}
