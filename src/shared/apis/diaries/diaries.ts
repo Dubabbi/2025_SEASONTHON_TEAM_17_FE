@@ -19,6 +19,7 @@ export type DiariesListRes = Rsp<{
   diaries: DiarySummary[];
   pageInfo: PageInfo;
 }>;
+
 export type DiaryDetailRes = Rsp<{
   diaryId: number;
   title: string;
@@ -78,12 +79,11 @@ export const diariesApi = {
 
   byDate: (params: { year: number; month: number; day: number }) =>
     http.get<DiaryDetailRes>(ENDPOINTS.diaries.date, {
-      params: {
-        year: params.year,
-        month: params.month,
-        day: params.day,
-      },
+      params: { year: params.year, month: params.month, day: params.day },
     }),
+
+  likeEmotion: (emotionId: number) =>
+    http.post<Rsp<'liked' | 'unliked'>>(ENDPOINTS.emotions.like(emotionId), {}),
 };
 
 export const updateDiaryPrivacy = (diaryId: number, privacySetting: 'PUBLIC' | 'PRIVACY') =>
