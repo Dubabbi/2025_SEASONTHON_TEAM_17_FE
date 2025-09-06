@@ -1,3 +1,4 @@
+// src/pages/diary/diary-page.tsx
 import { diariesQueries } from '@apis/diaries/diaries-queries';
 import Button from '@components/button/button';
 import Calendar from '@components/calendar/calendar';
@@ -15,6 +16,8 @@ export type DiaryEntry = {
   content: string;
   emotions: string[];
 };
+
+type EmotionRaw = string | { type: string };
 
 type DiaryCreateState =
   | { mode: 'create'; date: string }
@@ -41,10 +44,14 @@ export default function DiaryPage() {
 
   const { data: entryRes } = useQuery(diariesQueries.byDate(y, m, d));
   const entryData = entryRes?.data;
-  const hasEntry = !!(
-    entryData &&
-    (entryData.title || entryData.content || entryData.emotions?.length)
-  );
+
+  const entryEmotions = useMemo<string[]>(() => {
+    const raw = entryData?.emotions as unknown;
+    if (!Array.isArray(raw)) return [];
+    return (raw as EmotionRaw[]).map((e) => (typeof e === 'string' ? e : e.type));
+  }, [entryData]);
+
+  const hasEntry = !!(entryData && (entryData.title || entryData.content || entryEmotions.length));
 
   const goRecord = () => navigate('/diary/record');
 
@@ -61,7 +68,7 @@ export default function DiaryPage() {
       entry: {
         title: entryData.title,
         content: entryData.content,
-        emotions: (entryData.emotions ?? []).map((e) => e.type),
+        emotions: entryEmotions,
       },
     };
     navigate('/diary/create', { state });
@@ -132,16 +139,17 @@ export default function DiaryPage() {
           <DiaryCard
             title={entryData?.title}
             content={entryData?.content}
-            emotions={(entryData?.emotions ?? []).map((e) => e.type)}
+            emotions={entryEmotions}
             date={selected}
             onClickButton={handleCardAction}
+            privacySetting={entryData?.privacySetting as 'PUBLIC' | 'PRIVACY' | undefined}
+            onTogglePrivacy={undefined}
           />
 
-          {/*  일기 있는 날짜에만 From.마몬 카드 노출 */}
           {hasEntry && entryData && (
             <DiaryMammonCard
-              title={entryData.title}
-              content={entryData.content}
+              title={entryData.feedbackTitle ?? entryData.title}
+              content={entryData.feedbackContent ?? entryData.content}
               date={selected}
               counts={counts}
               myToggles={myToggles}

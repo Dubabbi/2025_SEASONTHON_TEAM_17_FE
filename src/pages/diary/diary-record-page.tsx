@@ -25,6 +25,8 @@ const DEFAULT_COUNTS: ReactionCounts = {
   SURPRISE: 0,
 };
 
+type EmotionRaw = string | { type: string };
+
 export default function DiaryRecordPage() {
   const [selected, setSelected] = useState(new Date());
   const [view, setView] = useState<Date>(selected);
@@ -46,28 +48,21 @@ export default function DiaryRecordPage() {
 
   const { data: entryRes } = useQuery(diariesQueries.byDate(y, m, d));
   const entryData = entryRes?.data;
-  const hasEntry = !!(
-    entryData &&
-    (entryData.title || entryData.content || entryData.emotions?.length)
-  );
 
-  const onCardAction = (type: '작성하기' | '수정하기') => {
+  const entryEmotions = useMemo<string[]>(() => {
+    const raw = entryData?.emotions as unknown;
+    if (!Array.isArray(raw)) return [];
+    return (raw as EmotionRaw[]).map((e) => (typeof e === 'string' ? e : e.type));
+  }, [entryData]);
+
+  const hasEntry = !!(entryData && (entryData.title || entryData.content || entryEmotions.length));
+
+  const onCardAction = (type: '작성하기' | '삭제하기') => {
     if (type === '작성하기') {
       const state: DiaryCreateState = { mode: 'create', date: selectedKey };
       navigate('/diary/create', { state });
       return;
     }
-    if (!entryData) return;
-    const state: DiaryCreateState = {
-      mode: 'edit',
-      date: selectedKey,
-      entry: {
-        title: entryData.title,
-        content: entryData.content,
-        emotions: (entryData.emotions ?? []).map((e) => e.type),
-      },
-    };
-    navigate('/diary/create', { state });
   };
 
   const [countsByDate, setCountsByDate] = useState<Record<string, ReactionCounts>>({});
@@ -78,11 +73,9 @@ export default function DiaryRecordPage() {
     ? (togglesByDate[selectedKey] ?? new Set<EmotionId>())
     : new Set<EmotionId>();
 
-  // 동일 칩 재클릭 시 −1, 아니면 +1
   const handleToggle = useCallback(
     (id: EmotionId) => {
       if (!hasEntry) return;
-
       setCountsByDate((prev) => {
         const base = prev[selectedKey] ?? DEFAULT_COUNTS;
         const next = { ...base };
@@ -90,7 +83,6 @@ export default function DiaryRecordPage() {
         next[id] = Math.max(0, (next[id] ?? 0) + (pressed ? -1 : +1));
         return { ...prev, [selectedKey]: next };
       });
-
       setTogglesByDate((prev) => {
         const set = new Set<EmotionId>(prev[selectedKey] ?? []);
         if (set.has(id)) set.delete(id);
@@ -124,16 +116,17 @@ export default function DiaryRecordPage() {
         <DiaryCard
           title={entryData?.title}
           content={entryData?.content}
-          emotions={(entryData?.emotions ?? []).map((e) => e.type)}
+          emotions={entryEmotions}
           date={selected}
           onClickButton={onCardAction}
+          privacySetting={entryData?.privacySetting as 'PUBLIC' | 'PRIVACY' | undefined}
+          onTogglePrivacy={undefined}
         />
 
-        {/*일기 있는 날짜에만 From.마몬 카드 표시 */}
         {hasEntry && entryData && (
           <DiaryMammonCard
-            title={entryData.title}
-            content={entryData.content}
+            title={entryData.feedbackTitle ?? entryData.title}
+            content={entryData.feedbackContent ?? entryData.content}
             date={selected}
             counts={counts}
             myToggles={myToggles}
