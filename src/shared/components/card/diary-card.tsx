@@ -33,7 +33,7 @@ const DiaryCard = ({
       {!isEmpty && (
         <>
           <p className="heading3-500">{title}</p>
-          <p className="body2-500 h-[7.2rem] break-words">{content}</p>
+          <p className="body2-500 min-h-[7.2rem] break-words">{content}</p>
         </>
       )}
       {isEmpty && (
