@@ -23,17 +23,11 @@ export const diariesQueries = {
 
   today: () => buildQuery(QK.diaries.today(), () => diariesApi.today()),
 
-  // GET /api/v1/diaries/month?year={y}&month={m}
+  // /api/v1/diaries/month?year={y}&month={m}
   monthDates: (y: number, m: number) =>
-    buildQuery(
-      QK.diaries.month(y, m),
-      () => diariesApi.monthDates({ year: y, month: m }),
-      { staleTime: 5 * 60_000 }, // 월 단위 데이터라 조금 길게 캐시
-    ),
+    buildQuery(QK.diaries.month(y, m), () => diariesApi.monthDates({ year: y, month: m })),
 
-  // GET /api/v1/diaries/date?date=YYYY-MM-DD
+  // /api/v1/diaries/date?year={y}&month={m}&day={d}
   byDate: (y: number, m: number, d: number) =>
-    buildQuery(QK.diaries.date(y, m, d), () => diariesApi.byDate({ year: y, month: m, day: d }), {
-      staleTime: 30_000,
-    }),
+    buildQuery(QK.diaries.date(y, m, d), () => diariesApi.byDate({ year: y, month: m, day: d })),
 };
