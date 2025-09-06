@@ -1,4 +1,6 @@
 import { authQueries } from '@apis/auth/auth-queries';
+import { QK } from '@apis/constants/keys';
+import { membersApi } from '@apis/members/members';
 import { membersQueries } from '@apis/members/members-queries';
 import defaultProfile from '@assets/icons/3d-hand.svg';
 import LeaveConfirmSheet from '@components/bottom-sheet/leave-confirm-sheet';
@@ -17,7 +19,7 @@ import SettingRow from '@pages/my-page/components/setting-row';
 import useLogout from '@pages/my-page/hooks/use-logout';
 import { syncFcmWithServer, unsyncFcmFromServer } from '@pages/my-page/utils/fcm-sync';
 import { fileToDataUrl, getMissingFcmEnvKeys } from '@pages/my-page/utils/file-to-data';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -73,7 +75,18 @@ export default function ProfilePage() {
   const { showToast } = useToast?.() ?? {
     showToast: (msg: string) => alert(msg),
   };
+  const qc = useQueryClient();
 
+  const nicknameMut = useMutation({
+    mutationFn: (name: string) => membersApi.updateNickname(name),
+    onSuccess: async (res) => {
+      const serverName = res?.data?.nickname ?? '';
+      if (serverName) setNickname(serverName);
+      await qc.invalidateQueries({ queryKey: QK.members.mypage() });
+      showToast('닉네임이 변경되었어요.');
+    },
+    onError: () => showToast('닉네임 변경에 실패했어요. 다시 시도해 주세요.'),
+  });
   const handleTogglePush = async (next: boolean) => {
     if (pushToggling) return;
     setPushToggling(true);
@@ -186,9 +199,21 @@ export default function ProfilePage() {
       <NicknameChangeSheet
         isOpen={nicknameSheet.isOpen}
         onClose={nicknameSheet.close}
-        onSubmit={(name) => {
-          setNickname(name);
-          nicknameSheet.close();
+        onSubmit={async (name) => {
+          const next = name.trim();
+          if (!next || next === nickname) {
+            nicknameSheet.close();
+            return;
+          }
+          const prev = nickname;
+          setNickname(next);
+          try {
+            await nicknameMut.mutateAsync(next);
+          } catch {
+            setNickname(prev);
+          } finally {
+            nicknameSheet.close();
+          }
         }}
       />
 
