@@ -19,6 +19,7 @@ export const ENDPOINTS = {
   },
   emotions: {
     like: (emotionId: number | string) => `/api/v1/emotions/${emotionId}/like`,
+    report: '/api/v1/emotion-analysis/emotions/report',
   },
   friends: {
     root: '/api/v1/friends',
