@@ -6,12 +6,14 @@ type InquiryAlertsSectionProps = {
   pushEnabled: boolean;
   onTogglePush: (next: boolean) => void;
   onOpenTerms: () => void;
+  busy?: boolean;
 };
 
 export default function InquiryAlertsSection({
   pushEnabled,
   onTogglePush,
   onOpenTerms,
+  busy = false,
 }: InquiryAlertsSectionProps) {
   return (
     <section>
@@ -19,7 +21,15 @@ export default function InquiryAlertsSection({
 
       <SettingRow
         label="푸시 알림 활성화/비활성화"
-        right={<ToggleSwitch checked={pushEnabled} onChange={onTogglePush} label="푸시 알림" />}
+        right={
+          <ToggleSwitch
+            checked={pushEnabled}
+            onChange={onTogglePush}
+            label="푸시 알림"
+            disabled={busy}
+            loading={busy}
+          />
+        }
       />
 
       <SettingRow
