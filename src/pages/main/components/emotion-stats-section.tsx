@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 
 export default function EmotionStatsSection({ className }: { className?: string }) {
-  const [tab, setTab] = useState<'curr' | 'prev'>('prev');
+  const [tab, setTab] = useState<'prev' | 'curr'>('prev');
 
   const q = useQuery({ ...emotionQueries.report() });
   const items = q.data ?? [];
