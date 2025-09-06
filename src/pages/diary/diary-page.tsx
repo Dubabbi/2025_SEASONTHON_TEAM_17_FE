@@ -68,7 +68,11 @@ export default function DiaryPage() {
         if (typeof e === 'string') return { id: undefined, type: e as EmotionId, likeCount: 0 };
         const t = typeof e.type === 'string' ? (e.type as EmotionId) : undefined;
         if (!t) return null;
-        return { id: e.emotionId, type: t, likeCount: Number(e.likeCount ?? 0) };
+        return {
+          id: e.emotionId,
+          type: t,
+          likeCount: Number(e.likeCount ?? 0),
+        };
       })
       .filter((v): v is EmotionDTO => v !== null);
   }, [entryData?.emotions]);
@@ -199,7 +203,9 @@ export default function DiaryPage() {
           if (nextId) emotionLikeStore.setLiked(nextId, nextLiked);
           setCountsByDate((p) => ({ ...p, [selectedKey]: initialCounts }));
         } finally {
-          qc.invalidateQueries({ queryKey: diariesQueries.byDate(y, m, d).queryKey });
+          qc.invalidateQueries({
+            queryKey: diariesQueries.byDate(y, m, d).queryKey,
+          });
         }
       } else {
         setTogglesByDate((prev) => {
@@ -258,7 +264,9 @@ export default function DiaryPage() {
     mutationFn: (id: number) => diariesApi.remove(id),
 
     onMutate: async (_id: number) => {
-      await qc.cancelQueries({ queryKey: diariesQueries.byDate(y, m, d).queryKey });
+      await qc.cancelQueries({
+        queryKey: diariesQueries.byDate(y, m, d).queryKey,
+      });
 
       const prev = qc.getQueryData(diariesQueries.byDate(y, m, d).queryKey);
       qc.setQueryData(diariesQueries.byDate(y, m, d).queryKey, (p: unknown) => {
@@ -271,10 +279,10 @@ export default function DiaryPage() {
       if (ctx?.prev) qc.setQueryData(diariesQueries.byDate(y, m, d).queryKey, ctx.prev);
     },
     onSuccess: async () => {
-
-      qc.invalidateQueries({ queryKey: diariesQueries.monthDates(y, m).queryKey });
+      qc.invalidateQueries({
+        queryKey: diariesQueries.monthDates(y, m).queryKey,
+      });
       void diariesApi.byDate({ year: y, month: m, day: d }).catch(() => undefined);
-
     },
     onSettled: () => {
       deleteSheet.close();
@@ -326,6 +334,7 @@ export default function DiaryPage() {
             />
 
             <DiaryCard
+              diaryId={entryData?.diaryId}
               title={entryData?.title}
               content={entryData?.content}
               emotions={entryEmotions}

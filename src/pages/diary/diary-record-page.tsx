@@ -28,15 +28,13 @@ export default function DiaryRecordPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  console.log('state', { ...state });
-
   const deleteSheet = useBottomSheet();
 
   useEffect(() => {
     const parsed =
-      typeof state.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(state)
-        ? dayjs(state.date).toDate()
-        : state.date;
+      typeof state?.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(state)
+        ? dayjs(state?.date).toDate()
+        : state?.date;
     setSelected(parsed);
   }, [state]);
 
@@ -77,7 +75,11 @@ export default function DiaryRecordPage() {
         if (typeof e === 'string') return { id: undefined, type: e as EmotionId, likeCount: 0 };
         const t = typeof e.type === 'string' ? (e.type as EmotionId) : undefined;
         if (!t) return null;
-        return { id: e.emotionId, type: t, likeCount: Number(e.likeCount ?? 0) };
+        return {
+          id: e.emotionId,
+          type: t,
+          likeCount: Number(e.likeCount ?? 0),
+        };
       })
       .filter((v): v is EmotionDTO => v !== null);
   }, [entryData?.emotions]);
@@ -206,7 +208,9 @@ export default function DiaryRecordPage() {
           if (nextId) emotionLikeStore.setLiked(nextId, nextLiked);
           setCountsByDate((p) => ({ ...p, [selectedKey]: initialCounts }));
         } finally {
-          qc.invalidateQueries({ queryKey: diariesQueries.byDate(y, m, d).queryKey });
+          qc.invalidateQueries({
+            queryKey: diariesQueries.byDate(y, m, d).queryKey,
+          });
         }
       } else {
         setTogglesByDate((prev) => {
@@ -320,14 +324,14 @@ export default function DiaryRecordPage() {
             />
 
             <DiaryCard
-  title={entryData?.title}
-  content={entryData?.content}
-  emotions={entryEmotions}
-  date={selected}
-  onClickButton={onCardAction}
-  privacySetting={entryData?.privacySetting as 'PUBLIC' | 'PRIVACY' | undefined}
-  onTogglePrivacy={onTogglePrivacy}
-/>
+              title={entryData?.title}
+              content={entryData?.content}
+              emotions={entryEmotions}
+              date={selected}
+              onClickButton={onCardAction}
+              privacySetting={entryData?.privacySetting as 'PUBLIC' | 'PRIVACY' | undefined}
+              onTogglePrivacy={onTogglePrivacy}
+            />
 
             {hasEntry && entryData && (
               <DiaryMammonCard
