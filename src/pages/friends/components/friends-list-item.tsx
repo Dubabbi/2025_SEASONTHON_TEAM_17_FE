@@ -47,7 +47,7 @@ export default function FriendsListItem({
         />
       </div>
 
-      <div className="flex-col gap-[0.7rem]">
+      <div className="flex-col items-start gap-[0.7rem]">
         <div className="flex gap-[1rem]">
           <div className="heading3-700 text-primary-500">{item.name}</div>
           <div className="body1-500 text-gray-500">{item.email}</div>

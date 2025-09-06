@@ -133,16 +133,22 @@ export default function FriendsPage() {
             { value: 'received', label: '요청받은 친구 목록' },
           ]}
           value={tab}
-          onChange={(v) => setTab(v as FriendsTab)}
+          onChange={(v) => {
+            const next = v as FriendsTab;
+            setTab(next);
+            if (searching) setKw('');
+          }}
           className="w-full"
         />
 
         <div className="w-full flex-row-between">
-          <span className="heading1-700">
-            {tab === 'list' && '내 친구 목록'}
-            {tab === 'sent' && '요청한 친구 목록'}
-            {tab === 'received' && '요청받은 친구 목록'}
-          </span>
+          {!searching && (
+            <span className="heading1-700">
+              {tab === 'list' && '내 친구 목록'}
+              {tab === 'sent' && '요청한 친구 목록'}
+              {tab === 'received' && '요청받은 친구 목록'}
+            </span>
+          )}
           {showAllButton && (
             <Button
               className={cn(
@@ -164,22 +170,29 @@ export default function FriendsPage() {
             </span>
           </div>
         ) : (
-          <FriendsList
-            items={previewItems}
-            variant={variantForView}
-            onOpen={(id) => nav(`/friends/${id}`)}
-            onCancel={
-              !searching && tab === 'list'
-                ? (email) => setConfirm({ type: 'friend', email })
-                : undefined
-            }
-            onAccept={
-              !searching && tab === 'received' ? (email) => acceptMut.mutate({ email }) : undefined
-            }
-            onReject={
-              !searching && tab === 'received' ? (email) => rejectMut.mutate({ email }) : undefined
-            }
-          />
+          <>
+            <FriendsList
+              items={previewItems}
+              variant={variantForView}
+              onOpen={(id) => nav(`/friends/${id}`)}
+              onCancel={
+                !searching && tab === 'list'
+                  ? (email) => setConfirm({ type: 'friend', email })
+                  : undefined
+              }
+              onAccept={
+                !searching && tab === 'received'
+                  ? (email) => acceptMut.mutate({ email })
+                  : undefined
+              }
+              onReject={
+                !searching && tab === 'received'
+                  ? (email) => rejectMut.mutate({ email })
+                  : undefined
+              }
+            />
+            {searching && <div ref={sentinelRef} className="h-[1px]" />}
+          </>
         )}
       </div>
 
