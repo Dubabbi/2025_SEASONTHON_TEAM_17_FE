@@ -1,9 +1,11 @@
+import { diariesQueries } from '@apis/diaries/diaries-queries';
 import Calendar from '@components/calendar/calendar';
 import DiaryCard from '@components/card/diary-card';
 import DiaryMammonCard from '@components/card/diary-mammon-card';
 import type { EmotionId, ReactionCounts } from '@components/reaction/reaction-bar-chips-lite';
 import TipInfo from '@components/tipinfo';
 import type { DiaryEntry } from '@pages/diary/diary-page';
+import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -11,44 +13,6 @@ import { useNavigate } from 'react-router-dom';
 type DiaryCreateState =
   | { mode: 'create'; date: string }
   | { mode: 'edit'; date: string; entry: DiaryEntry };
-
-const DIARY_ENTRIES: Record<string, DiaryEntry> = {
-  '2025-08-01': {
-    title: '오늘은...',
-    content: '맛있는 걸 먹어서 기분이 좋은 날이다.',
-    emotions: ['HAPPY'],
-  },
-  '2025-08-08': {
-    title: '집중의 하루',
-    content: '순공 시간 12시간 달성했다. 재미 없다,,',
-    emotions: ['SAD', 'ANGRY'],
-  },
-  '2025-08-09': {
-    title: '휴식',
-    content: '산책으로 머리 식혔다...',
-    emotions: ['SAD'],
-  },
-  '2025-08-15': {
-    title: '왠지 기분이 좋은 날',
-    content: '오랜만에 나들이',
-    emotions: ['EXCITE'],
-  },
-  '2025-08-27': {
-    title: '좋아하는 친구들을 만났다.',
-    content: '역시 친구들을 만나니까 기분이 좋은 것 같다.',
-    emotions: ['EXCITE'],
-  },
-  '2025-09-03': {
-    title: '행복',
-    content: '좋아하는 휘낭시에랑 마들렌을 잔뜩 먹었다!! 맛있으면 0칼로리;;',
-    emotions: ['HAPPY'],
-  },
-  '2025-09-14': {
-    title: '슬픈 영화를 봤다.',
-    content: '베일리 어게인 보고 내내 울었다...',
-    emotions: ['SAD'],
-  },
-};
 
 const keyOf = (d: Date) => dayjs(d).format('YYYY-MM-DD');
 
@@ -63,11 +27,29 @@ const DEFAULT_COUNTS: ReactionCounts = {
 
 export default function DiaryRecordPage() {
   const [selected, setSelected] = useState(new Date());
+  const [view, setView] = useState<Date>(selected);
   const navigate = useNavigate();
+
   const selectedKey = useMemo(() => keyOf(selected), [selected]);
-  const entry = DIARY_ENTRIES[selectedKey];
-  const hasEntry = !!(entry && (entry.title || entry.content || entry.emotions?.length));
-  const marked = useMemo(() => Object.keys(DIARY_ENTRIES), []);
+  const y = useMemo(() => dayjs(view).year(), [view]);
+  const m = useMemo(() => dayjs(view).month() + 1, [view]);
+  const d = useMemo(() => dayjs(selected).date(), [selected]);
+
+  const { data: monthRes } = useQuery(diariesQueries.monthDates(y, m));
+  const marked = useMemo(
+    () =>
+      (monthRes?.data ?? []).map(
+        (dayNum: number) => `${y}-${String(m).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`,
+      ),
+    [monthRes?.data, y, m],
+  );
+
+  const { data: entryRes } = useQuery(diariesQueries.byDate(y, m, d));
+  const entryData = entryRes?.data;
+  const hasEntry = !!(
+    entryData &&
+    (entryData.title || entryData.content || entryData.emotions?.length)
+  );
 
   const onCardAction = (type: '작성하기' | '수정하기') => {
     if (type === '작성하기') {
@@ -75,8 +57,16 @@ export default function DiaryRecordPage() {
       navigate('/diary/create', { state });
       return;
     }
-    if (!entry) return;
-    const state: DiaryCreateState = { mode: 'edit', date: selectedKey, entry };
+    if (!entryData) return;
+    const state: DiaryCreateState = {
+      mode: 'edit',
+      date: selectedKey,
+      entry: {
+        title: entryData.title,
+        content: entryData.content,
+        emotions: (entryData.emotions ?? []).map((e) => e.type),
+      },
+    };
     navigate('/diary/create', { state });
   };
 
@@ -121,24 +111,29 @@ export default function DiaryRecordPage() {
       <div className="flex-col gap-[1.5rem]">
         <h1 className="heading1-700">월별 기록</h1>
         <section>
-          <Calendar value={selected} onChange={setSelected} marked={marked} />
+          <Calendar
+            value={selected}
+            onChange={setSelected}
+            marked={marked}
+            onMonthChange={setView}
+          />
         </section>
       </div>
 
       <div className="pt-[0.8rem]">
         <DiaryCard
-          title={entry?.title}
-          content={entry?.content}
-          emotions={entry?.emotions ?? []}
+          title={entryData?.title}
+          content={entryData?.content}
+          emotions={(entryData?.emotions ?? []).map((e) => e.type)}
           date={selected}
           onClickButton={onCardAction}
         />
 
         {/*일기 있는 날짜에만 From.마몬 카드 표시 */}
-        {hasEntry && entry && (
+        {hasEntry && entryData && (
           <DiaryMammonCard
-            title={entry.title}
-            content={entry.content}
+            title={entryData.title}
+            content={entryData.content}
             date={selected}
             counts={counts}
             myToggles={myToggles}

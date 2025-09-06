@@ -28,6 +28,11 @@ export type DiaryDetailRes = Rsp<{
   emotions: { emotionId: number; type: string; likeCount: number }[];
 }>;
 
+// YYYY-MM-DD 포맷 유틸
+const pad2 = (n: number) => String(n).padStart(2, '0'); // api/v1/diaries/month?year={m}&month={n}
+const toDateParam = ({ year, month, day }: { year: number; month: number; day: number }) =>
+  `${year}-${pad2(month)}-${pad2(day)}`; // api/v1/diaries/month?year={m}&month={n}
+
 export const diariesApi = {
   list: (params: { email: string; cursor?: number | null; limit?: number }) =>
     http.get<DiariesListRes>(ENDPOINTS.diaries.root, { params }),
@@ -55,5 +60,7 @@ export const diariesApi = {
   monthDates: (params: { year: number; month: number }) =>
     http.get<Rsp<number[]>>(ENDPOINTS.diaries.month, { params }),
   byDate: (params: { year: number; month: number; day: number }) =>
-    http.get<DiaryDetailRes>(ENDPOINTS.diaries.date, { params }),
+    http.get<DiaryDetailRes>(ENDPOINTS.diaries.date, {
+      params: { date: toDateParam(params) }, // 서버 규격에 맞춰 date=YYYY-MM-DD로 전달
+    }),
 };
