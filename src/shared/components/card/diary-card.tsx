@@ -1,3 +1,4 @@
+// src/shared/components/card/diary-card.tsx
 import Button from '@components/button/button';
 import Divider from '@components/divider';
 import { cn } from '@libs/cn';
@@ -18,14 +19,15 @@ interface DiaryCardProps {
 const DiaryCard = ({
   title,
   content,
-  emotions,
+  emotions = [],
   date,
   className = 'bg-gray-50',
   onClickButton,
   privacySetting,
   onTogglePrivacy,
 }: DiaryCardProps) => {
-  const isEmpty = !title && !content && emotions?.length === 0;
+  const hasSomething = Boolean(title?.trim() || content?.trim() || emotions.length > 0);
+  const isEmpty = !hasSomething;
   const type = isEmpty ? '작성하기' : '삭제하기';
 
   const isPrivate = privacySetting === 'PRIVACY';
