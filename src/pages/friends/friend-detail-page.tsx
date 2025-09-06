@@ -1,6 +1,7 @@
 import { diariesQueries } from '@apis/diaries/diaries-queries';
 import { friendsMutations } from '@apis/friends/friends-mutations';
 import DefaultProfile from '@assets/icons/3d-hand.svg';
+import ThinkIcon from '@assets/icons/thinking.svg?react';
 import Button from '@components/button/button';
 import DiaryCard from '@components/card/diary-card';
 import { useToast } from '@contexts/toast-context';
@@ -149,34 +150,41 @@ export default function FriendDetailPage() {
       <main className="flex-col gap-[2rem] px-[2.4rem]">
         <h2 className="heading1-700 text-gray-900">{friend.name}님의 감정일기</h2>
 
-        <div className="grid grid-cols-2 gap-[0.9rem]">
-          {diaries.map((d) => (
-            <button
-              key={String(d.id)}
-              type="button"
-              onClick={() =>
-                nav(diaryDetailPath(friend.id, d.id), {
-                  state: {
-                    nickname: friend.name,
-                    email: friend.email,
-                    profileImageUrl: friend.profileImageUrl ?? null,
-                    isFriend,
-                    isRequested: requested,
-                  },
-                })
-              }
-              className="text-left"
-            >
-              <DiaryCard
-                title={d.title ?? '제목 없음'}
-                content={d.preview ?? ''}
-                emotions={[]}
-                date={new Date(d.createdAt)}
-                className="cursor-pointer bg-gray-50"
-              />
-            </button>
-          ))}
-        </div>
+        {diaries.length === 0 ? (
+          <div className="flex-col-center gap-[3rem] py-[7rem]">
+            <ThinkIcon className="h-[6.4rem] w-[6.4rem]" />
+            <p className="heading3-700 text-gray-900">아직 작성된 일기가 없어요</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-[0.9rem]">
+            {diaries.map((d) => (
+              <button
+                key={String(d.id)}
+                type="button"
+                onClick={() =>
+                  nav(diaryDetailPath(friend.id, d.id), {
+                    state: {
+                      nickname: friend.name,
+                      email: friend.email,
+                      profileImageUrl: friend.profileImageUrl ?? null,
+                      isFriend,
+                      isRequested: requested,
+                    },
+                  })
+                }
+                className="text-left"
+              >
+                <DiaryCard
+                  title={d.title ?? '제목 없음'}
+                  content={d.preview ?? ''}
+                  emotions={[]}
+                  date={new Date(d.createdAt)}
+                  className="cursor-pointer bg-gray-50"
+                />
+              </button>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );

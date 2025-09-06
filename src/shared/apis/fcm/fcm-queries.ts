@@ -32,6 +32,6 @@ export const fcmQueries = {
         const json: FcmListResponse = await res.json();
         return json.data?.notifications ?? [];
       },
-      { staleTime: 60_000 },
+      { staleTime: 10_000 },
     ),
 };
