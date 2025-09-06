@@ -215,6 +215,7 @@ export default function FriendsPage() {
                     nickname: item?.name ?? '친구',
                     email,
                     profileImageUrl: item?.profileImageUrl ?? null,
+                    isFriend: item?.isFriend,
                   },
                 });
               }}

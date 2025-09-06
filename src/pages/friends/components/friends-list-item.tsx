@@ -60,7 +60,7 @@ export default function FriendsListItem({
           <div className="body1-500 text-gray-500">{item.email}</div>
         </div>
 
-        <div className={cn('flex-row-center shrink-0 gap-[1.7rem]')}>
+        <div className={cn('flex-row-center gap-[1.7rem]')}>
           {variant === 'list' && isFriend && (
             <>
               <Button
