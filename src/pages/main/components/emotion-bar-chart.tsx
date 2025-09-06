@@ -8,7 +8,7 @@ type Props = {
   active?: 'curr' | 'prev';
 };
 
-export default function EmotionBarChart({ items, className, active = 'curr' }: Props) {
+export default function EmotionBarChart({ items, className, active = 'prev' }: Props) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -22,12 +22,12 @@ export default function EmotionBarChart({ items, className, active = 'curr' }: P
     <div className={cn('w-full flex-col gap-[3rem]', className)}>
       <div className="flex-row gap-[1.2rem] px-[0.4rem]">
         <LegendDot
-          className={active === 'prev' ? 'bg-primary-600' : 'bg-primary-200'}
-          label="지난 주 내 감정 분석"
+          className={active === 'prev' ? 'bg-primary-600' : 'bg-primary-200/35'}
+          label="지난 주"
         />
         <LegendDot
-          className={active === 'curr' ? 'bg-primary-600' : 'bg-primary-200'}
-          label="이번 주 내 감정 분석"
+          className={active === 'curr' ? 'bg-primary-600' : 'bg-primary-200/35'}
+          label="이번 주"
         />
       </div>
 
@@ -69,13 +69,14 @@ function BarSingle({
   ready: boolean;
 }) {
   const h = Math.round((value / max) * 200);
+
   return (
     <div className="flex-col-center flex-shrink-0 gap-[0.8rem]">
-      <div className="relative h-[20rem] w-[2.6rem] rounded-[8px] bg-primary-100/25">
+      <div className="relative h-[20rem] w-[2.6rem] rounded-[8px] bg-primary-200/35">
         <div
           className={cn(
             'absolute right-0 bottom-0 left-0 rounded-[8px] transition-[height] duration-700 ease-out',
-            'bg-primary-600',
+            'bg-gradient-to-t from-primary-600 to-primary-400',
           )}
           style={{ height: ready ? `${h}px` : 0 }}
           aria-hidden

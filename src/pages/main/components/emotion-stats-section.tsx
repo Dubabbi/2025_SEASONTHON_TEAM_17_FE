@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 
 export default function EmotionStatsSection({ className }: { className?: string }) {
-  const [tab, setTab] = useState<'curr' | 'prev'>('curr');
+  const [tab, setTab] = useState<'curr' | 'prev'>('prev');
 
   const q = useQuery({ ...emotionQueries.report() });
   const items = q.data ?? [];
@@ -32,8 +32,8 @@ export default function EmotionStatsSection({ className }: { className?: string 
 
       <SegmentedTabs
         items={[
-          { value: 'curr', label: '이번 주' },
-          { value: 'prev', label: '지난 주' },
+          { value: 'prev', label: '지난 주 내 감정 분석' },
+          { value: 'curr', label: '이번 주 내 감정 분석' },
         ]}
         value={tab}
         onChange={(v) => setTab(v as 'curr' | 'prev')}

@@ -13,7 +13,7 @@ export default function MainPage() {
       <HeroSection />
 
       <section className="flex-col px-[2rem] pt-[2rem]">
-        <TipInfo title="최근 감정 일기 기록" text={formattedDate} className="py-[2rem]" />
+        <TipInfo title="최근 감정 일기 작성" text={formattedDate} className="py-[2rem]" />
       </section>
 
       <EmotionStatsSection className="pb-[2rem]" />
