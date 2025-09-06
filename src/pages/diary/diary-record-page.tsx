@@ -17,15 +17,6 @@ type DiaryCreateState = { mode: 'create'; date: string };
 
 const keyOf = (d: Date) => dayjs(d).format('YYYY-MM-DD');
 
-const DEFAULT_COUNTS: ReactionCounts = {
-  HAPPY: 5,
-  SAD: 0,
-  ANGRY: 0,
-  EXCITE: 0,
-  TIRED: 0,
-  SURPRISE: 0,
-};
-
 type EmotionRaw = string | { type: string };
 
 export default function DiaryRecordPage() {
@@ -81,7 +72,16 @@ export default function DiaryRecordPage() {
   const [countsByDate, setCountsByDate] = useState<Record<string, ReactionCounts>>({});
   const [togglesByDate, setTogglesByDate] = useState<Record<string, Set<EmotionId>>>({});
 
-  const counts = hasEntry ? (countsByDate[selectedKey] ?? DEFAULT_COUNTS) : DEFAULT_COUNTS;
+  const INITIAL_COUNTS: ReactionCounts = useMemo(() => {
+    const ids = (entryEmotions ?? []) as EmotionId[];
+    return ids.reduce((acc, id) => {
+      (acc as any)[id] = (acc as any)[id] ?? 0;
+      return acc;
+    }, {} as ReactionCounts);
+  }, [entryEmotions]);
+
+  const counts = hasEntry ? (countsByDate[selectedKey] ?? INITIAL_COUNTS) : INITIAL_COUNTS;
+
   const myToggles = hasEntry
     ? (togglesByDate[selectedKey] ?? new Set<EmotionId>())
     : new Set<EmotionId>();
@@ -90,10 +90,11 @@ export default function DiaryRecordPage() {
     (id: EmotionId) => {
       if (!hasEntry) return;
       setCountsByDate((prev) => {
-        const base = prev[selectedKey] ?? DEFAULT_COUNTS;
+        const base = prev[selectedKey] ?? INITIAL_COUNTS;
         const next = { ...base };
         const pressed = (togglesByDate[selectedKey] ?? new Set<EmotionId>()).has(id);
-        next[id] = Math.max(0, (next[id] ?? 0) + (pressed ? -1 : +1));
+        const cur = (next as any)[id] ?? 0;
+        (next as any)[id] = Math.max(0, cur + (pressed ? -1 : 1));
         return { ...prev, [selectedKey]: next };
       });
       setTogglesByDate((prev) => {
@@ -103,7 +104,7 @@ export default function DiaryRecordPage() {
         return { ...prev, [selectedKey]: set };
       });
     },
-    [hasEntry, selectedKey, togglesByDate],
+    [hasEntry, selectedKey, togglesByDate, INITIAL_COUNTS],
   );
 
   const privacyMutation = useMutation({
@@ -128,9 +129,13 @@ export default function DiaryRecordPage() {
     onError: (_e, _id, ctx) => {
       if (ctx?.prev) qc.setQueryData(diariesQueries.byDate(y, m, d).queryKey, ctx.prev);
     },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: diariesQueries.byDate(y, m, d).queryKey });
+    onSuccess: async () => {
       qc.invalidateQueries({ queryKey: diariesQueries.monthDates(y, m).queryKey });
+      try {
+        await diariesApi.byDate({ year: y, month: m, day: d });
+      } catch (_e) {}
+    },
+    onSettled: () => {
       deleteSheet.close();
     },
   });
@@ -183,6 +188,7 @@ export default function DiaryRecordPage() {
               content={(entryData as any)?.feedbackContent ?? entryData.content}
               date={selected}
               counts={counts}
+              order={entryEmotions as EmotionId[]}
               myToggles={myToggles}
               onToggle={handleToggle}
               className="mt-[1.2rem]"

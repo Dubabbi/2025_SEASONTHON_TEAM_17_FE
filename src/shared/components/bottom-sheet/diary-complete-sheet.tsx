@@ -27,9 +27,7 @@ export default function DiaryCompleteSheet({
   variant = 'extracted',
 }: DiaryCompleteSheetProps) {
   const copy = DIARY_COMPLETE_COPY[variant];
-  const secondaryLabel = onGoMain
-    ? DIARY_COMPLETE_SECONDARY.withMain
-    : DIARY_COMPLETE_SECONDARY.later;
+  const secondaryLabel = DIARY_COMPLETE_SECONDARY.later;
   const secondaryOnClick = onGoMain ?? onClose;
 
   return (

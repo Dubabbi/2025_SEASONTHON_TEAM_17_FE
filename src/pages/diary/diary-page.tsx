@@ -76,19 +76,19 @@ export default function DiaryPage() {
     }
   };
 
-  const DEFAULT_COUNTS: ReactionCounts = {
-    HAPPY: 1,
-    SAD: 2,
-    ANGRY: 3,
-    EXCITE: 0,
-    TIRED: 0,
-    SURPRISE: 0,
-  };
-
   const [countsByDate, setCountsByDate] = useState<Record<string, ReactionCounts>>({});
   const [togglesByDate, setTogglesByDate] = useState<Record<string, Set<EmotionId>>>({});
 
-  const counts = hasEntry ? (countsByDate[selectedKey] ?? DEFAULT_COUNTS) : DEFAULT_COUNTS;
+  const INITIAL_COUNTS: ReactionCounts = useMemo(() => {
+    const ids = (entryEmotions ?? []) as EmotionId[];
+    return ids.reduce((acc, id) => {
+      (acc as any)[id] = (acc as any)[id] ?? 0;
+      return acc;
+    }, {} as ReactionCounts);
+  }, [entryEmotions]);
+
+  const counts = hasEntry ? (countsByDate[selectedKey] ?? INITIAL_COUNTS) : INITIAL_COUNTS;
+
   const myToggles = hasEntry
     ? (togglesByDate[selectedKey] ?? new Set<EmotionId>())
     : new Set<EmotionId>();
@@ -97,10 +97,11 @@ export default function DiaryPage() {
     (id: EmotionId) => {
       if (!hasEntry) return;
       setCountsByDate((prev) => {
-        const base = prev[selectedKey] ?? DEFAULT_COUNTS;
+        const base = prev[selectedKey] ?? INITIAL_COUNTS;
         const next = { ...base };
         const pressed = (togglesByDate[selectedKey] ?? new Set<EmotionId>()).has(id);
-        next[id] = Math.max(0, (next[id] ?? 0) + (pressed ? -1 : +1));
+        const cur = (next as any)[id] ?? 0;
+        (next as any)[id] = Math.max(0, cur + (pressed ? -1 : 1));
         return { ...prev, [selectedKey]: next };
       });
       setTogglesByDate((prev) => {
@@ -110,7 +111,7 @@ export default function DiaryPage() {
         return { ...prev, [selectedKey]: set };
       });
     },
-    [hasEntry, selectedKey, togglesByDate],
+    [hasEntry, selectedKey, togglesByDate, INITIAL_COUNTS],
   );
 
   const privacyMutation = useMutation({
@@ -199,6 +200,7 @@ export default function DiaryPage() {
                 content={entryData.feedbackContent ?? entryData.content}
                 date={selected}
                 counts={counts}
+                order={entryEmotions as EmotionId[]}
                 myToggles={myToggles}
                 onToggle={handleToggle}
                 className="mt-[0.4rem]"
