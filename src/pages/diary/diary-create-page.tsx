@@ -5,7 +5,7 @@ import TextField from '@components/textfield';
 import Loading from '@pages/diary/components/loading';
 import ToggleButton from '@pages/diary/components/toggle-button';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function DiaryCreatePage() {
   const [open, setOpen] = useState(false);
@@ -21,6 +21,8 @@ export default function DiaryCreatePage() {
     navigate('/diary');
     setOpen(false);
   };
+  const { state } = useLocation();
+
   const buttonActive =
     diaryInfo.title.length < 100 && diaryInfo.content.length >= 100 && diaryInfo.range;
 
@@ -29,6 +31,16 @@ export default function DiaryCreatePage() {
     setIsLoading(true);
     setOpen(false);
   };
+
+  useEffect(() => {
+    if (state && state.mode === 'edit' && state.entry) {
+      setDiaryInfo((prev) => ({
+        ...prev,
+        title: state.entry.title,
+        content: state.entry.content,
+      }));
+    }
+  }, [state]);
 
   useEffect(() => {
     if (isLoading) {
