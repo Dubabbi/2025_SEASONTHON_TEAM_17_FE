@@ -19,6 +19,13 @@ type FriendRow = {
   profileImageUrl?: string | null;
 };
 
+type Item = {
+  id: string;
+  name: string;
+  email: string;
+  profileImageUrl?: string | null;
+};
+
 export default function FriendsMorePage() {
   const [params, setParams] = useSearchParams();
   const raw = params.get('tab');
@@ -51,7 +58,7 @@ export default function FriendsMorePage() {
     [active.data],
   );
 
-  const items = useMemo(() => {
+  const items: Item[] = useMemo(() => {
     const q = kw.trim().toLowerCase();
     const base: FriendRow[] = rows as FriendRow[];
     const filtered = q
@@ -63,7 +70,7 @@ export default function FriendsMorePage() {
       id: f.email,
       name: f.nickname,
       email: f.email,
-      profileImageUrl: f.profileImageUrl,
+      profileImageUrl: f.profileImageUrl ?? null,
     }));
   }, [rows, kw]);
 
@@ -147,7 +154,16 @@ export default function FriendsMorePage() {
             <FriendsList
               items={items}
               variant={tab}
-              onOpen={(email) => nav(`/friends/${email}`)}
+              onOpen={(email) => {
+                const f = items.find((it) => it.email === email);
+                nav(`/friends/${email}`, {
+                  state: {
+                    name: f?.name,
+                    email: f?.email,
+                    profileImageUrl: f?.profileImageUrl ?? null,
+                  },
+                });
+              }}
               onCancel={
                 tab === 'list'
                   ? (email) => setConfirm({ type: 'friend', email })

@@ -6,21 +6,26 @@ importScripts(
 );
 
 firebase.initializeApp({
-  apiKey: 'AIzaSyA0wy6oq21VSzc3PISVs8z-p03Te5n04hA',
-  authDomain: 'maeum-on.firebaseapp.com',
-  projectId: 'maeum-on',
-  storageBucket: 'maeum-on.firebasestorage.app',
-  messagingSenderId: '853076092029',
-  appId: '1:853076092029:web:d6d05b1b76dc390364bd14',
-  measurementId: 'G-BV704Y1LP1',
+  apiKey: 'AIzaSyA8kizjdq8hejhfImjRIbBEVpTzIgNQlhE',
+  authDomain: 'widuy-875a5.firebaseapp.com',
+  projectId: 'widuy-875a5',
+  storageBucket: 'widuy-875a5.firebasestorage.app',
+  messagingSenderId: '152255230731',
+  appId: '1:152255230731:web:658920ab180f7e95d9a80e',
+  measurementId: 'G-G0KC3BCVYJ',
 });
 
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage((payload) => {
-  console.log('백그라운드 메시지 수신:', payload);
-  self.registration.showNotification(payload.notification.title, {
-    body: payload.notification.body,
-    icon: '/icon.png', // 아이콘 이미지 경로
-  });
+messaging.onBackgroundMessage(({ notification, data }) => {
+  const title = notification?.title ?? data?.title ?? '알림';
+  const body = notification?.body ?? data?.body ?? '';
+  const icon = notification?.icon ?? '/logo-192.png';
+  self.registration.showNotification(title, { body, icon, data });
+});
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = e.notification?.data?.link ?? '/';
+  e.waitUntil(self.clients.openWindow(url));
 });

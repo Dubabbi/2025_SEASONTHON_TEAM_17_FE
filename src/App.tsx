@@ -1,3 +1,4 @@
+import FcmForeground from '@hooks/fcm-foreground';
 import queryClient from '@libs/query-client';
 import { router } from '@routes/router';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -12,6 +13,7 @@ export default function App() {
         <Suspense fallback={null}>
           <ToastProvider>
             <RouterProvider router={router} />
+            <FcmForeground />
           </ToastProvider>
         </Suspense>
       </div>

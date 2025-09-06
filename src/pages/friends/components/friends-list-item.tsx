@@ -65,13 +65,13 @@ export default function FriendsListItem({
             <>
               <Button
                 className="body1-500 rounded-[8px] bg-primary-500 px-[2.6rem] py-[0.6rem] text-gray-50 max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
-                onClick={() => onOpen?.(item.id)}
+                onClick={() => onOpen?.(item.email)}
               >
                 보러 가기
               </Button>
               <Button
                 className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
-                onClick={() => onCancel?.(item.id)}
+                onClick={() => onCancel?.(item.email)}
               >
                 친구 취소
               </Button>
@@ -82,13 +82,13 @@ export default function FriendsListItem({
             <>
               <Button
                 className="body1-500 rounded-[8px] bg-primary-500 px-[2.6rem] py-[0.6rem] text-gray-50 max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
-                onClick={() => onOpen?.(item.id)}
+                onClick={() => onOpen?.(item.email)}
               >
                 보러 가기
               </Button>
               <Button
                 className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
-                onClick={() => onRequest?.(item.id)}
+                onClick={() => onRequest?.(item.email)}
               >
                 친구 요청
               </Button>
@@ -102,7 +102,7 @@ export default function FriendsListItem({
               </span>
               <Button
                 className="body1-500 rounded-[8px] bg-gray-50 px-[2.6rem] py-[0.6rem] text-primary-500 outline outline-primary-500 outline-offset-[-1px] max-[360px]:w-full max-[360px]:px-[1.2rem]"
-                onClick={() => onCancel?.(item.id)}
+                onClick={() => onCancel?.(item.email)}
               >
                 요청 취소
               </Button>
@@ -113,13 +113,13 @@ export default function FriendsListItem({
             <>
               <Button
                 className="body1-500 rounded-[8px] bg-success-bgd px-[2.6rem] py-[0.6rem] text-success-default outline outline-success-default outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
-                onClick={() => onAccept?.(item.id)}
+                onClick={() => onAccept?.(item.email)}
               >
                 수락하기
               </Button>
               <Button
                 className="body1-500 rounded-[8px] bg-error-bgd px-[2.6rem] py-[0.6rem] text-error-default outline outline-error-default outline-offset-[-1px] max-[360px]:flex-1 max-[360px]:px-[1.2rem]"
-                onClick={() => onReject?.(item.id)}
+                onClick={() => onReject?.(item.email)}
               >
                 거절하기
               </Button>

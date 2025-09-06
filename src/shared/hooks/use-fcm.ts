@@ -1,4 +1,3 @@
-// src/hooks/useFcm.ts
 import { getFcmMessaging } from '@libs/firebase';
 import { deleteToken, getToken, isSupported, type Messaging, onMessage } from 'firebase/messaging';
 import { useCallback, useEffect, useRef, useState } from 'react';

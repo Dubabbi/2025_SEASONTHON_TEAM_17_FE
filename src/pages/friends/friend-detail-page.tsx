@@ -3,30 +3,78 @@ import DefaultProfile from '@assets/icons/3d-hand.svg';
 import FriendCancelSheet from '@components/bottom-sheet/friend-cancel-sheet';
 import Button from '@components/button/button';
 import DiaryCard from '@components/card/diary-card';
+import { useToast } from '@contexts/toast-context';
 import { cn } from '@libs/cn';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+
+type NavState = {
+  nickname?: string;
+  email?: string;
+  profileImageUrl?: string | null;
+  avatarUrl?: string | null;
+  isFriend?: boolean;
+  isRequested?: boolean;
+};
+
+type Friend = {
+  id: string;
+  nickname: string;
+  email: string;
+  avatarUrl?: string | null;
+};
+
+type DiaryPreview = {
+  id: number | string;
+  title?: string | null;
+  preview?: string | null;
+  createdAt: string;
+};
+
+function extractDiariesFromPage(page: unknown): DiaryPreview[] {
+  const data1 = (page as { data?: unknown })?.data;
+  const innerData = (data1 as { data?: unknown })?.data;
+  if (Array.isArray(innerData)) return innerData as DiaryPreview[];
+
+  if (Array.isArray(data1)) return data1 as DiaryPreview[];
+
+  const content = (page as { content?: unknown })?.content;
+  if (Array.isArray(content)) return content as DiaryPreview[];
+
+  return [];
+}
 
 export default function FriendDetailPage() {
   const { id } = useParams<{ id: string }>();
   const email = id ?? '';
+  const location = useLocation();
+  const s = (location.state ?? {}) as NavState;
+
   const [openCancel, setOpenCancel] = useState(false);
   const nav = useNavigate();
+  const { showToast } = useToast();
 
-  const friend = useMemo(() => ({ id: email, name: '사용자', email, avatarUrl: '' }), [email]);
-  const avatarUrl = (friend as any).profileImageUrl ?? (friend as any).avatarUrl ?? '';
+  const friend: Friend = useMemo(
+    () => ({
+      id: email,
+      nickname: s.nickname ?? '사용자',
+      email,
+      avatarUrl: s.profileImageUrl ?? s.avatarUrl ?? undefined,
+    }),
+    [email, s.nickname, s.profileImageUrl, s.avatarUrl],
+  );
+
+  const avatarUrl = friend.avatarUrl ?? '';
 
   const diariesQ = useInfiniteQuery({
     ...diariesQueries.listInfinite({ email, limit: 6 }),
     enabled: !!email,
   });
 
-  const diaries = useMemo(
-    () => (diariesQ.data?.pages ?? []).flatMap((p: any) => p.data?.diaries ?? p.data?.data ?? []),
-    [diariesQ.data],
-  );
+  const pages = diariesQ.data?.pages ?? [];
+  const diaries = useMemo(() => pages.flatMap(extractDiariesFromPage), [pages]);
 
   return (
     <div className="min-h-dvh flex-col gap-[1.6rem] bg-gradient-bgd1 pb-[16rem]">
@@ -42,7 +90,7 @@ export default function FriendDetailPage() {
               />
             </div>
             <div className="min-w-0 flex-col gap-[0.4rem]">
-              <p className="heading2-600 truncate text-primary-600">{friend.name}</p>
+              <p className="heading2-600 truncate text-primary-600">{friend.nickname}</p>
               <p className="body1-500 truncate text-gray-400">{friend.email}</p>
             </div>
           </div>
@@ -62,12 +110,12 @@ export default function FriendDetailPage() {
       </section>
 
       <main className="flex-col gap-[2rem] px-[2.4rem]">
-        <h2 className="heading1-700 text-gray-900">{friend.name}님의 감정일기</h2>
+        <h2 className="heading1-700 text-gray-900">{friend.nickname}님의 감정일기</h2>
 
         <div className="grid grid-cols-2 gap-[0.9rem]">
-          {diaries.map((d: any) => (
+          {diaries.map((d) => (
             <button
-              key={d.id}
+              key={String(d.id)}
               type="button"
               onClick={() =>
                 nav(`/friends/${friend.id}/diary/${dayjs(d.createdAt).format('YYYY-MM-DD')}`)
@@ -76,7 +124,7 @@ export default function FriendDetailPage() {
             >
               <DiaryCard
                 title={d.title ?? '제목 없음'}
-                content={d.content ?? ''}
+                content={d.preview ?? ''}
                 emotions={[]}
                 date={new Date(d.createdAt)}
                 className="bg-gray-50"
@@ -90,7 +138,7 @@ export default function FriendDetailPage() {
         open={openCancel}
         onClose={() => setOpenCancel(false)}
         onConfirm={() => {
-          console.log('friend cancel:', friend.id);
+          showToast('신청이 취소되었어요.');
           setOpenCancel(false);
         }}
       />
